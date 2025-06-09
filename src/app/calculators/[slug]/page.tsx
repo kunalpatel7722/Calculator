@@ -77,7 +77,9 @@ const getCalculatorComponent = (slug: string) => {
 
 async function SeoAsideContent({ calculatorInfo, isCalculatorImplemented }: { calculatorInfo: CalculatorFeature, isCalculatorImplemented: boolean }) {
   let seoContent = { title: calculatorInfo.name, content: calculatorInfo.description };
-  if (isCalculatorImplemented) { // Only fetch fresh SEO if calculator is implemented
+  if (isCalculatorImplemented) { 
+    const contentGenLabel = `AI_CALCULATOR_SEO_GENERATION_FOR_SLUG_${calculatorInfo.id}`;
+    console.time(contentGenLabel);
     try {
       seoContent = await generateSeoContent({
         calculatorName: calculatorInfo.name,
@@ -109,9 +111,10 @@ async function SeoAsideContent({ calculatorInfo, isCalculatorImplemented }: { ca
         errorDetailsText = `Details: ${String(error)}`;
         console.error(`Failed to generate SEO content for "${itemName}". ${errorDetailsText}`);
       }
-      // Fallback to calculatorInfo.name and description if AI fails
       seoContent.title = calculatorInfo.name;
       seoContent.content = `Learn more about the ${calculatorInfo.name}. ${calculatorInfo.description}`;
+    } finally {
+      console.timeEnd(contentGenLabel);
     }
   }
 

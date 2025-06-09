@@ -131,6 +131,9 @@ async function AiGeneratedContent({ postDetails, initialSeoTitleForImage }: {
   initialSeoTitleForImage: string 
 }) {
   let seoContent = { title: postDetails.title, content: `Detailed content for ${postDetails.title} goes here. This article will delve into ${postDetails.keywords.join(', ')} offering valuable insights and practical advice.` };
+  
+  const contentGenLabel = `AI_BLOG_CONTENT_GENERATION_FOR_SLUG_${postDetails.slug}`;
+  console.time(contentGenLabel);
   try {
     seoContent = await generateSeoContent({
       calculatorName: postDetails.calculatorNameForAi,
@@ -157,9 +160,10 @@ async function AiGeneratedContent({ postDetails, initialSeoTitleForImage }: {
     } else if (error && typeof error === 'object') {
       console.error("Raw error object for AI content generation failure:", error);
     }
-    // Fallback to postDetails.title and a default message if AI fails
     seoContent.title = postDetails.title;
     seoContent.content = `Apologies, we had trouble generating the full content for this topic. This post is about ${postDetails.title}.`;
+  } finally {
+    console.timeEnd(contentGenLabel);
   }
 
   const formattedSeoContent = seoContent.content
@@ -194,7 +198,7 @@ async function AiGeneratedContent({ postDetails, initialSeoTitleForImage }: {
 
   return (
     <>
-      <h1 className="text-4xl font-bold mb-3 font-headline">{seoContent.title}</h1>
+      <h1 className="text-4xl font-bold mb-3 font-headline">{seoContent.title || initialSeoTitleForImage}</h1>
       <p className="text-muted-foreground text-sm mb-8">{postDetails.date}</p>
       
       <div className="prose prose-lg dark:prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: contentPart1 }} />
@@ -254,7 +258,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
   return (
     <div className="container mx-auto py-12 px-4 max-w-4xl">
       <article>
-        <header className="mb-4"> {/* Reduced bottom margin here */}
+        <header className="mb-4">
           <div className="mb-4">
             <Button variant="outline" size="sm" asChild>
               <Link href="/blog">
@@ -264,7 +268,6 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
             </Button>
           </div>
           <Badge variant="secondary" className="mb-2">{postDetails.category}</Badge>
-          {/* Title and date are moved into AiGeneratedContent or its fallback */}
         </header>
 
         <Image
@@ -279,7 +282,6 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
         />
         
         <Suspense fallback={<AiContentFallback />}>
-          {/* Pass postDetails.title for the image alt inside AiGeneratedContent as initialSeoTitleForImage */}
           <AiGeneratedContent postDetails={postDetails} 
             initialSeoTitleForImage={postDetails.title} />
         </Suspense>
@@ -302,4 +304,3 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
     </div>
   );
 }
-
