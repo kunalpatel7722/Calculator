@@ -40,7 +40,7 @@ type BlogPostDetailsExtended = OriginalBlogPostDetails | CalculatorGuideBlogPost
 
 
 const originalBlogPosts: OriginalBlogPostDetails[] = [
-    { slug: 'understanding-compound-interest', title: 'Understanding Compound Interest for Long-Term Growth', category: 'Investing Basics', date: 'October 26, 2023', images: [{ imageUrl: 'https://placehold.co/800x400.png', dataAiHint: 'financial planning' }, { imageUrl: 'https://placehold.co/800x300.png', dataAiHint: 'money plant' }], keywords: ['compound interest', 'investment growth', 'finance basics'], excerpt: 'Explore the fundamentals of compound interest.', type: 'original', calculatorNameForAi: 'Blog Post: Understanding Compound Interest for Long-Term Growth' },
+    { slug: 'understanding-compound-interest', title: 'Understanding Compound Interest for Long-Term Growth', category: 'Investing Basics', date: 'October 26, 2023', images: [{ imageUrl: 'https://images.unsplash.com/photo-1589556763333-ad818080f39e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxNXx8Y29tcG91bmQlMjBpbnRlcmVzdHxlbnwwfHx8fDE3NDk0ODY4MzZ8MA&ixlib=rb-4.1.0&q=80&w=1080', dataAiHint: 'investment growth' }, { imageUrl: 'https://placehold.co/800x300.png', dataAiHint: 'money plant' }], keywords: ['compound interest', 'investment growth', 'finance basics'], excerpt: 'Explore the fundamentals of compound interest.', type: 'original', calculatorNameForAi: 'Blog Post: Understanding Compound Interest for Long-Term Growth' },
     { slug: 'beginners-guide-bitcoin-roi', title: 'Beginner\'s Guide to Bitcoin ROI Calculation', category: 'Cryptocurrency', date: 'October 24, 2023', images: [{ imageUrl: 'https://placehold.co/800x400.png', dataAiHint: 'crypto chart' }, { imageUrl: 'https://placehold.co/800x300.png', dataAiHint: 'bitcoin analysis' }], keywords: ['bitcoin roi', 'crypto basics', 'digital assets'], excerpt: 'Learn to calculate Bitcoin ROI.', type: 'original', calculatorNameForAi: 'Blog Post: Beginner\'s Guide to Bitcoin ROI Calculation' },
     { slug: 'maximizing-sip-investments', title: 'Maximizing Your SIP Investments with AI Insights', category: 'Mutual Funds', date: 'October 22, 2023', images: [{ imageUrl: 'https://placehold.co/800x400.png', dataAiHint: 'investment plan' }, { imageUrl: 'https://placehold.co/800x300.png', dataAiHint: 'ai finance' }], keywords: ['sip strategy', 'ai investing', 'mutual funds'], excerpt: 'Optimize your SIP investments.', type: 'original', calculatorNameForAi: 'Blog Post: Maximizing Your SIP Investments with AI Insights' },
     { slug: 'navigating-market-volatility', title: 'Navigating Market Volatility: Tips for Investors', category: 'Market Analysis', date: 'October 20, 2023', images: [{ imageUrl: 'https://placehold.co/800x400.png', dataAiHint: 'stock analysis' }, { imageUrl: 'https://placehold.co/800x300.png', dataAiHint: 'market graph' }], keywords: ['market volatility', 'investment tips', 'risk management'], excerpt: 'Tips for volatile markets.', type: 'original', calculatorNameForAi: 'Blog Post: Navigating Market Volatility: Tips for Investors' },
@@ -50,8 +50,8 @@ const getCalculatorBlogImageHints = (calculator: CalculatorFeature): { hint1: st
   const nameLower = calculator.name.toLowerCase();
   const keywordsLower = calculator.keywords.map(k => k.toLowerCase());
 
-  let hint1 = "financial tool"; // Default general hint
-  let hint2 = "investment idea"; // Default general hint
+  let hint1 = "financial tool"; 
+  let hint2 = "investment idea"; 
 
   if (nameLower.includes("loan") || keywordsLower.includes("loan")) {
     hint1 = "loan calculator";
@@ -75,7 +75,7 @@ const getCalculatorBlogImageHints = (calculator: CalculatorFeature): { hint1: st
     hint1 = "retirement plan";
     hint2 = "savings growth";
   } else if (nameLower.includes("sip") || nameLower.includes("dca") || nameLower.includes("compound") || nameLower.includes("goal") || nameLower.includes("time value") ) {
-    hint1 = "financial calculator";
+    hint1 = "financial calculator"; 
     hint2 = "planning tools";
   }
   return { hint1, hint2 };
@@ -96,6 +96,13 @@ const getBlogPostBySlug = async (slug: string): Promise<BlogPostDetailsExtended 
     if (calculator) {
       const { hint1, hint2 } = getCalculatorBlogImageHints(calculator);
       
+      let firstImageUrl = 'https://placehold.co/800x400.png';
+      let firstImageHint = hint1;
+      if (hint1 === 'financial calculator') {
+        firstImageUrl = 'https://images.unsplash.com/photo-1589556763333-ad818080f39e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxNXx8Y29tcG91bmQlMjBpbnRlcmVzdHxlbnwwfHx8fDE3NDk0ODY4MzZ8MA&ixlib=rb-4.1.0&q=80&w=1080';
+        firstImageHint = 'investment growth';
+      }
+      
       const secondImageIsUnsplash = hint2 === 'planning tools';
       const secondImageUrl = secondImageIsUnsplash 
         ? 'https://images.unsplash.com/photo-1626266061368-46a8f578ddd6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxjYWxjdWxhdG9yfGVufDB8fHx8MTc0OTQ4Njc1M3ww&ixlib=rb-4.1.0&q=80&w=1080'
@@ -108,7 +115,7 @@ const getBlogPostBySlug = async (slug: string): Promise<BlogPostDetailsExtended 
         category: calculator.category,
         date: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
         images: [
-          { imageUrl: 'https://placehold.co/800x400.png', dataAiHint: hint1 },
+          { imageUrl: firstImageUrl, dataAiHint: firstImageHint },
           { imageUrl: secondImageUrl, dataAiHint: secondImageHint },
         ],
         keywords: [...calculator.keywords, 'guide', calculator.name.toLowerCase().replace(/\s+/g, ' ')],
