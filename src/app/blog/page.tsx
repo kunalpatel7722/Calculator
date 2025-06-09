@@ -37,11 +37,6 @@ const getCalculatorBlogImageHints = (calculator: CalculatorFeature): { hint1: st
   let hint1 = allWords.length > 0 ? allWords[0] : "finance";
   let hint2 = allWords.length > 1 ? allWords[1] : "tool";
   
-  if (calculator.id === "compound-interest" && hint1 !== "interest") return { hint1: "interest", hint2: "growth" };
-  if (calculator.id === "bitcoin-roi" && hint1 !== "bitcoin") return { hint1: "bitcoin", hint2: "profit" };
-  if (calculator.id === "sip-calculator" && hint1 !== "sip") return { hint1: "sip", hint2: "invest" };
-
-
   if (hint1 === hint2) {
     hint2 = allWords.length > 2 ? allWords[2] : (hint1 === "finance" ? "money" : "plan");
   }
@@ -64,7 +59,12 @@ const calculatorBlogPosts: BlogPostEntry[] = CALCULATORS_DATA.map((calculator: C
   let secondImageUrl = 'https://placehold.co/600x300.png';
   let secondImageHint = '';
 
-  if (calculator.id === 'stock-return') {
+  if (calculator.id === 'compound-interest') {
+    firstImageUrl = 'https://images.unsplash.com/photo-1494887205043-c5f291293cf6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxjb21wb3VuZCUyMGludGVyZXN0fGVufDB8fHx8MTc0OTQ4NjgzNnww&ixlib=rb-4.1.0&q=80&w=1080';
+    firstImageHint = 'growth';
+    const hints = getCalculatorBlogImageHints(calculator);
+    secondImageHint = hints.hint2 !== 'growth' ? hints.hint2 : 'tools';
+  } else if (calculator.id === 'stock-return') {
     firstImageUrl = 'https://images.unsplash.com/photo-1621264437251-59d700cfb327?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxNnx8U3RvY2slMjBSZXR1cm4lMjB8ZW58MHx8fHwxNzQ5NDg3OTA1fDA&ixlib=rb-4.1.0&q=80&w=1080';
     firstImageHint = 'stock';
     secondImageUrl = 'https://images.unsplash.com/photo-1559067096-49ebca3406aa?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxpbnZlc3RtZW50fGVufDB8fHx8MTc0OTQ4NzkzMnww&ixlib=rb-4.1.0&q=80&w=1080';
