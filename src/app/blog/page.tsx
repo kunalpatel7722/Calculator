@@ -63,7 +63,8 @@ const calculatorBlogPosts: BlogPostEntry[] = CALCULATORS_DATA.map((calculator: C
   if (calculator.id === 'compound-interest') {
     firstImageUrl = 'https://images.unsplash.com/photo-1494887205043-c5f291293cf6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxjb21wb3VuZCUyMGludGVyZXN0fGVufDB8fHx8MTc0OTQ4NjgzNnww&ixlib=rb-4.1.0&q=80&w=1080';
     firstImageHint = 'growth';
-    secondImageHint = hints.hint2 !== 'growth' ? hints.hint2 : 'tools';
+    secondImageUrl = 'https://images.unsplash.com/photo-1626266061368-46a8f578ddd6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxjYWxjdWxhdG9yfGVufDB8fHx8MTc0OTQ4Njc1M3ww&ixlib=rb-4.1.0&q=80&w=1080';
+    secondImageHint = hints.hint2 !== 'growth' ? hints.hint2 : 'calculation tools';
   } else if (calculator.id === 'stock-return') {
     firstImageUrl = 'https://images.unsplash.com/photo-1621264437251-59d700cfb327?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxNnx8U3RvY2slMjBSZXR1cm4lMjB8ZW58MHx8fHwxNzQ5NDg3OTA1fDA&ixlib=rb-4.1.0&q=80&w=1080';
     firstImageHint = 'stock';
@@ -82,6 +83,10 @@ const calculatorBlogPosts: BlogPostEntry[] = CALCULATORS_DATA.map((calculator: C
     firstImageUrl = 'https://images.unsplash.com/photo-1625351814208-155cfe221d12?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHx2b2xhdGlsaXR5fGVufDB8fHx8MTc0OTQ5MTAxOHww&ixlib=rb-4.1.0&q=80&w=1080';
     firstImageHint = 'market chart';
     secondImageHint = hints.hint2 !== 'market' && hints.hint2 !== 'chart' ? hints.hint2 : 'analysis';
+  } else if (calculator.id === 'bitcoin-roi') {
+    firstImageUrl = 'https://images.unsplash.com/photo-1543699539-33a389c5dcfe?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxiaXRjb2lufGVufDB8fHx8MTc0OTQ1ODU1OXww&ixlib=rb-4.1.0&q=80&w=1080';
+    firstImageHint = 'bitcoin currency';
+    secondImageHint = hints.hint2; 
   } else {
     firstImageHint = hints.hint1;
     secondImageHint = hints.hint2;
