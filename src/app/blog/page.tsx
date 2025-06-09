@@ -58,6 +58,7 @@ const calculatorBlogPosts: BlogPostEntry[] = CALCULATORS_DATA.map((calculator: C
   let firstImageHint = '';
   let secondImageUrl = 'https://placehold.co/600x300.png';
   let secondImageHint = '';
+  
   const hints = getCalculatorBlogImageHints(calculator);
 
   if (calculator.id === 'compound-interest') {
@@ -87,7 +88,12 @@ const calculatorBlogPosts: BlogPostEntry[] = CALCULATORS_DATA.map((calculator: C
     firstImageUrl = 'https://images.unsplash.com/photo-1543699539-33a389c5dcfe?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxiaXRjb2lufGVufDB8fHx8MTc0OTQ1ODU1OXww&ixlib=rb-4.1.0&q=80&w=1080';
     firstImageHint = 'bitcoin currency';
     secondImageHint = hints.hint2; 
-  } else {
+  } else if (calculator.category === 'Crypto') {
+    firstImageUrl = 'https://images.unsplash.com/photo-1605792657660-596af9009e82?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxjcnlwdG8lMjB8ZW58MHx8fHwxNzQ5NDkxODU2fDA&ixlib=rb-4.1.0&q=80&w=1080';
+    firstImageHint = 'crypto technology';
+    secondImageHint = hints.hint2;
+  }
+  else {
     firstImageHint = hints.hint1;
     secondImageHint = hints.hint2;
   }

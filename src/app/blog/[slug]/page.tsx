@@ -85,6 +85,7 @@ const getBlogPostBySlug = async (slug: string): Promise<BlogPostDetailsExtended 
       let firstImageHint = '';
       let secondImageUrl = 'https://placehold.co/800x300.png';
       let secondImageHint = '';
+      
       const hints = getCalculatorBlogImageHints(calculator);
 
       if (calcId === 'compound-interest') {
@@ -100,7 +101,7 @@ const getBlogPostBySlug = async (slug: string): Promise<BlogPostDetailsExtended 
       } else if (calcId === 'dividend-yield') {
         firstImageUrl = 'https://images.unsplash.com/photo-1723587693188-52754b315b50?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHxEaXZpZGVuZCUyMHxlbnwwfHx8fDE3NDk0ODkzNjh8MA&ixlib=rb-4.1.0&q=80&w=1080';
         firstImageHint = 'dividend';
-        secondImageUrl = 'https://images.unsplash.com/photo-1579532537598-459ecdaf39cc?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxzaGFyZXN8ZW58MHx8fHwxNzQ5NDg5NjU5fDA&ixid=rb-4.1.0&q=80&w=1080';
+        secondImageUrl = 'https://images.unsplash.com/photo-1579532537598-459ecdaf39cc?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxzaGFyZXN8ZW58MHx8fHwxNzQ5NDg5NjU5fDA&ixlib=rb-4.1.0&q=80&w=1080';
         secondImageHint = 'shares'; 
       } else if (calcId === 'risk-reward-ratio') {
         firstImageUrl = 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHxyaXNrfGVufDB8fHx8MTc0OTQ5MDEyOHww&ixlib=rb-4.1.0&q=80&w=1080';
@@ -113,8 +114,13 @@ const getBlogPostBySlug = async (slug: string): Promise<BlogPostDetailsExtended 
       } else if (calcId === 'bitcoin-roi') {
         firstImageUrl = 'https://images.unsplash.com/photo-1543699539-33a389c5dcfe?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxiaXRjb2lufGVufDB8fHx8MTc0OTQ1ODU1OXww&ixlib=rb-4.1.0&q=80&w=1080';
         firstImageHint = 'bitcoin currency';
-        secondImageHint = hints.hint2; // Keep original hint for second image if not specified
-      } else {
+        secondImageHint = hints.hint2; 
+      } else if (calculator.category === 'Crypto') {
+        firstImageUrl = 'https://images.unsplash.com/photo-1605792657660-596af9009e82?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxjcnlwdG8lMjB8ZW58MHx8fHwxNzQ5NDkxODU2fDA&ixlib=rb-4.1.0&q=80&w=1080';
+        firstImageHint = 'crypto technology';
+        secondImageHint = hints.hint2;
+      }
+      else {
         firstImageHint = hints.hint1;
         secondImageHint = hints.hint2;
       }
