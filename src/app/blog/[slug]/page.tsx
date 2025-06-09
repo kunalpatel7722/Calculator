@@ -126,7 +126,10 @@ interface BlogPostPageProps {
   params: { slug: string };
 }
 
-async function AiGeneratedContent({ postDetails }: { postDetails: BlogPostDetailsExtended }) {
+async function AiGeneratedContent({ postDetails, initialSeoTitleForImage }: { 
+  postDetails: BlogPostDetailsExtended,
+  initialSeoTitleForImage: string 
+}) {
   let seoContent = { title: postDetails.title, content: `Detailed content for ${postDetails.title} goes here. This article will delve into ${postDetails.keywords.join(', ')} offering valuable insights and practical advice.` };
   try {
     seoContent = await generateSeoContent({
@@ -200,7 +203,7 @@ async function AiGeneratedContent({ postDetails }: { postDetails: BlogPostDetail
         <Image
           key={postDetails.slug + '-img2'}
           src={secondImage.imageUrl}
-          alt={`${seoContent.title || postDetails.title} - illustration`}
+          alt={`${seoContent.title || initialSeoTitleForImage} - illustration`}
           width={800}
           height={300}
           className="w-full rounded-lg shadow-md my-8 object-cover"
@@ -267,7 +270,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
         <Image
           key={postDetails.slug + '-img1'}
           src={firstImage.imageUrl}
-          alt={postDetails.title || "Main blog image"} {/* Use postDetails.title as initial alt */}
+          alt={postDetails.title || "Main blog image"}
           width={800}
           height={400}
           className="w-full rounded-lg shadow-md mb-8 object-cover"
@@ -276,7 +279,9 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
         />
         
         <Suspense fallback={<AiContentFallback />}>
-          <AiGeneratedContent postDetails={postDetails} />
+          {/* Pass postDetails.title for the image alt inside AiGeneratedContent as initialSeoTitleForImage */}
+          <AiGeneratedContent postDetails={postDetails} 
+            initialSeoTitleForImage={postDetails.title} />
         </Suspense>
 
       </article>
@@ -297,3 +302,4 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
     </div>
   );
 }
+
