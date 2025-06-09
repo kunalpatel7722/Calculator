@@ -40,7 +40,7 @@ type BlogPostDetailsExtended = OriginalBlogPostDetails | CalculatorGuideBlogPost
 
 
 const originalBlogPosts: OriginalBlogPostDetails[] = [
-    { slug: 'understanding-compound-interest', title: 'Understanding Compound Interest for Long-Term Growth', category: 'Investing Basics', date: 'October 26, 2023', images: [{ imageUrl: 'https://placehold.co/800x400.png', dataAiHint: 'keyboard typing' }, { imageUrl: 'https://placehold.co/800x300.png', dataAiHint: 'money plant' }], keywords: ['compound interest', 'investment growth', 'finance basics'], excerpt: 'Explore the fundamentals of compound interest.', type: 'original', calculatorNameForAi: 'Blog Post: Understanding Compound Interest for Long-Term Growth' },
+    { slug: 'understanding-compound-interest', title: 'Understanding Compound Interest for Long-Term Growth', category: 'Investing Basics', date: 'October 26, 2023', images: [{ imageUrl: 'https://placehold.co/800x400.png', dataAiHint: 'financial planning' }, { imageUrl: 'https://placehold.co/800x300.png', dataAiHint: 'money plant' }], keywords: ['compound interest', 'investment growth', 'finance basics'], excerpt: 'Explore the fundamentals of compound interest.', type: 'original', calculatorNameForAi: 'Blog Post: Understanding Compound Interest for Long-Term Growth' },
     { slug: 'beginners-guide-bitcoin-roi', title: 'Beginner\'s Guide to Bitcoin ROI Calculation', category: 'Cryptocurrency', date: 'October 24, 2023', images: [{ imageUrl: 'https://placehold.co/800x400.png', dataAiHint: 'crypto chart' }, { imageUrl: 'https://placehold.co/800x300.png', dataAiHint: 'bitcoin analysis' }], keywords: ['bitcoin roi', 'crypto basics', 'digital assets'], excerpt: 'Learn to calculate Bitcoin ROI.', type: 'original', calculatorNameForAi: 'Blog Post: Beginner\'s Guide to Bitcoin ROI Calculation' },
     { slug: 'maximizing-sip-investments', title: 'Maximizing Your SIP Investments with AI Insights', category: 'Mutual Funds', date: 'October 22, 2023', images: [{ imageUrl: 'https://placehold.co/800x400.png', dataAiHint: 'investment plan' }, { imageUrl: 'https://placehold.co/800x300.png', dataAiHint: 'ai finance' }], keywords: ['sip strategy', 'ai investing', 'mutual funds'], excerpt: 'Optimize your SIP investments.', type: 'original', calculatorNameForAi: 'Blog Post: Maximizing Your SIP Investments with AI Insights' },
     { slug: 'navigating-market-volatility', title: 'Navigating Market Volatility: Tips for Investors', category: 'Market Analysis', date: 'October 20, 2023', images: [{ imageUrl: 'https://placehold.co/800x400.png', dataAiHint: 'stock analysis' }, { imageUrl: 'https://placehold.co/800x300.png', dataAiHint: 'market graph' }], keywords: ['market volatility', 'investment tips', 'risk management'], excerpt: 'Tips for volatile markets.', type: 'original', calculatorNameForAi: 'Blog Post: Navigating Market Volatility: Tips for Investors' },
@@ -50,32 +50,32 @@ const getCalculatorBlogImageHints = (calculator: CalculatorFeature): { hint1: st
   const nameLower = calculator.name.toLowerCase();
   const keywordsLower = calculator.keywords.map(k => k.toLowerCase());
 
-  let hint1 = "financial tool";
-  let hint2 = "investment idea";
+  let hint1 = "financial tool"; // Default general hint
+  let hint2 = "investment idea"; // Default general hint
 
   if (nameLower.includes("loan") || keywordsLower.includes("loan")) {
-    hint1 = "loan calculator";
+    hint1 = "loan calculator"; // More specific
     hint2 = "finance plan";
   } else if (nameLower.includes("bitcoin") || nameLower.includes("crypto") || nameLower.includes("blockchain") || nameLower.includes("ico") || nameLower.includes("ido")) {
-    hint1 = "crypto concept";
+    hint1 = "crypto concept"; // More specific
     hint2 = "digital money";
   } else if (nameLower.includes("stock") || nameLower.includes("dividend") || nameLower.includes("market") || nameLower.includes("volatility")) {
-    hint1 = "stock trading";
+    hint1 = "stock trading"; // More specific
     hint2 = "market data";
   } else if (nameLower.includes("portfolio") || nameLower.includes("allocation")) {
-    hint1 = "portfolio management";
+    hint1 = "portfolio management"; // More specific
     hint2 = "asset chart";
   } else if (nameLower.includes("real estate")) {
-    hint1 = "property value";
+    hint1 = "property value"; // More specific
     hint2 = "house market";
   } else if (nameLower.includes("tax")) {
-    hint1 = "tax forms";
+    hint1 = "tax forms"; // More specific
     hint2 = "finance documents";
   } else if (nameLower.includes("retirement") || nameLower.includes("annuity")) {
-    hint1 = "retirement plan";
+    hint1 = "retirement plan"; // More specific
     hint2 = "savings growth";
   } else if (nameLower.includes("sip") || nameLower.includes("dca") || nameLower.includes("compound") || nameLower.includes("goal") || nameLower.includes("time value") ) {
-    hint1 = "financial calculator";
+    hint1 = "financial calculator"; // More specific
     hint2 = "planning tools";
   }
   return { hint1, hint2 };
