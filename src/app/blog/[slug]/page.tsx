@@ -99,8 +99,8 @@ const getBlogPostBySlug = async (slug: string): Promise<BlogPostDetailsExtended 
       } else if (calcId === 'dividend-yield') {
         firstImageUrl = 'https://images.unsplash.com/photo-1723587693188-52754b315b50?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHxEaXZpZGVuZCUyMHxlbnwwfHx8fDE3NDk0ODkzNjh8MA&ixlib=rb-4.1.0&q=80&w=1080';
         firstImageHint = 'dividend';
-        const hints = getCalculatorBlogImageHints(calculator);
-        secondImageHint = hints.hint2; 
+        secondImageUrl = 'https://images.unsplash.com/photo-1579532537598-459ecdaf39cc?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxzaGFyZXN8ZW58MHx8fHwxNzQ5NDg5NjU5fDA&ixlib=rb-4.1.0&q=80&w=1080';
+        secondImageHint = 'shares'; 
       } else {
         const hints = getCalculatorBlogImageHints(calculator);
         firstImageHint = hints.hint1;
@@ -155,7 +155,7 @@ async function AiGeneratedContent({ postDetails, initialSeoTitleForImage }: {
 }) {
   let seoContent = { title: postDetails.title, content: `Detailed content for ${postDetails.title} goes here. This article will delve into ${postDetails.keywords.join(', ')} offering valuable insights and practical advice.` };
   
-  const contentGenLabel = `AI_BLOG_CONTENT_GENERATION_FOR_SLUG_${postDetails.slug}`;
+  // const contentGenLabel = `AI_BLOG_CONTENT_GENERATION_FOR_SLUG_${postDetails.slug}`;
   // console.time(contentGenLabel); // Removed to prevent dev warnings
 
   try {
