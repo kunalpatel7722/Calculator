@@ -119,6 +119,10 @@ const getBlogPostBySlug = async (slug: string): Promise<BlogPostDetailsExtended 
         firstImageUrl = 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxwb3J0Zm9saW8lMjBhbGxvY2F0aW9ufGVufDB8fHx8MTc0OTQ5MzQzNnww&ixlib=rb-4.1.0&q=80&w=1080';
         firstImageHint = 'portfolio charts';
         secondImageHint = hints.hint2;
+      } else if (calcId === 'loan-vs-investment') {
+        firstImageUrl = 'https://images.unsplash.com/photo-1560520653-9e0e4c89eb11?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxsb2FuJTIwdnMlMjBpbnZlc3RtZW50fGVufDB8fHx8MTc0OTQ5Mzk3Mnww&ixlib=rb-4.1.0&q=80&w=1080';
+        firstImageHint = 'decision making';
+        secondImageHint = hints.hint2;
       } else if (calculator.category === 'Crypto') {
         firstImageUrl = 'https://images.unsplash.com/photo-1526378800651-c32d170fe6f8?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxibG9ja2NoYWlufGVufDB8fHx8MTc0OTQ5MTQ1MHww&ixlib=rb-4.1.0&q=80&w=1080';
         firstImageHint = 'blockchain technology';
@@ -176,7 +180,7 @@ async function AiGeneratedContent({ postDetails, initialSeoTitleForImage }: {
   let seoContent = { title: postDetails.title, content: `Detailed content for ${postDetails.title} goes here. This article will delve into ${postDetails.keywords.join(', ')} offering valuable insights and practical advice.` };
   
   const contentGenLabel = `AI_BLOG_CONTENT_GENERATION_FOR_SLUG_${postDetails.slug}`;
-  console.time(contentGenLabel);
+  // console.time(contentGenLabel); // Removed to avoid console warnings in dev
 
   try {
     seoContent = await generateSeoContent({
@@ -207,7 +211,7 @@ async function AiGeneratedContent({ postDetails, initialSeoTitleForImage }: {
     seoContent.title = postDetails.title; 
     seoContent.content = `Apologies, we had trouble generating the full content for this topic. This post is about ${postDetails.title}. We will cover aspects like ${postDetails.keywords.join(', ')}.`;
   } finally {
-    console.timeEnd(contentGenLabel);
+    // console.timeEnd(contentGenLabel); // Removed to avoid console warnings in dev
   }
 
   const formattedSeoContent = seoContent.content
