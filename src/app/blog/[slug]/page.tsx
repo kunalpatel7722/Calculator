@@ -98,10 +98,10 @@ const getBlogPostBySlug = async (slug: string): Promise<BlogPostDetailsExtended 
       const { hint1, hint2 } = getCalculatorBlogImageHints(calculator);
       return {
         slug,
-        title: `Comprehensive Guide: ${calculator.name}`, 
+        title: `Comprehensive Guide: ${calculator.name}`,
         category: calculator.category,
         date: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
-        images: [ 
+        images: [
           { imageUrl: 'https://placehold.co/800x400.png', dataAiHint: hint1 },
           { imageUrl: 'https://placehold.co/800x300.png', dataAiHint: hint2 },
         ],
@@ -109,7 +109,7 @@ const getBlogPostBySlug = async (slug: string): Promise<BlogPostDetailsExtended 
         excerpt: `Learn all about the ${calculator.name} and how to use it effectively.`,
         calculatorNameForAi: `Blog Post: A Comprehensive Guide to the ${calculator.name}`,
         type: 'calculatorGuide',
-        originalCalculatorName: calculator.name, 
+        originalCalculatorName: calculator.name,
       };
     }
   }
@@ -140,7 +140,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
   let seoContent = { title: postDetails.title, content: `Detailed content for ${postDetails.title} goes here. This article will delve into ${postDetails.keywords.join(', ')} offering valuable insights and practical advice.` };
   try {
     seoContent = await generateSeoContent({
-      calculatorName: postDetails.calculatorNameForAi, 
+      calculatorName: postDetails.calculatorNameForAi,
       keywords: postDetails.keywords.join(', '),
     });
   } catch (error: any) {
@@ -165,7 +165,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
       console.error("Raw error object for AI content generation failure:", error);
     }
   }
-  
+
   const formattedSeoContent = seoContent.content
     .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
     .replace(/\*(.*?)\*/g, '<em>$1</em>')
@@ -179,16 +179,16 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
   let contentPart1 = formattedSeoContent;
   let contentPart2 = '';
 
-  const headingSplitRegex = /(<\/h[23]>)/i; 
+  const headingSplitRegex = /(<\/h[23]>)/i;
   const splitByHeading = formattedSeoContent.split(headingSplitRegex);
 
   if (splitByHeading.length > 2) { // Need at least one full match (tag + content after)
-    contentPart1 = splitByHeading.slice(0, 2).join(''); 
+    contentPart1 = splitByHeading.slice(0, 2).join('');
     contentPart2 = splitByHeading.slice(2).join('');
   } else {
     const lines = formattedSeoContent.split(/<br\s*\/?>/i);
     if (lines.length > 1) {
-      const splitIndex = Math.min(3, Math.floor(lines.length / 2)); 
+      const splitIndex = Math.min(3, Math.floor(lines.length / 2));
       contentPart1 = lines.slice(0, splitIndex).join('<br />') + (lines.length > splitIndex ? '<br />' : '');
       contentPart2 = lines.slice(splitIndex).join('<br />');
     }
@@ -212,20 +212,22 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
           <p className="text-muted-foreground text-sm">{postDetails.date}</p>
         </header>
 
-        <Image 
-          src={firstImage.imageUrl} 
-          alt={seoContent.title || postDetails.title || "Main blog image"} 
-          width={800} 
-          height={400} 
+        <Image
+          key={postDetails.slug + '-img1'}
+          src={firstImage.imageUrl}
+          alt={seoContent.title || postDetails.title || "Main blog image"}
+          width={800}
+          height={400}
           className="w-full rounded-lg shadow-md mb-8 object-cover"
-          data-ai-hint={firstImage.dataAiHint} 
+          data-ai-hint={firstImage.dataAiHint}
           priority
         />
-        
+
         <div className="prose prose-lg dark:prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: contentPart1 }} />
 
         {secondImage && (
           <Image
+            key={postDetails.slug + '-img2'}
             src={secondImage.imageUrl}
             alt={`${seoContent.title || postDetails.title || 'Blog illustration'} - illustration`}
             width={800}
@@ -234,7 +236,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
             data-ai-hint={secondImage.dataAiHint}
           />
         )}
-        
+
         {contentPart2 && (
           <div className="prose prose-lg dark:prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: contentPart2 }} />
         )}
