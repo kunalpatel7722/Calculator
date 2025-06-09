@@ -10,18 +10,30 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { CurrencyToggle, AVAILABLE_CURRENCIES, type Currency } from '@/components/shared/CurrencyToggle';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, TooltipProps } from 'recharts';
+import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLegendContent } from "@/components/ui/chart"
+import type { TooltipPayload } from 'recharts';
 
 const formSchema = z.object({
   monthlyInvestment: z.coerce.number().min(1, "Monthly investment must be greater than 0"),
   expectedReturnRate: z.coerce.number().min(0, "Expected return rate must be non-negative").max(100),
-  investmentPeriodYears: z.coerce.number().min(1, "Investment period must be at least 1 year").max(50),
+  investmentPeriodYears: z.coerce.number().int().min(1, "Investment period must be at least 1 year").max(50),
 });
 type FormData = z.infer<typeof formSchema>;
+
+interface AnnualSipDataPoint {
+  year: number;
+  totalInvested: number;
+  estimatedReturns: number;
+  futureValue: number;
+}
 
 interface CalculationResult {
   totalInvested: number;
   estimatedReturns: number;
   futureValue: number;
+  annualBreakdown: AnnualSipDataPoint[];
 }
 
 export function SipCalculator() { 
@@ -37,24 +49,74 @@ export function SipCalculator() {
     const P = data.monthlyInvestment;
     const annualRate = data.expectedReturnRate / 100;
     const i = annualRate / 12; // monthly interest rate
-    const n = data.investmentPeriodYears * 12; // number of months
+    const totalYears = data.investmentPeriodYears;
+    const n_total_months = totalYears * 12;
 
-    const futureValue = P * ( (Math.pow(1 + i, n) - 1) / i ) * (1 + i);
-    const totalInvested = P * n;
-    const estimatedReturns = futureValue - totalInvested;
+    const overallFutureValue = P * ( (Math.pow(1 + i, n_total_months) - 1) / i ) * (1 + i);
+    const overallTotalInvested = P * n_total_months;
+    const overallEstimatedReturns = overallFutureValue - overallTotalInvested;
+
+    const annualBreakdown: AnnualSipDataPoint[] = [];
+    for (let year = 1; year <= totalYears; year++) {
+      const current_months = year * 12;
+      const fv_at_year = P * ( (Math.pow(1 + i, current_months) - 1) / i ) * (1 + i);
+      const ti_at_year = P * current_months;
+      const er_at_year = fv_at_year - ti_at_year;
+      annualBreakdown.push({
+        year,
+        totalInvested: parseFloat(ti_at_year.toFixed(2)),
+        estimatedReturns: parseFloat(er_at_year.toFixed(2)),
+        futureValue: parseFloat(fv_at_year.toFixed(2)),
+      });
+    }
     
     setResult({ 
-        totalInvested: parseFloat(totalInvested.toFixed(2)),
-        estimatedReturns: parseFloat(estimatedReturns.toFixed(2)),
-        futureValue: parseFloat(futureValue.toFixed(2)),
+        totalInvested: parseFloat(overallTotalInvested.toFixed(2)),
+        estimatedReturns: parseFloat(overallEstimatedReturns.toFixed(2)),
+        futureValue: parseFloat(overallFutureValue.toFixed(2)),
+        annualBreakdown,
     });
   };
+
+  const chartConfig = {
+    futureValue: {
+      label: `Future Value (${currency.symbol})`,
+      color: "hsl(var(--chart-1))",
+    },
+    totalInvested: {
+      label: `Total Invested (${currency.symbol})`,
+      color: "hsl(var(--chart-2))",
+    },
+  } satisfies ChartConfig;
+
+  const CustomTooltip = ({ active, payload, label }: TooltipProps<number, string>) => {
+    if (active && payload && payload.length) {
+      const yearData = result?.annualBreakdown.find(d => d.year.toString() === label);
+      return (
+        <div className="p-2 text-sm bg-background/90 border border-border rounded-md shadow-lg">
+          <p className="font-bold mb-1">{`Year: ${label}`}</p>
+          {payload.map((pld: TooltipPayload<number, string>) => (
+            <p key={pld.dataKey} style={{ color: pld.color }}>
+              {`${pld.name}: ${currency.symbol}${pld.value?.toLocaleString()}`}
+            </p>
+          ))}
+           {yearData && (
+             <p style={{ color: "hsl(var(--chart-3))" }}>
+                {`Est. Returns This Year: ${currency.symbol}${yearData.estimatedReturns.toLocaleString()}`}
+             </p>
+          )}
+        </div>
+      );
+    }
+    return null;
+  };
+
 
   return (
     <Card className="shadow-lg">
       <CardHeader>
         <CardTitle className="font-headline text-2xl">SIP (Systematic Investment Plan) Calculator</CardTitle>
-        <CardDescription>Project the future value of your SIP investments.</CardDescription>
+        <CardDescription>Project the future value of your SIP investments with an annual breakdown and growth chart.</CardDescription>
       </CardHeader>
       <form onSubmit={form.handleSubmit(onSubmit)}>
         <CardContent className="space-y-6">
@@ -91,10 +153,55 @@ export function SipCalculator() {
 
       {result && (
         <div className="p-6 border-t">
-          <h3 className="text-xl font-semibold mb-4 font-headline">Results</h3>
-          <p><strong>Total Amount Invested:</strong> {currency.symbol}{result.totalInvested.toLocaleString()}</p>
-          <p><strong>Estimated Returns:</strong> {currency.symbol}{result.estimatedReturns.toLocaleString()}</p>
-          <p><strong>Estimated Future Value:</strong> {currency.symbol}{result.futureValue.toLocaleString()}</p>
+          <h3 className="text-xl font-semibold mb-4 font-headline">Overall Results</h3>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 text-lg">
+            <p><strong>Total Invested:</strong> {currency.symbol}{result.totalInvested.toLocaleString()}</p>
+            <p><strong>Est. Returns:</strong> {currency.symbol}{result.estimatedReturns.toLocaleString()}</p>
+            <p><strong>Future Value:</strong> {currency.symbol}{result.futureValue.toLocaleString()}</p>
+          </div>
+
+          <div className="mb-8 h-80 md:h-96">
+             <ChartContainer config={chartConfig} className="w-full h-full">
+                <LineChart accessibilityLayer data={result.annualBreakdown} margin={{ top: 5, right: 20, left: 20, bottom: 5 }}>
+                    <CartesianGrid vertical={false} strokeDasharray="3 3" />
+                    <XAxis dataKey="year" unit="yr" tickLine={false} axisLine={false} tickMargin={8} />
+                    <YAxis 
+                        tickLine={false} 
+                        axisLine={false} 
+                        tickMargin={8}
+                        tickFormatter={(value) => `${currency.symbol}${value.toLocaleString()}`} 
+                    />
+                    <ChartTooltip content={<CustomTooltip />} cursorStyle={{strokeDasharray: '3 3', strokeWidth: 1.5, fillOpacity: 0.1}}/>
+                    <ChartLegend content={<ChartLegendContent />} />
+                    <Line dataKey="futureValue" type="monotone" name={chartConfig.futureValue.label} stroke={chartConfig.futureValue.color} strokeWidth={2.5} dot={false} activeDot={{ r: 6 }} />
+                    <Line dataKey="totalInvested" type="monotone" name={chartConfig.totalInvested.label} stroke={chartConfig.totalInvested.color} strokeWidth={2.5} dot={false} activeDot={{ r: 6 }} />
+                </LineChart>
+            </ChartContainer>
+          </div>
+          
+          <h4 className="text-lg font-semibold mb-2 font-headline">Annual Breakdown</h4>
+          <div className="max-h-96 overflow-y-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Year</TableHead>
+                  <TableHead>Total Invested</TableHead>
+                  <TableHead>Estimated Returns</TableHead>
+                  <TableHead className="text-right">Future Value</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {result.annualBreakdown.map((item) => (
+                  <TableRow key={item.year}>
+                    <TableCell>{item.year}</TableCell>
+                    <TableCell>{currency.symbol}{item.totalInvested.toLocaleString()}</TableCell>
+                    <TableCell>{currency.symbol}{item.estimatedReturns.toLocaleString()}</TableCell>
+                    <TableCell className="text-right">{currency.symbol}{item.futureValue.toLocaleString()}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
         </div>
       )}
     </Card>
