@@ -89,14 +89,18 @@ const getBlogPostBySlug = async (slug: string): Promise<BlogPostDetailsExtended 
       if (calcId === 'compound-interest') {
         firstImageUrl = 'https://images.unsplash.com/photo-1494887205043-c5f291293cf6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxjb21wb3VuZCUyMGludGVyZXN0fGVufDB8fHx8MTc0OTQ4NjgzNnww&ixlib=rb-4.1.0&q=80&w=1080';
         firstImageHint = 'growth';
-        // Retain existing second image for compound interest or default
         const hints = getCalculatorBlogImageHints(calculator);
-        secondImageHint = hints.hint2; // Or a specific one if needed
+        secondImageHint = hints.hint2 !== 'growth' ? hints.hint2 : 'tools';
       } else if (calcId === 'stock-return') {
         firstImageUrl = 'https://images.unsplash.com/photo-1621264437251-59d700cfb327?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxNnx8U3RvY2slMjBSZXR1cm4lMjB8ZW58MHx8fHwxNzQ5NDg3OTA1fDA&ixlib=rb-4.1.0&q=80&w=1080';
         firstImageHint = 'stock';
         secondImageUrl = 'https://images.unsplash.com/photo-1559067096-49ebca3406aa?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxpbnZlc3RtZW50fGVufDB8fHx8MTc0OTQ4NzkzMnww&ixlib=rb-4.1.0&q=80&w=1080';
         secondImageHint = 'return';
+      } else if (calcId === 'dividend-yield') {
+        firstImageUrl = 'https://images.unsplash.com/photo-1723587693188-52754b315b50?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHxEaXZpZGVuZCUyMHxlbnwwfHx8fDE3NDk0ODkzNjh8MA&ixlib=rb-4.1.0&q=80&w=1080';
+        firstImageHint = 'dividend';
+        const hints = getCalculatorBlogImageHints(calculator);
+        secondImageHint = hints.hint2; 
       } else {
         const hints = getCalculatorBlogImageHints(calculator);
         firstImageHint = hints.hint1;
@@ -151,7 +155,9 @@ async function AiGeneratedContent({ postDetails, initialSeoTitleForImage }: {
 }) {
   let seoContent = { title: postDetails.title, content: `Detailed content for ${postDetails.title} goes here. This article will delve into ${postDetails.keywords.join(', ')} offering valuable insights and practical advice.` };
   
-  
+  const contentGenLabel = `AI_BLOG_CONTENT_GENERATION_FOR_SLUG_${postDetails.slug}`;
+  // console.time(contentGenLabel); // Removed to prevent dev warnings
+
   try {
     seoContent = await generateSeoContent({
       calculatorName: postDetails.calculatorNameForAi,
@@ -178,10 +184,10 @@ async function AiGeneratedContent({ postDetails, initialSeoTitleForImage }: {
     } else if (error && typeof error === 'object') {
       console.error("Raw error object for AI content generation failure:", error);
     }
-    seoContent.title = postDetails.title;
-    seoContent.content = `Apologies, we had trouble generating the full content for this topic. This post is about ${postDetails.title}.`;
+    seoContent.title = postDetails.title; // Use original title as fallback
+    seoContent.content = `Apologies, we had trouble generating the full content for this topic. This post is about ${postDetails.title}. We will cover aspects like ${postDetails.keywords.join(', ')}.`;
   } finally {
-    
+    // console.timeEnd(contentGenLabel); // Removed to prevent dev warnings
   }
 
   const formattedSeoContent = seoContent.content
