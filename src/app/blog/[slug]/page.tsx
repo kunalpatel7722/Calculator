@@ -105,6 +105,10 @@ const getBlogPostBySlug = async (slug: string): Promise<BlogPostDetailsExtended 
         firstImageUrl = 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHxyaXNrfGVufDB8fHx8MTc0OTQ5MDEyOHww&ixlib=rb-4.1.0&q=80&w=1080';
         firstImageHint = 'risk analysis';
         secondImageHint = hints.hint2 !== 'risk' && hints.hint2 !== 'analysis' ? hints.hint2 : 'strategy';
+      } else if (calcId === 'volatility') {
+        firstImageUrl = 'https://images.unsplash.com/photo-1625351814208-155cfe221d12?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHx2b2xhdGlsaXR5fGVufDB8fHx8MTc0OTQ5MTAxOHww&ixlib=rb-4.1.0&q=80&w=1080';
+        firstImageHint = 'market chart';
+        secondImageHint = hints.hint2 !== 'market' && hints.hint2 !== 'chart' ? hints.hint2 : 'analysis';
       } else {
         firstImageHint = hints.hint1;
         secondImageHint = hints.hint2;
