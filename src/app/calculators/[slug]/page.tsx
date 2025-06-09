@@ -77,9 +77,9 @@ const getCalculatorComponent = (slug: string) => {
 
 async function SeoAsideContent({ calculatorInfo, isCalculatorImplemented }: { calculatorInfo: CalculatorFeature, isCalculatorImplemented: boolean }) {
   let seoContent = { title: calculatorInfo.name, content: calculatorInfo.description };
-  if (isCalculatorImplemented) { 
-    const contentGenLabel = `AI_CALCULATOR_SEO_GENERATION_FOR_SLUG_${calculatorInfo.id}`;
-    console.time(contentGenLabel);
+  if (isCalculatorImplemented) {
+    // const contentGenLabel = `AI_CALCULATOR_SEO_GENERATION_FOR_SLUG_${calculatorInfo.id}`;
+    // console.time(contentGenLabel); // Removed to prevent dev warnings
     try {
       seoContent = await generateSeoContent({
         calculatorName: calculatorInfo.name,
@@ -96,7 +96,7 @@ async function SeoAsideContent({ calculatorInfo, isCalculatorImplemented }: { ca
           console.error("Stack trace for the above error:", error.stack);
         }
       } else if (error && typeof error === 'object') {
-        if (error.message) { 
+        if (error.message) {
           errorDetailsText = `Message: ${error.message}`;
         } else {
           try {
@@ -114,7 +114,7 @@ async function SeoAsideContent({ calculatorInfo, isCalculatorImplemented }: { ca
       seoContent.title = calculatorInfo.name;
       seoContent.content = `Learn more about the ${calculatorInfo.name}. ${calculatorInfo.description}`;
     } finally {
-      console.timeEnd(contentGenLabel);
+      // console.timeEnd(contentGenLabel); // Removed to prevent dev warnings
     }
   }
 
@@ -138,7 +138,7 @@ async function SeoAsideContent({ calculatorInfo, isCalculatorImplemented }: { ca
           <div className="prose prose-sm max-w-none dark:prose-invert" dangerouslySetInnerHTML={{ __html: formattedSeoContent }} />
         </CardContent>
       </Card>
-      
+
       {isCalculatorImplemented && (
          <Card className="mt-6 shadow-lg">
             <CardHeader>
@@ -196,7 +196,7 @@ export default async function CalculatorPage({ params }: CalculatorPageProps) {
         <h1 className="text-4xl font-bold mb-3 font-headline">{calculatorInfo.name}</h1>
         <p className="text-lg text-muted-foreground">{calculatorInfo.description}</p>
       </header>
-      
+
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
         <div className="lg:col-span-2">
           {CalculatorComponent ? (
@@ -228,3 +228,4 @@ export default async function CalculatorPage({ params }: CalculatorPageProps) {
     </div>
   );
 }
+
