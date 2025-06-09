@@ -85,13 +85,21 @@ const getBlogPostBySlug = async (slug: string): Promise<BlogPostDetailsExtended 
     const calcId = slug.substring(calcGuidePrefix.length, slug.length - calcGuideSuffix.length);
     const calculator = getCalculatorById(calcId);
     if (calculator) {
-      const { hint1, hint2 } = getCalculatorBlogImageHints(calculator);
-      
-      const firstImageUrl = 'https://placehold.co/800x400.png';
-      const firstImageHint = hint1;
-      
-      const secondImageUrl = 'https://placehold.co/800x300.png';
-      const secondImageHint = hint2;
+      let firstImageUrl = 'https://placehold.co/800x400.png';
+      let firstImageHint = '';
+      let secondImageUrl = 'https://placehold.co/800x300.png';
+      let secondImageHint = '';
+
+      if (calcId === 'stock-return') {
+        firstImageUrl = 'https://images.unsplash.com/photo-1621264437251-59d700cfb327?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxNnx8U3RvY2slMjBSZXR1cm4lMjB8ZW58MHx8fHwxNzQ5NDg3OTA1fDA&ixlib=rb-4.1.0&q=80&w=1080';
+        firstImageHint = 'stock';
+        secondImageUrl = 'https://images.unsplash.com/photo-1559067096-49ebca3406aa?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxpbnZlc3RtZW50fGVufDB8fHx8MTc0OTQ4NzkzMnww&ixlib=rb-4.1.0&q=80&w=1080';
+        secondImageHint = 'return';
+      } else {
+        const hints = getCalculatorBlogImageHints(calculator);
+        firstImageHint = hints.hint1;
+        secondImageHint = hints.hint2;
+      }
 
       return {
         slug,
@@ -130,8 +138,8 @@ async function AiGeneratedContent({ postDetails, initialSeoTitleForImage }: {
 }) {
   let seoContent = { title: postDetails.title, content: `Detailed content for ${postDetails.title} goes here. This article will delve into ${postDetails.keywords.join(', ')} offering valuable insights and practical advice.` };
   
-  const contentGenLabel = `AI_BLOG_CONTENT_GENERATION_FOR_SLUG_${postDetails.slug}`;
-  // console.time(contentGenLabel); // Removed for HMR stability
+  // const contentGenLabel = `AI_BLOG_CONTENT_GENERATION_FOR_SLUG_${postDetails.slug}`;
+  // console.time(contentGenLabel); 
   try {
     seoContent = await generateSeoContent({
       calculatorName: postDetails.calculatorNameForAi,
@@ -161,7 +169,7 @@ async function AiGeneratedContent({ postDetails, initialSeoTitleForImage }: {
     seoContent.title = postDetails.title;
     seoContent.content = `Apologies, we had trouble generating the full content for this topic. This post is about ${postDetails.title}.`;
   } finally {
-    // console.timeEnd(contentGenLabel); // Removed for HMR stability
+    // console.timeEnd(contentGenLabel);
   }
 
   const formattedSeoContent = seoContent.content

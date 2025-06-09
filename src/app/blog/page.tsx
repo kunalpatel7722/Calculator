@@ -59,13 +59,21 @@ const getCalculatorBlogImageHints = (calculator: CalculatorFeature): { hint1: st
 // Generate blog post entries for each calculator
 const calculatorBlogPosts: BlogPostEntry[] = CALCULATORS_DATA.map((calculator: CalculatorFeature) => {
   const slug = `guide-to-${calculator.id}-calculator`;
-  const { hint1, hint2 } = getCalculatorBlogImageHints(calculator);
+  let firstImageUrl = 'https://placehold.co/600x400.png';
+  let firstImageHint = '';
+  let secondImageUrl = 'https://placehold.co/600x300.png';
+  let secondImageHint = '';
 
-  const firstImageUrl = 'https://placehold.co/600x400.png';
-  const firstImageHint = hint1;
-  
-  const secondImageUrl = 'https://placehold.co/600x300.png';
-  const secondImageHint = hint2;
+  if (calculator.id === 'stock-return') {
+    firstImageUrl = 'https://images.unsplash.com/photo-1621264437251-59d700cfb327?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxNnx8U3RvY2slMjBSZXR1cm4lMjB8ZW58MHx8fHwxNzQ5NDg3OTA1fDA&ixlib=rb-4.1.0&q=80&w=1080';
+    firstImageHint = 'stock';
+    secondImageUrl = 'https://images.unsplash.com/photo-1559067096-49ebca3406aa?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxpbnZlc3RtZW50fGVufDB8fHx8MTc0OTQ4NzkzMnww&ixlib=rb-4.1.0&q=80&w=1080';
+    secondImageHint = 'return';
+  } else {
+    const hints = getCalculatorBlogImageHints(calculator);
+    firstImageHint = hints.hint1;
+    secondImageHint = hints.hint2;
+  }
   
   return {
     id: slug,
