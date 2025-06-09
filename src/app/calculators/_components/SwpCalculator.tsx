@@ -15,17 +15,26 @@ const formSchema = z.object({
   initialInvestment: z.coerce.number().min(1, "Initial investment must be greater than 0"),
   monthlyWithdrawal: z.coerce.number().min(1, "Monthly withdrawal must be greater than 0"),
   expectedReturnRate: z.coerce.number().min(0, "Expected return rate must be non-negative").max(100),
-  withdrawalPeriodYears: z.coerce.number().min(1, "Withdrawal period must be at least 1 year").max(50),
+  withdrawalPeriodYears: z.coerce.number().int().min(1, "Withdrawal period must be at least 1 year").max(50),
+}).refine(data => data.initialInvestment > 0 && (data.initialInvestment * (data.expectedReturnRate / 100 / 12)) >= data.monthlyWithdrawal || (data.expectedReturnRate / 100 / 12) * data.initialInvestment < data.monthlyWithdrawal, {
+  // This validation logic is complex and might need adjustment for edge cases.
+  // Basic idea: if returns don't cover withdrawal, corpus will deplete. If they do, it might grow.
+  // For now, allow if withdrawal is higher than initial period's return, as corpus will deplete.
+  // A more robust check for immediate depletion might be needed if withdrawal > initialInvestment / (months) in some cases without growth
+  message: "Monthly withdrawal might be too high for sustained growth or corpus preservation depending on returns. Calculation will proceed.",
+  path: ["monthlyWithdrawal"], // Path can be adjusted
 });
+
+
 type FormData = z.infer<typeof formSchema>;
 
 interface CalculationResult {
   totalWithdrawn: number;
-  finalBalance: number; // Placeholder
-  yearsToDepletion?: number; // Placeholder
+  finalBalance: number;
+  message?: string;
 }
 
-export function SwpCalculator() { 
+export function SwpCalculator() {
   const [result, setResult] = useState<CalculationResult | null>(null);
   const [currency, setCurrency] = useState<Currency>(AVAILABLE_CURRENCIES.find(c => c.value === 'USD') || AVAILABLE_CURRENCIES[0]);
 
@@ -35,14 +44,51 @@ export function SwpCalculator() {
   });
 
   const onSubmit: SubmitHandler<FormData> = (data) => {
-    // Placeholder: Real SWP calculation involves iterative balance reduction.
-    const totalWithdrawn = data.monthlyWithdrawal * data.withdrawalPeriodYears * 12;
-    // Simplified: Does not account for investment growth/depletion accurately.
-    const finalBalance = data.initialInvestment + (data.initialInvestment * (data.expectedReturnRate/100) * data.withdrawalPeriodYears) - totalWithdrawn; 
+    const P = data.initialInvestment;
+    const W = data.monthlyWithdrawal;
+    const annualRate = data.expectedReturnRate / 100;
+    const i = annualRate / 12; // Monthly interest rate
+    const n = data.withdrawalPeriodYears * 12; // Number of months for withdrawal
 
-    setResult({ 
+    let finalBalance;
+    let message = "";
+
+    if (i === 0) { // If interest rate is 0
+      finalBalance = P - (W * n);
+    } else {
+      // Future Value of Initial Investment - Future Value of Withdrawals (ordinary annuity)
+      finalBalance = P * Math.pow(1 + i, n) - W * ((Math.pow(1 + i, n) - 1) / i);
+    }
+    
+    const totalWithdrawn = W * n;
+
+    if (finalBalance < 0) {
+        // Calculate when corpus depletes if finalBalance is negative
+        // NPER formula: N = -ln(1 - (PV*i)/PMT) / ln(1+i) if FV is 0
+        // Here PV is P, PMT is W, i is monthly rate.
+        let monthsToDepletion = 0;
+        if (W > P * i) { // Only if withdrawal is greater than earnings
+            if (i > 0) {
+                 monthsToDepletion = Math.log(W / (W - P * i)) / Math.log(1 + i);
+            } else { // if i is 0, depletion is P/W
+                 monthsToDepletion = P / W;
+            }
+            const years = Math.floor(monthsToDepletion / 12);
+            const remainingMonths = Math.round(monthsToDepletion % 12);
+            message = `The corpus is projected to deplete in approximately ${years} years and ${remainingMonths} months.`;
+        } else if ( P*i >= W && i > 0) { // If initial earnings cover withdrawals but still depletes (e.g. error in FV formula or very long period)
+             message = `The corpus is projected to deplete. Please check parameters.`; // Should not happen if FV formula is correct
+        } else {
+             message = `The corpus is projected to deplete.`;
+        }
+        finalBalance = 0; // Corpus is depleted
+    }
+
+
+    setResult({
         totalWithdrawn: parseFloat(totalWithdrawn.toFixed(2)),
-        finalBalance: parseFloat(finalBalance.toFixed(2)), // This is a very rough estimate
+        finalBalance: parseFloat(finalBalance.toFixed(2)),
+        message: message || undefined,
     });
   };
 
@@ -50,7 +96,7 @@ export function SwpCalculator() {
     <Card className="shadow-lg">
       <CardHeader>
         <CardTitle className="font-headline text-2xl">SWP (Systematic Withdrawal Plan) Calculator</CardTitle>
-        <CardDescription>Plan your systematic withdrawals from investments. (Simplified)</CardDescription>
+        <CardDescription>Plan your systematic withdrawals from investments.</CardDescription>
       </CardHeader>
       <form onSubmit={form.handleSubmit(onSubmit)}>
         <CardContent className="space-y-6">
@@ -92,10 +138,11 @@ export function SwpCalculator() {
 
       {result && (
         <div className="p-6 border-t">
-          <h3 className="text-xl font-semibold mb-4 font-headline">Results (Simplified Estimate)</h3>
-          <p><strong>Total Amount Withdrawn:</strong> {currency.symbol}{result.totalWithdrawn.toLocaleString()}</p>
+          <h3 className="text-xl font-semibold mb-4 font-headline">Results</h3>
+          <p><strong>Total Amount Withdrawn over {form.getValues("withdrawalPeriodYears")} years:</strong> {currency.symbol}{result.totalWithdrawn.toLocaleString()}</p>
           <p><strong>Estimated Final Balance after {form.getValues("withdrawalPeriodYears")} years:</strong> {currency.symbol}{result.finalBalance.toLocaleString()}</p>
-          <p className="text-xs mt-2 text-muted-foreground">Note: This is a simplified calculation. Actual final balance will vary based on market performance and precise withdrawal timing.</p>
+          {result.message && <p className="text-sm text-destructive mt-2">{result.message}</p>}
+          <p className="text-xs mt-2 text-muted-foreground">Note: This calculation assumes returns are compounded monthly and withdrawals occur at the end of each month. Market conditions can vary.</p>
         </div>
       )}
     </Card>
