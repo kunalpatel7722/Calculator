@@ -1,3 +1,4 @@
+
 import { CompoundInterestCalculator } from '@/app/calculators/_components/CompoundInterestCalculator';
 import { generateSeoContent } from '@/ai/flows/generate-seo-content';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -19,8 +20,19 @@ export default async function CompoundInterestPage() {
       calculatorName: calculatorInfo.name,
       keywords: calculatorInfo.keywords.join(', '),
     });
-  } catch (error) {
-    console.error("Failed to generate SEO content:", error);
+  } catch (error: any) {
+    console.error(`Failed to generate SEO content for ${calculatorInfo.name}. Details:`, error);
+    if (error && typeof error === 'object') {
+      if ('message' in error) console.error("Error message:", error.message);
+      if ('stack' in error) console.error("Error stack:", error.stack);
+      if (!(error instanceof Error)) {
+        try {
+            console.error("Full error object (JSON):", JSON.stringify(error, null, 2));
+        } catch (e) {
+            console.error("Could not stringify full error object.");
+        }
+      }
+    }
     // Use fallback content
   }
   

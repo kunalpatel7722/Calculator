@@ -1,9 +1,10 @@
+
 import { generateSeoContent } from '@/ai/flows/generate-seo-content';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import Image from 'next/image';
 import Link from 'next/link';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Button } from 'lucide-react'; // Button was missing, assuming it's needed or remove if not used in this file
 
 // Placeholder for fetching actual blog post data based on slug
 // In a real app, this would fetch from a database or CMS
@@ -46,8 +47,19 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
       calculatorName: `Blog Post: ${postDetails.title}`, // Using calculatorName for topic for the AI
       keywords: postDetails.keywords.join(', '),
     });
-  } catch (error) {
-    console.error("Failed to generate blog content:", error);
+  } catch (error: any) {
+    console.error(`Failed to generate blog content for "${postDetails.title}". Details:`, error);
+    if (error && typeof error === 'object') {
+      if ('message' in error) console.error("Error message:", error.message);
+      if ('stack' in error) console.error("Error stack:", error.stack);
+      if (!(error instanceof Error)) {
+        try {
+            console.error("Full error object (JSON):", JSON.stringify(error, null, 2));
+        } catch (e) {
+            console.error("Could not stringify full error object.");
+        }
+      }
+    }
   }
   
   // Basic formatting for AI content

@@ -1,3 +1,4 @@
+
 import { getCalculatorById, CALCULATORS_DATA } from '@/lib/calculator-definitions';
 import { generateSeoContent } from '@/ai/flows/generate-seo-content';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -57,8 +58,19 @@ export default async function CalculatorPage({ params }: CalculatorPageProps) {
         keywords: calculatorInfo.keywords.join(', '),
       });
     }
-  } catch (error) {
-    console.error(`Failed to generate SEO content for ${calculatorInfo.name}:`, error);
+  } catch (error: any) {
+    console.error(`Failed to generate SEO content for ${calculatorInfo.name}. Details:`, error);
+    if (error && typeof error === 'object') {
+      if ('message' in error) console.error("Error message:", error.message);
+      if ('stack' in error) console.error("Error stack:", error.stack);
+      if (!(error instanceof Error)) {
+        try {
+            console.error("Full error object (JSON):", JSON.stringify(error, null, 2));
+        } catch (e) {
+            console.error("Could not stringify full error object.");
+        }
+      }
+    }
   }
 
   // Basic formatting for AI content (can be enhanced)
