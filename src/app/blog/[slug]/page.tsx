@@ -40,7 +40,7 @@ type BlogPostDetailsExtended = OriginalBlogPostDetails | CalculatorGuideBlogPost
 
 
 const originalBlogPosts: OriginalBlogPostDetails[] = [
-    { slug: 'understanding-compound-interest', title: 'Understanding Compound Interest for Long-Term Growth', category: 'Investing Basics', date: 'October 26, 2023', images: [{ imageUrl: 'https://images.unsplash.com/photo-1589556763333-ad818080f39e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxNXx8Y29tcG91bmQlMjBpbnRlcmVzdHxlbnwwfHx8fDE3NDk0ODY4MzZ8MA&ixlib=rb-4.1.0&q=80&w=1080', dataAiHint: 'investment growth' }, { imageUrl: 'https://placehold.co/800x300.png', dataAiHint: 'money plant' }], keywords: ['compound interest', 'investment growth', 'finance basics'], excerpt: 'Explore the fundamentals of compound interest.', type: 'original', calculatorNameForAi: 'Blog Post: Understanding Compound Interest for Long-Term Growth' },
+    { slug: 'understanding-compound-interest', title: 'Understanding Compound Interest for Long-Term Growth', category: 'Investing Basics', date: 'October 26, 2023', images: [{ imageUrl: 'https://images.unsplash.com/photo-1589556763333-ad818080f39e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxNXx8Y29tcG91bmQlMjBpbnRlcmVzdHxlbnwwfHx8fDE3NDk0ODY4MzZ8MA&ixlib=rb-4.1.0&q=80&w=1080', dataAiHint: 'investment growth' }, { imageUrl: 'https://images.unsplash.com/photo-1626266061368-46a8f578ddd6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxjYWxjdWxhdG9yfGVufDB8fHx8MTc0OTQ4Njc1M3ww&ixlib=rb-4.1.0&q=80&w=1080', dataAiHint: 'calculation tools' }], keywords: ['compound interest', 'investment growth', 'finance basics'], excerpt: 'Explore the fundamentals of compound interest.', type: 'original', calculatorNameForAi: 'Blog Post: Understanding Compound Interest for Long-Term Growth' },
     { slug: 'beginners-guide-bitcoin-roi', title: 'Beginner\'s Guide to Bitcoin ROI Calculation', category: 'Cryptocurrency', date: 'October 24, 2023', images: [{ imageUrl: 'https://placehold.co/800x400.png', dataAiHint: 'crypto chart' }, { imageUrl: 'https://placehold.co/800x300.png', dataAiHint: 'bitcoin analysis' }], keywords: ['bitcoin roi', 'crypto basics', 'digital assets'], excerpt: 'Learn to calculate Bitcoin ROI.', type: 'original', calculatorNameForAi: 'Blog Post: Beginner\'s Guide to Bitcoin ROI Calculation' },
     { slug: 'maximizing-sip-investments', title: 'Maximizing Your SIP Investments with AI Insights', category: 'Mutual Funds', date: 'October 22, 2023', images: [{ imageUrl: 'https://placehold.co/800x400.png', dataAiHint: 'investment plan' }, { imageUrl: 'https://placehold.co/800x300.png', dataAiHint: 'ai finance' }], keywords: ['sip strategy', 'ai investing', 'mutual funds'], excerpt: 'Optimize your SIP investments.', type: 'original', calculatorNameForAi: 'Blog Post: Maximizing Your SIP Investments with AI Insights' },
     { slug: 'navigating-market-volatility', title: 'Navigating Market Volatility: Tips for Investors', category: 'Market Analysis', date: 'October 20, 2023', images: [{ imageUrl: 'https://placehold.co/800x400.png', dataAiHint: 'stock analysis' }, { imageUrl: 'https://placehold.co/800x300.png', dataAiHint: 'market graph' }], keywords: ['market volatility', 'investment tips', 'risk management'], excerpt: 'Tips for volatile markets.', type: 'original', calculatorNameForAi: 'Blog Post: Navigating Market Volatility: Tips for Investors' },
@@ -55,9 +55,9 @@ const getCalculatorBlogImageHints = (calculator: CalculatorFeature): { hint1: st
   let hint1 = allWords.length > 0 ? allWords[0] : "finance";
   let hint2 = allWords.length > 1 ? allWords[1] : "tool";
 
-  if (calculator.id === "compound-interest") return { hint1: "interest", hint2: "growth" };
-  if (calculator.id === "bitcoin-roi") return { hint1: "bitcoin", hint2: "profit" };
-  if (calculator.id === "sip-calculator") return { hint1: "sip", hint2: "invest" };
+  if (calculator.id === "compound-interest" && hint1 !== "interest") return { hint1: "interest", hint2: "growth" };
+  if (calculator.id === "bitcoin-roi" && hint1 !== "bitcoin") return { hint1: "bitcoin", hint2: "profit" };
+  if (calculator.id === "sip-calculator" && hint1 !== "sip") return { hint1: "sip", hint2: "invest" };
   
   if (hint1 === hint2) {
     hint2 = allWords.length > 2 ? allWords[2] : (hint1 === "finance" ? "money" : "plan");
@@ -138,8 +138,7 @@ async function AiGeneratedContent({ postDetails, initialSeoTitleForImage }: {
 }) {
   let seoContent = { title: postDetails.title, content: `Detailed content for ${postDetails.title} goes here. This article will delve into ${postDetails.keywords.join(', ')} offering valuable insights and practical advice.` };
   
-  // const contentGenLabel = `AI_BLOG_CONTENT_GENERATION_FOR_SLUG_${postDetails.slug}`;
-  // console.time(contentGenLabel); 
+  
   try {
     seoContent = await generateSeoContent({
       calculatorName: postDetails.calculatorNameForAi,
@@ -169,7 +168,7 @@ async function AiGeneratedContent({ postDetails, initialSeoTitleForImage }: {
     seoContent.title = postDetails.title;
     seoContent.content = `Apologies, we had trouble generating the full content for this topic. This post is about ${postDetails.title}.`;
   } finally {
-    // console.timeEnd(contentGenLabel);
+    
   }
 
   const formattedSeoContent = seoContent.content

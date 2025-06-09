@@ -22,7 +22,7 @@ interface BlogPostEntry {
 
 // Original blog posts
 const originalBlogPosts: BlogPostEntry[] = [
-  { id: 'understanding-compound-interest', title: 'Understanding Compound Interest for Long-Term Growth', excerpt: 'Learn how the power of compounding can significantly boost your investments over time. An essential read for new and seasoned investors alike.', images: [{ imageUrl: 'https://images.unsplash.com/photo-1589556763333-ad818080f39e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxNXx8Y29tcG91bmQlMjBpbnRlcmVzdHxlbnwwfHx8fDE3NDk0ODY4MzZ8MA&ixlib=rb-4.1.0&q=80&w=1080', dataAiHint: 'investment growth' }, { imageUrl: 'https://placehold.co/600x300.png', dataAiHint: 'money plant' }], date: 'October 26, 2023', category: 'Investing Basics' },
+  { id: 'understanding-compound-interest', title: 'Understanding Compound Interest for Long-Term Growth', excerpt: 'Learn how the power of compounding can significantly boost your investments over time. An essential read for new and seasoned investors alike.', images: [{ imageUrl: 'https://images.unsplash.com/photo-1589556763333-ad818080f39e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxNXx8Y29tcG91bmQlMjBpbnRlcmVzdHxlbnwwfHx8fDE3NDk0ODY4MzZ8MA&ixlib=rb-4.1.0&q=80&w=1080', dataAiHint: 'investment growth' }, { imageUrl: 'https://images.unsplash.com/photo-1626266061368-46a8f578ddd6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxjYWxjdWxhdG9yfGVufDB8fHx8MTc0OTQ4Njc1M3ww&ixlib=rb-4.1.0&q=80&w=1080', dataAiHint: 'calculation tools' }], date: 'October 26, 2023', category: 'Investing Basics' },
   { id: 'beginners-guide-bitcoin-roi', title: 'Beginner\'s Guide to Bitcoin ROI Calculation', excerpt: 'Demystifying Bitcoin investments and how to calculate potential returns and risks. Understand the volatility and opportunities.', images: [{ imageUrl: 'https://placehold.co/600x400.png', dataAiHint: 'crypto chart' }, { imageUrl: 'https://placehold.co/600x300.png', dataAiHint: 'bitcoin analysis' }], date: 'October 24, 2023', category: 'Cryptocurrency' },
   { id: 'maximizing-sip-investments', title: 'Maximizing Your SIP Investments with AI Insights', excerpt: 'Discover strategies to optimize your Systematic Investment Plans using AI-driven analytics and market trends.', images: [{ imageUrl: 'https://placehold.co/600x400.png', dataAiHint: 'investment plan' }, { imageUrl: 'https://placehold.co/600x300.png', dataAiHint: 'ai finance' }], date: 'October 22, 2023', category: 'Mutual Funds' },
   { id: 'navigating-market-volatility', title: 'Navigating Market Volatility: Tips for Investors', excerpt: 'Strategies to protect your portfolio and find opportunities during turbulent market conditions. Learn from historical data and AI predictions.', images: [{ imageUrl: 'https://placehold.co/600x400.png', dataAiHint: 'stock analysis' }, { imageUrl: 'https://placehold.co/600x300.png', dataAiHint: 'market graph' }], date: 'October 20, 2023', category: 'Market Analysis' },
@@ -37,9 +37,9 @@ const getCalculatorBlogImageHints = (calculator: CalculatorFeature): { hint1: st
   let hint1 = allWords.length > 0 ? allWords[0] : "finance";
   let hint2 = allWords.length > 1 ? allWords[1] : "tool";
   
-  if (calculator.id === "compound-interest") return { hint1: "interest", hint2: "growth" };
-  if (calculator.id === "bitcoin-roi") return { hint1: "bitcoin", hint2: "profit" };
-  if (calculator.id === "sip-calculator") return { hint1: "sip", hint2: "invest" };
+  if (calculator.id === "compound-interest" && hint1 !== "interest") return { hint1: "interest", hint2: "growth" };
+  if (calculator.id === "bitcoin-roi" && hint1 !== "bitcoin") return { hint1: "bitcoin", hint2: "profit" };
+  if (calculator.id === "sip-calculator" && hint1 !== "sip") return { hint1: "sip", hint2: "invest" };
 
 
   if (hint1 === hint2) {
