@@ -11,7 +11,10 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, TooltipProps } from 'recharts';
+import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLegendContent } from "@/components/ui/chart"
+import type { TooltipPayload } from 'recharts';
+
 import { CurrencyToggle, AVAILABLE_CURRENCIES, type Currency } from '@/components/shared/CurrencyToggle';
 
 const formSchema = z.object({
@@ -23,10 +26,16 @@ const formSchema = z.object({
 
 type FormData = z.infer<typeof formSchema>;
 
+interface AnnualDataPoint {
+  year: number;
+  value: number;
+  interestEarned: number;
+  principalContribution: number; // For chart stacking if needed
+}
 interface CalculationResult {
   futureValue: number;
   totalInterest: number;
-  annualBreakdown: { year: number; value: number; interestEarned: number }[];
+  annualBreakdown: AnnualDataPoint[];
 }
 
 export function CompoundInterestCalculator() {
@@ -54,12 +63,13 @@ export function CompoundInterestCalculator() {
     const annualBreakdown: CalculationResult['annualBreakdown'] = [];
     let currentPrincipal = principal;
     for (let year = 1; year <= time; year++) {
-      const valueAtYearEnd = currentPrincipal * Math.pow((1 + r / n), n * 1);
+      const valueAtYearEnd = currentPrincipal * Math.pow((1 + r / n), n * 1); // Calculate for 1 year
       const interestEarnedThisYear = valueAtYearEnd - currentPrincipal;
       annualBreakdown.push({
         year,
         value: parseFloat(valueAtYearEnd.toFixed(2)),
         interestEarned: parseFloat(interestEarnedThisYear.toFixed(2)),
+        principalContribution: parseFloat(currentPrincipal.toFixed(2)), // Not strictly principal "contribution" but value before interest
       });
       currentPrincipal = valueAtYearEnd;
     }
@@ -74,6 +84,44 @@ export function CompoundInterestCalculator() {
   const onSubmit: SubmitHandler<FormData> = (data) => {
     calculateCompoundInterest(data);
   };
+
+  const chartConfig = {
+    value: {
+      label: `Investment Value (${currency.symbol})`,
+      color: "hsl(var(--chart-1))",
+    },
+    interestEarned: {
+      label: `Interest Earned Yearly (${currency.symbol})`,
+      color: "hsl(var(--chart-2))",
+    },
+     principal: { // For tooltip only if needed, not plotted as a line
+      label: `Principal Base (${currency.symbol})`,
+      color: "hsl(var(--muted))",
+    }
+  } satisfies ChartConfig;
+
+  const CustomTooltip = ({ active, payload, label }: TooltipProps<number, string>) => {
+    if (active && payload && payload.length) {
+      const yearData = result?.annualBreakdown.find(d => d.year.toString() === label);
+      return (
+        <div className="p-2 text-sm bg-background/90 border border-border rounded-md shadow-lg">
+          <p className="font-bold mb-1">{`Year: ${label}`}</p>
+          {payload.map((pld: TooltipPayload<number, string>) => (
+            <p key={pld.dataKey} style={{ color: pld.color }}>
+              {`${pld.name}: ${currency.symbol}${pld.value?.toLocaleString()}`}
+            </p>
+          ))}
+          {yearData && (
+             <p style={{ color: chartConfig.principal.color }}>
+                {`Initial Principal This Year: ${currency.symbol}${yearData.principalContribution.toLocaleString()}`}
+             </p>
+          )}
+        </div>
+      );
+    }
+    return null;
+  };
+
 
   return (
     <Card className="shadow-lg">
@@ -142,21 +190,22 @@ export function CompoundInterestCalculator() {
           </div>
 
           <div className="mb-8 h-80 md:h-96">
-             <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={result.annualBreakdown} margin={{ top: 5, right: 20, left: 20, bottom: 5 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                    <XAxis dataKey="year" unit="yr" stroke="hsl(var(--muted-foreground))" />
-                    <YAxis stroke="hsl(var(--muted-foreground))" tickFormatter={(value) => `${currency.symbol}${value.toLocaleString()}`} />
-                    <Tooltip
-                        formatter={(value: number, name: string) => [`${currency.symbol}${value.toLocaleString()}`, name]}
-                        contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: 'var(--radius)' }}
-                        labelStyle={{ color: 'hsl(var(--foreground))', fontWeight: 'bold' }}
+             <ChartContainer config={chartConfig} className="w-full h-full">
+                <LineChart accessibilityLayer data={result.annualBreakdown} margin={{ top: 5, right: 20, left: 20, bottom: 5 }}>
+                    <CartesianGrid vertical={false} strokeDasharray="3 3" />
+                    <XAxis dataKey="year" unit="yr" tickLine={false} axisLine={false} tickMargin={8} />
+                    <YAxis 
+                        tickLine={false} 
+                        axisLine={false} 
+                        tickMargin={8}
+                        tickFormatter={(value) => `${currency.symbol}${value.toLocaleString()}`} 
                     />
-                    <Legend wrapperStyle={{ color: 'hsl(var(--foreground))' }}/>
-                    <Line type="monotone" dataKey="value" name="Investment Value" stroke="hsl(var(--primary))" strokeWidth={2} dot={{ r: 4, fill: 'hsl(var(--primary))' }} activeDot={{ r: 6 }} />
-                    <Line type="monotone" dataKey="interestEarned" name="Interest Earned (Yearly)" stroke="hsl(var(--accent))" strokeWidth={2} dot={{ r: 4, fill: 'hsl(var(--accent))' }} activeDot={{ r: 6 }} />
+                    <ChartTooltip content={<CustomTooltip />} cursorStyle={{strokeDasharray: '3 3', strokeWidth: 1.5, fillOpacity: 0.1}}/>
+                    <ChartLegend content={<ChartLegendContent />} />
+                    <Line dataKey="value" type="monotone" name={chartConfig.value.label} stroke={chartConfig.value.color} strokeWidth={2.5} dot={false} activeDot={{ r: 6 }} />
+                    <Line dataKey="interestEarned" type="monotone" name={chartConfig.interestEarned.label} stroke={chartConfig.interestEarned.color} strokeWidth={2.5} dot={false} activeDot={{ r: 6 }} />
                 </LineChart>
-            </ResponsiveContainer>
+            </ChartContainer>
           </div>
           
           <h4 className="text-lg font-semibold mb-2 font-headline">Annual Breakdown</h4>

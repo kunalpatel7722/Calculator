@@ -10,7 +10,9 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { CurrencyToggle, AVAILABLE_CURRENCIES, type Currency } from '@/components/shared/CurrencyToggle';
-import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip, Legend } from 'recharts';
+import { PieChart, Pie, Cell, TooltipProps } from 'recharts';
+import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLegendContent } from "@/components/ui/chart"
+import type { TooltipPayload } from 'recharts';
 
 const formSchema = z.object({
   stocks: z.coerce.number().min(0, "Value must be non-negative").optional(),
@@ -19,8 +21,8 @@ const formSchema = z.object({
   realEstate: z.coerce.number().min(0, "Value must be non-negative").optional(),
   cash: z.coerce.number().min(0, "Value must be non-negative").optional(),
 }).refine(data => (data.stocks || 0) + (data.bonds || 0) + (data.crypto || 0) + (data.realEstate || 0) + (data.cash || 0) > 0, {
-  message: "At least one asset class must have a value greater than 0.",
-  path: ["stocks"], // Arbitrary path for general error
+  message: "Total portfolio value must be greater than 0.",
+  path: ["stocks"], 
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -29,15 +31,17 @@ interface AllocationData {
   name: string;
   value: number;
   percentage: number;
-  fill: string;
+  fill: string; // This will be used by chartConfig as well
 }
 
-const COLORS = ['hsl(var(--chart-1))', 'hsl(var(--chart-2))', 'hsl(var(--chart-3))', 'hsl(var(--chart-4))', 'hsl(var(--chart-5))'];
+const COLORS_THEME = ['hsl(var(--chart-1))', 'hsl(var(--chart-2))', 'hsl(var(--chart-3))', 'hsl(var(--chart-4))', 'hsl(var(--chart-5))'];
 
 export function PortfolioAllocationCalculator() { 
   const [allocation, setAllocation] = useState<AllocationData[] | null>(null);
   const [totalValue, setTotalValue] = useState<number>(0);
   const [currency, setCurrency] = useState<Currency>(AVAILABLE_CURRENCIES.find(c => c.value === 'USD') || AVAILABLE_CURRENCIES[0]);
+  const [chartConfig, setChartConfig] = useState<ChartConfig | null>(null);
+
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -46,22 +50,46 @@ export function PortfolioAllocationCalculator() {
 
   const onSubmit: SubmitHandler<FormData> = (data) => {
     const assets = [
-      { name: 'Stocks', value: data.stocks || 0 },
-      { name: 'Bonds', value: data.bonds || 0 },
-      { name: 'Crypto', value: data.crypto || 0 },
-      { name: 'Real Estate', value: data.realEstate || 0 },
-      { name: 'Cash', value: data.cash || 0 },
+      { name: 'Stocks', value: data.stocks || 0, baseColor: COLORS_THEME[0] },
+      { name: 'Bonds', value: data.bonds || 0, baseColor: COLORS_THEME[1] },
+      { name: 'Crypto', value: data.crypto || 0, baseColor: COLORS_THEME[2] },
+      { name: 'Real Estate', value: data.realEstate || 0, baseColor: COLORS_THEME[3] },
+      { name: 'Cash', value: data.cash || 0, baseColor: COLORS_THEME[4] },
     ].filter(asset => asset.value > 0);
 
     const currentTotalValue = assets.reduce((sum, asset) => sum + asset.value, 0);
     setTotalValue(currentTotalValue);
 
-    const allocationData: AllocationData[] = assets.map((asset, index) => ({
-      ...asset,
+    const newAllocationData: AllocationData[] = assets.map((asset, index) => ({
+      name: asset.name,
+      value: asset.value,
       percentage: parseFloat(((asset.value / currentTotalValue) * 100).toFixed(2)),
-      fill: COLORS[index % COLORS.length],
+      fill: asset.baseColor || COLORS_THEME[index % COLORS_THEME.length],
     }));
-    setAllocation(allocationData);
+    setAllocation(newAllocationData);
+
+    const newChartConfig = newAllocationData.reduce((acc, item) => {
+      acc[item.name] = { 
+        label: item.name,
+        color: item.fill,
+      };
+      return acc;
+    }, {} as ChartConfig);
+    setChartConfig(newChartConfig);
+  };
+
+  const CustomPieTooltip = ({ active, payload }: TooltipProps<number, string>) => {
+    if (active && payload && payload.length) {
+      const data = payload[0].payload as AllocationData; // Explicitly type payload data
+      return (
+        <div className="p-2 text-sm bg-background/90 border border-border rounded-md shadow-lg">
+          <p className="font-bold mb-1" style={{ color: data.fill }}>{data.name}</p>
+          <p>{`Value: ${currency.symbol}${data.value.toLocaleString()}`}</p>
+          <p>{`Percentage: ${data.percentage.toFixed(2)}%`}</p>
+        </div>
+      );
+    }
+    return null;
   };
 
   return (
@@ -109,35 +137,60 @@ export function PortfolioAllocationCalculator() {
         </CardFooter>
       </form>
 
-      {allocation && allocation.length > 0 && (
+      {allocation && allocation.length > 0 && chartConfig && (
         <div className="p-6 border-t">
           <h3 className="text-xl font-semibold mb-4 font-headline">Portfolio Allocation</h3>
           <p className="mb-4"><strong>Total Portfolio Value:</strong> {currency.symbol}{totalValue.toLocaleString()}</p>
-          <div className="h-80 md:h-96 mb-6">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
+          <div className="h-80 md:h-96 mb-6 flex justify-center">
+            <ChartContainer config={chartConfig} className="aspect-square max-h-[300px]">
+              <PieChart accessibilityLayer>
+                <ChartTooltip 
+                  content={<CustomPieTooltip />} 
+                  cursor={{ fill: "hsl(var(--muted))", opacity: 0.3 }}
+                />
                 <Pie
                   data={allocation}
+                  dataKey="value"
+                  nameKey="name"
                   cx="50%"
                   cy="50%"
                   labelLine={false}
-                  label={({ name, percentage }) => `${name}: ${percentage}%`}
+                  label={({ name, percentage, x, y, fill }) => (
+                    <text
+                      x={x}
+                      y={y}
+                      fill={fill} // Use slice color for label, or a contrasting theme color
+                      textAnchor={x > (150) ? "start" : "end"} // 150 is approx center of 300px chart
+                      dominantBaseline="central"
+                      className="text-xs font-medium"
+                    >
+                      {`${name} (${percentage.toFixed(0)}%)`}
+                    </text>
+                  )}
                   outerRadius={100}
-                  dataKey="value"
+                  innerRadius={40} // Makes it a Donut chart
+                  paddingAngle={2}
                 >
-                  {allocation.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.fill} />
+                  {allocation.map((entry) => (
+                    <Cell key={`cell-${entry.name}`} fill={entry.fill} name={entry.name} />
                   ))}
                 </Pie>
-                <Tooltip formatter={(value: number, name: string, props: {payload: AllocationData}) => [`${currency.symbol}${value.toLocaleString()} (${props.payload.percentage}%)`, name]} />
-                <Legend />
+                <ChartLegend 
+                    content={<ChartLegendContent nameKey="name" />} 
+                    verticalAlign="bottom"
+                    align="center"
+                    wrapperStyle={{paddingTop: "20px"}}
+                />
               </PieChart>
-            </ResponsiveContainer>
+            </ChartContainer>
           </div>
            <ul className="space-y-1">
             {allocation.map(item => (
               <li key={item.name} className="flex justify-between">
-                <span>{item.name}:</span>
+                <span className="flex items-center">
+                   <span className="inline-block w-3 h-3 rounded-sm mr-2" style={{ backgroundColor: item.fill }}></span>
+                  {item.name}:
+                </span>
                 <span>{currency.symbol}{item.value.toLocaleString()} ({item.percentage}%)</span>
               </li>
             ))}
