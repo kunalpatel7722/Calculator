@@ -85,11 +85,11 @@ const getBlogPostBySlug = async (slug: string): Promise<BlogPostDetailsExtended 
       let firstImageHint = '';
       let secondImageUrl = 'https://placehold.co/800x300.png';
       let secondImageHint = '';
+      const hints = getCalculatorBlogImageHints(calculator);
 
       if (calcId === 'compound-interest') {
         firstImageUrl = 'https://images.unsplash.com/photo-1494887205043-c5f291293cf6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxjb21wb3VuZCUyMGludGVyZXN0fGVufDB8fHx8MTc0OTQ4NjgzNnww&ixlib=rb-4.1.0&q=80&w=1080';
         firstImageHint = 'growth';
-        const hints = getCalculatorBlogImageHints(calculator);
         secondImageHint = hints.hint2 !== 'growth' ? hints.hint2 : 'tools';
       } else if (calcId === 'stock-return') {
         firstImageUrl = 'https://images.unsplash.com/photo-1621264437251-59d700cfb327?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxNnx8U3RvY2slMjBSZXR1cm4lMjB8ZW58MHx8fHwxNzQ5NDg3OTA1fDA&ixlib=rb-4.1.0&q=80&w=1080';
@@ -101,19 +101,20 @@ const getBlogPostBySlug = async (slug: string): Promise<BlogPostDetailsExtended 
         firstImageHint = 'dividend';
         secondImageUrl = 'https://images.unsplash.com/photo-1579532537598-459ecdaf39cc?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxzaGFyZXN8ZW58MHx8fHwxNzQ5NDg5NjU5fDA&ixlib=rb-4.1.0&q=80&w=1080';
         secondImageHint = 'shares'; 
+      } else if (calcId === 'risk-reward-ratio') {
+        firstImageUrl = 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHxyaXNrfGVufDB8fHx8MTc0OTQ5MDEyOHww&ixlib=rb-4.1.0&q=80&w=1080';
+        firstImageHint = 'risk analysis';
+        secondImageHint = hints.hint2 !== 'risk' && hints.hint2 !== 'analysis' ? hints.hint2 : 'strategy';
       } else {
-        const hints = getCalculatorBlogImageHints(calculator);
         firstImageHint = hints.hint1;
         secondImageHint = hints.hint2;
       }
       
-      // Ensure second image for compound-interest uses a placeholder if not specifically set
       if (calcId === 'compound-interest' && secondImageUrl === 'https://placehold.co/800x300.png') {
-          const hints = getCalculatorBlogImageHints(calculator);
-          if (hints.hint2 !== "growth") { // Avoid using the same hint as first image
+          if (hints.hint2 !== "growth") {
             secondImageHint = hints.hint2;
           } else {
-            secondImageHint = "tools"; // Fallback if hint2 is also growth
+            secondImageHint = "tools"; 
           }
       }
 
@@ -155,8 +156,8 @@ async function AiGeneratedContent({ postDetails, initialSeoTitleForImage }: {
 }) {
   let seoContent = { title: postDetails.title, content: `Detailed content for ${postDetails.title} goes here. This article will delve into ${postDetails.keywords.join(', ')} offering valuable insights and practical advice.` };
   
-  // const contentGenLabel = `AI_BLOG_CONTENT_GENERATION_FOR_SLUG_${postDetails.slug}`;
-  // console.time(contentGenLabel); // Removed to prevent dev warnings
+  const contentGenLabel = `AI_BLOG_CONTENT_GENERATION_FOR_SLUG_${postDetails.slug}`;
+  console.time(contentGenLabel);
 
   try {
     seoContent = await generateSeoContent({
@@ -184,10 +185,10 @@ async function AiGeneratedContent({ postDetails, initialSeoTitleForImage }: {
     } else if (error && typeof error === 'object') {
       console.error("Raw error object for AI content generation failure:", error);
     }
-    seoContent.title = postDetails.title; // Use original title as fallback
+    seoContent.title = postDetails.title; 
     seoContent.content = `Apologies, we had trouble generating the full content for this topic. This post is about ${postDetails.title}. We will cover aspects like ${postDetails.keywords.join(', ')}.`;
   } finally {
-    // console.timeEnd(contentGenLabel); // Removed to prevent dev warnings
+    console.timeEnd(contentGenLabel);
   }
 
   const formattedSeoContent = seoContent.content
