@@ -7,7 +7,8 @@ import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { getCalculatorById, CALCULATORS_DATA, type CalculatorFeature } from '@/lib/calculator-definitions';
-
+import React, { Suspense } from 'react';
+import { Skeleton } from '@/components/ui/skeleton';
 
 interface BlogImage {
   imageUrl: string;
@@ -82,13 +83,11 @@ const getCalculatorBlogImageHints = (calculator: CalculatorFeature): { hint1: st
 
 
 const getBlogPostBySlug = async (slug: string): Promise<BlogPostDetailsExtended | undefined> => {
-  // Try predefined posts first
   const predefinedPost = originalBlogPosts.find(p => p.slug === slug);
   if (predefinedPost) {
     return predefinedPost;
   }
 
-  // Check if it's a calculator guide slug
   const calcGuidePrefix = 'guide-to-';
   const calcGuideSuffix = '-calculator';
   if (slug.startsWith(calcGuidePrefix) && slug.endsWith(calcGuideSuffix)) {
@@ -127,16 +126,7 @@ interface BlogPostPageProps {
   params: { slug: string };
 }
 
-export default async function BlogPostPage({ params }: BlogPostPageProps) {
-  const postDetails = await getBlogPostBySlug(params.slug);
-
-  if (!postDetails || !postDetails.images || postDetails.images.length === 0) {
-    return <div className="container mx-auto py-8 text-center">Blog post or primary image not found.</div>;
-  }
-
-  const firstImage = postDetails.images[0];
-  const secondImage = postDetails.images.length > 1 ? postDetails.images[1] : null;
-
+async function AiGeneratedContent({ postDetails }: { postDetails: BlogPostDetailsExtended }) {
   let seoContent = { title: postDetails.title, content: `Detailed content for ${postDetails.title} goes here. This article will delve into ${postDetails.keywords.join(', ')} offering valuable insights and practical advice.` };
   try {
     seoContent = await generateSeoContent({
@@ -164,6 +154,9 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
     } else if (error && typeof error === 'object') {
       console.error("Raw error object for AI content generation failure:", error);
     }
+    // Fallback to postDetails.title and a default message if AI fails
+    seoContent.title = postDetails.title;
+    seoContent.content = `Apologies, we had trouble generating the full content for this topic. This post is about ${postDetails.title}.`;
   }
 
   const formattedSeoContent = seoContent.content
@@ -182,7 +175,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
   const headingSplitRegex = /(<\/h[23]>)/i;
   const splitByHeading = formattedSeoContent.split(headingSplitRegex);
 
-  if (splitByHeading.length > 2) { // Need at least one full match (tag + content after)
+  if (splitByHeading.length > 2) { 
     contentPart1 = splitByHeading.slice(0, 2).join('');
     contentPart2 = splitByHeading.slice(2).join('');
   } else {
@@ -194,11 +187,71 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
     }
   }
 
+  const secondImage = postDetails.images.length > 1 ? postDetails.images[1] : null;
+
+  return (
+    <>
+      <h1 className="text-4xl font-bold mb-3 font-headline">{seoContent.title}</h1>
+      <p className="text-muted-foreground text-sm mb-8">{postDetails.date}</p>
+      
+      <div className="prose prose-lg dark:prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: contentPart1 }} />
+
+      {secondImage && (
+        <Image
+          key={postDetails.slug + '-img2'}
+          src={secondImage.imageUrl}
+          alt={`${seoContent.title || postDetails.title} - illustration`}
+          width={800}
+          height={300}
+          className="w-full rounded-lg shadow-md my-8 object-cover"
+          data-ai-hint={secondImage.dataAiHint}
+        />
+      )}
+
+      {contentPart2 && (
+        <div className="prose prose-lg dark:prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: contentPart2 }} />
+      )}
+    </>
+  );
+}
+
+function AiContentFallback() {
+  return (
+    <>
+      <Skeleton className="h-10 w-3/4 mb-3" /> {/* Title */}
+      <Skeleton className="h-4 w-1/4 mb-8" /> {/* Date */}
+      
+      <Skeleton className="h-6 w-full mb-2" />
+      <Skeleton className="h-6 w-full mb-2" />
+      <Skeleton className="h-6 w-5/6 mb-4" />
+      
+      <Skeleton className="h-6 w-full mb-2" />
+      <Skeleton className="h-6 w-3/4 mb-2" />
+      <Skeleton className="h-6 w-full mb-8" />
+
+      <Skeleton className="h-[300px] w-full rounded-lg shadow-md my-8" /> {/* Second Image Placeholder */}
+      
+      <Skeleton className="h-6 w-full mb-2" />
+      <Skeleton className="h-6 w-full mb-2" />
+      <Skeleton className="h-6 w-4/6 mb-2" />
+    </>
+  )
+}
+
+
+export default async function BlogPostPage({ params }: BlogPostPageProps) {
+  const postDetails = await getBlogPostBySlug(params.slug);
+
+  if (!postDetails || !postDetails.images || postDetails.images.length === 0) {
+    return <div className="container mx-auto py-8 text-center">Blog post or primary image not found.</div>;
+  }
+
+  const firstImage = postDetails.images[0];
 
   return (
     <div className="container mx-auto py-12 px-4 max-w-4xl">
       <article>
-        <header className="mb-8">
+        <header className="mb-4"> {/* Reduced bottom margin here */}
           <div className="mb-4">
             <Button variant="outline" size="sm" asChild>
               <Link href="/blog">
@@ -208,38 +261,24 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
             </Button>
           </div>
           <Badge variant="secondary" className="mb-2">{postDetails.category}</Badge>
-          <h1 className="text-4xl font-bold mb-3 font-headline">{seoContent.title || postDetails.title}</h1>
-          <p className="text-muted-foreground text-sm">{postDetails.date}</p>
+          {/* Title and date are moved into AiGeneratedContent or its fallback */}
         </header>
 
         <Image
           key={postDetails.slug + '-img1'}
           src={firstImage.imageUrl}
-          alt={seoContent.title || postDetails.title || "Main blog image"}
+          alt={postDetails.title || "Main blog image"} {/* Use postDetails.title as initial alt */}
           width={800}
           height={400}
           className="w-full rounded-lg shadow-md mb-8 object-cover"
           data-ai-hint={firstImage.dataAiHint}
           priority
         />
+        
+        <Suspense fallback={<AiContentFallback />}>
+          <AiGeneratedContent postDetails={postDetails} />
+        </Suspense>
 
-        <div className="prose prose-lg dark:prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: contentPart1 }} />
-
-        {secondImage && (
-          <Image
-            key={postDetails.slug + '-img2'}
-            src={secondImage.imageUrl}
-            alt={`${seoContent.title || postDetails.title || 'Blog illustration'} - illustration`}
-            width={800}
-            height={300}
-            className="w-full rounded-lg shadow-md my-8 object-cover"
-            data-ai-hint={secondImage.dataAiHint}
-          />
-        )}
-
-        {contentPart2 && (
-          <div className="prose prose-lg dark:prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: contentPart2 }} />
-        )}
       </article>
 
       <aside className="mt-12 pt-8 border-t">
