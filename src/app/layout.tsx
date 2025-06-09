@@ -3,7 +3,14 @@ import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
-import ChatbotButton from '@/components/shared/ChatbotButton';
+import { Inter } from 'next/font/google';
+import DynamicChatbotButtonWrapper from '@/components/shared/DynamicChatbotButtonWrapper';
+
+const inter = Inter({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-inter',
+});
 
 export const metadata: Metadata = {
   title: 'InvestAI - AI-Powered Investment Calculators',
@@ -16,19 +23,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-      </head>
-      <body className="font-body antialiased flex flex-col min-h-screen">
+    <html lang="en" className={`${inter.variable} antialiased`} suppressHydrationWarning>
+      <head />
+      <body className="font-body flex flex-col min-h-screen">
         <Header />
         <main className="flex-grow">
           {children}
         </main>
         <Footer />
-        <ChatbotButton />
+        <DynamicChatbotButtonWrapper />
         <Toaster />
       </body>
     </html>
