@@ -7,22 +7,35 @@ import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react'; 
 import { Button } from '@/components/ui/button';
 
+interface BlogImage {
+  imageUrl: string;
+  dataAiHint: string;
+}
+
+interface BlogPostDetails {
+  slug: string;
+  title: string;
+  category: string;
+  date: string;
+  images: BlogImage[];
+  keywords: string[];
+}
 
 // Placeholder for fetching actual blog post data based on slug
 // In a real app, this would fetch from a database or CMS
-const getBlogPostBySlug = async (slug: string) => {
+const getBlogPostBySlug = async (slug: string): Promise<BlogPostDetails | undefined> => {
   // Simulating fetching post details
-  const posts = [
-    { slug: 'understanding-compound-interest', title: 'Understanding Compound Interest for Long-Term Growth', category: 'Investing Basics', date: 'October 26, 2023', imageUrl: 'https://placehold.co/800x400.png', keywords: ['compound interest', 'investment growth', 'finance basics'], dataAiHint: 'financial education' },
-    { slug: 'beginners-guide-bitcoin-roi', title: 'Beginner\'s Guide to Bitcoin ROI Calculation', category: 'Cryptocurrency', date: 'October 24, 2023', imageUrl: 'https://placehold.co/800x400.png', keywords: ['bitcoin roi', 'crypto basics', 'digital assets'], dataAiHint: 'crypto chart' },
-    { slug: 'maximizing-sip-investments', title: 'Maximizing Your SIP Investments with AI Insights', category: 'Mutual Funds', date: 'October 22, 2023', imageUrl: 'https://placehold.co/800x400.png', keywords: ['sip strategy', 'ai investing', 'mutual funds'], dataAiHint: 'investment plan' },
-    { slug: 'navigating-market-volatility', title: 'Navigating Market Volatility: Tips for Investors', category: 'Market Analysis', date: 'October 20, 2023', imageUrl: 'https://placehold.co/800x400.png', keywords: ['market volatility', 'investment tips', 'risk management'], dataAiHint: 'stock analysis' },
+  const posts: BlogPostDetails[] = [
+    { slug: 'understanding-compound-interest', title: 'Understanding Compound Interest for Long-Term Growth', category: 'Investing Basics', date: 'October 26, 2023', images: [{ imageUrl: 'https://placehold.co/800x400.png', dataAiHint: 'financial education' }, { imageUrl: 'https://placehold.co/800x300.png', dataAiHint: 'investment chart' }], keywords: ['compound interest', 'investment growth', 'finance basics'] },
+    { slug: 'beginners-guide-bitcoin-roi', title: 'Beginner\'s Guide to Bitcoin ROI Calculation', category: 'Cryptocurrency', date: 'October 24, 2023', images: [{ imageUrl: 'https://placehold.co/800x400.png', dataAiHint: 'crypto chart' }, { imageUrl: 'https://placehold.co/800x300.png', dataAiHint: 'bitcoin analysis' }], keywords: ['bitcoin roi', 'crypto basics', 'digital assets'] },
+    { slug: 'maximizing-sip-investments', title: 'Maximizing Your SIP Investments with AI Insights', category: 'Mutual Funds', date: 'October 22, 2023', images: [{ imageUrl: 'https://placehold.co/800x400.png', dataAiHint: 'investment plan' }, { imageUrl: 'https://placehold.co/800x300.png', dataAiHint: 'ai finance' }], keywords: ['sip strategy', 'ai investing', 'mutual funds'] },
+    { slug: 'navigating-market-volatility', title: 'Navigating Market Volatility: Tips for Investors', category: 'Market Analysis', date: 'October 20, 2023', images: [{ imageUrl: 'https://placehold.co/800x400.png', dataAiHint: 'stock analysis' }, { imageUrl: 'https://placehold.co/800x300.png', dataAiHint: 'market graph' }], keywords: ['market volatility', 'investment tips', 'risk management'] },
   ];
   return posts.find(p => p.slug === slug);
 };
 
 export async function generateStaticParams() {
-  const posts = [ // Same slugs as above for consistency
+  const posts = [ 
     { slug: 'understanding-compound-interest' },
     { slug: 'beginners-guide-bitcoin-roi' },
     { slug: 'maximizing-sip-investments' },
@@ -39,9 +52,12 @@ interface BlogPostPageProps {
 export default async function BlogPostPage({ params }: BlogPostPageProps) {
   const postDetails = await getBlogPostBySlug(params.slug);
 
-  if (!postDetails) {
-    return <div className="container mx-auto py-8 text-center">Blog post not found.</div>;
+  if (!postDetails || !postDetails.images || postDetails.images.length === 0) {
+    return <div className="container mx-auto py-8 text-center">Blog post or primary image not found.</div>;
   }
+
+  const firstImage = postDetails.images[0];
+  const secondImage = postDetails.images.length > 1 ? postDetails.images[1] : null;
 
   let seoContent = { title: postDetails.title, content: `Detailed content for ${postDetails.title} goes here. This article will delve into ${postDetails.keywords.join(', ')} offering valuable insights and practical advice.` };
   try {
@@ -55,38 +71,52 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
 
     if (error instanceof Error) {
       errorDetailsText = `Message: ${error.message}`;
-      console.error(`Failed to generate blog content for "${itemName}". ${errorDetailsText}`);
-      if (error.stack) {
-        console.error("Stack trace for the above error:", error.stack);
+    } else if (error && typeof error === 'object' && error.message) {
+      errorDetailsText = `Message: ${error.message}`;
+    } else if (error) {
+       try {
+        errorDetailsText = `Details: ${JSON.stringify(error)}`;
+      } catch (e) {
+        errorDetailsText = `Details: Unserializable error object. Keys: ${Object.keys(error || {}).join(', ')}`;
       }
+    }
+    console.error(`Failed to generate blog content for "${itemName}". ${errorDetailsText}`);
+    if (error instanceof Error && error.stack) {
+      console.error("Stack trace for the above error:", error.stack);
     } else if (error && typeof error === 'object') {
-      if (error.message) { 
-        errorDetailsText = `Message: ${error.message}`;
-      } else {
-        try {
-          errorDetailsText = `Object: ${JSON.stringify(error, null, 2)}`;
-        } catch (stringifyError) {
-          errorDetailsText = `Unstringifiable Object. Keys: ${Object.keys(error).join(', ')}`;
-        }
-      }
-      console.error(`Failed to generate blog content for "${itemName}". ${errorDetailsText}`);
-      console.error("Raw error object details:", error);
-    } else {
-      errorDetailsText = `Details: ${String(error)}`;
-      console.error(`Failed to generate blog content for "${itemName}". ${errorDetailsText}`);
+      console.error("Raw error object for AI content generation failure:", error);
     }
   }
   
-  // Basic formatting for AI content
   const formattedSeoContent = seoContent.content
     .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
     .replace(/\*(.*?)\*/g, '<em>$1</em>')
-    .replace(/### (.*?)(?:\n|<br \/>)/g, '<h3>$1</h3>')
-    .replace(/## (.*?)(?:\n|<br \/>)/g, '<h2>$1</h2>')
-    .replace(/# (.*?)(?:\n|<br \/>)/g, '<h1>$1</h1>')
-    .replace(/^- (.*?)(?:\n|<br \/>)/gm, '<li>$1</li>')
+    .replace(/### (.*?)(?:\n|<br \s*\/?>)/g, '<h3>$1</h3>')
+    .replace(/## (.*?)(?:\n|<br \s*\/?>)/g, '<h2>$1</h2>')
+    .replace(/# (.*?)(?:\n|<br \s*\/?>)/g, '<h1>$1</h1>')
+    .replace(/^- (.*?)(?:\n|<br \s*\/?>)/gm, '<li>$1</li>')
     .replace(/(<li>.*?<\/li>)+/gs, (match) => `<ul>${match}</ul>`)
     .replace(/\n/g, '<br />');
+
+  let contentPart1 = formattedSeoContent;
+  let contentPart2 = '';
+
+  const headingSplitRegex = /(<\/h[23]>)/i; // Matches </h2> or </h3>
+  const splitByHeading = formattedSeoContent.split(headingSplitRegex);
+
+  if (splitByHeading.length > 1) {
+    contentPart1 = splitByHeading.slice(0, 2).join(''); // Content up to and including the closing h2/h3 tag
+    contentPart2 = splitByHeading.slice(2).join('');
+  } else {
+    // Fallback: split by <br />
+    const lines = formattedSeoContent.split(/<br\s*\/?>/i); // Split by <br />, <br/>, <br />
+    if (lines.length > 1) {
+      const splitIndex = Math.min(3, Math.floor(lines.length / 2)); // Insert after ~3rd line or middle
+      contentPart1 = lines.slice(0, splitIndex).join('<br />') + (lines.length > splitIndex ? '<br />' : '');
+      contentPart2 = lines.slice(splitIndex).join('<br />');
+    }
+    // If only one line or no <br />, contentPart2 remains empty, second image will appear after all contentPart1 if secondImage exists.
+  }
 
 
   return (
@@ -107,16 +137,31 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
         </header>
 
         <Image 
-          src={postDetails.imageUrl} 
+          src={firstImage.imageUrl} 
           alt={seoContent.title} 
           width={800} 
           height={400} 
           className="w-full rounded-lg shadow-md mb-8 object-cover"
-          data-ai-hint={postDetails.dataAiHint} 
+          data-ai-hint={firstImage.dataAiHint} 
           priority
         />
         
-        <div className="prose prose-lg dark:prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: formattedSeoContent }} />
+        <div className="prose prose-lg dark:prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: contentPart1 }} />
+
+        {secondImage && (
+          <Image
+            src={secondImage.imageUrl}
+            alt={`${seoContent.title} - illustration`}
+            width={800}
+            height={300}
+            className="w-full rounded-lg shadow-md my-8 object-cover"
+            data-ai-hint={secondImage.dataAiHint}
+          />
+        )}
+        
+        {contentPart2 && (
+          <div className="prose prose-lg dark:prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: contentPart2 }} />
+        )}
       </article>
 
       <aside className="mt-12 pt-8 border-t">

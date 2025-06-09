@@ -1,15 +1,30 @@
+
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 
+interface BlogImage {
+  imageUrl: string;
+  dataAiHint: string;
+}
+
+interface BlogPostEntry {
+  id: string;
+  title: string;
+  excerpt: string;
+  images: BlogImage[];
+  date: string;
+  category: string;
+}
+
 // Placeholder blog posts - In a real app, this would come from a CMS or AI generation process
-const blogPosts = [
-  { id: 'understanding-compound-interest', title: 'Understanding Compound Interest for Long-Term Growth', excerpt: 'Learn how the power of compounding can significantly boost your investments over time. An essential read for new and seasoned investors alike.', imageUrl: 'https://placehold.co/600x400.png', date: 'October 26, 2023', category: 'Investing Basics', dataAiHint: 'finance chart' },
-  { id: 'beginners-guide-bitcoin-roi', title: 'Beginner\'s Guide to Bitcoin ROI Calculation', excerpt: 'Demystifying Bitcoin investments and how to calculate potential returns and risks. Understand the volatility and opportunities.', imageUrl: 'https://placehold.co/600x400.png', date: 'October 24, 2023', category: 'Cryptocurrency', dataAiHint: 'bitcoin graph' },
-  { id: 'maximizing-sip-investments', title: 'Maximizing Your SIP Investments with AI Insights', excerpt: 'Discover strategies to optimize your Systematic Investment Plans using AI-driven analytics and market trends.', imageUrl: 'https://placehold.co/600x400.png', date: 'October 22, 2023', category: 'Mutual Funds', dataAiHint: 'investment portfolio' },
-  { id: 'navigating-market-volatility', title: 'Navigating Market Volatility: Tips for Investors', excerpt: 'Strategies to protect your portfolio and find opportunities during turbulent market conditions. Learn from historical data and AI predictions.', imageUrl: 'https://placehold.co/600x400.png', date: 'October 20, 2023', category: 'Market Analysis', dataAiHint: 'stock market' },
+const blogPosts: BlogPostEntry[] = [
+  { id: 'understanding-compound-interest', title: 'Understanding Compound Interest for Long-Term Growth', excerpt: 'Learn how the power of compounding can significantly boost your investments over time. An essential read for new and seasoned investors alike.', images: [{ imageUrl: 'https://placehold.co/600x400.png', dataAiHint: 'finance chart' }, { imageUrl: 'https://placehold.co/600x300.png', dataAiHint: 'growth graph' }], date: 'October 26, 2023', category: 'Investing Basics' },
+  { id: 'beginners-guide-bitcoin-roi', title: 'Beginner\'s Guide to Bitcoin ROI Calculation', excerpt: 'Demystifying Bitcoin investments and how to calculate potential returns and risks. Understand the volatility and opportunities.', images: [{ imageUrl: 'https://placehold.co/600x400.png', dataAiHint: 'bitcoin graph' }, { imageUrl: 'https://placehold.co/600x300.png', dataAiHint: 'crypto currency' }], date: 'October 24, 2023', category: 'Cryptocurrency' },
+  { id: 'maximizing-sip-investments', title: 'Maximizing Your SIP Investments with AI Insights', excerpt: 'Discover strategies to optimize your Systematic Investment Plans using AI-driven analytics and market trends.', images: [{ imageUrl: 'https://placehold.co/600x400.png', dataAiHint: 'investment portfolio' }, { imageUrl: 'https://placehold.co/600x300.png', dataAiHint: 'financial planning' }], date: 'October 22, 2023', category: 'Mutual Funds' },
+  { id: 'navigating-market-volatility', title: 'Navigating Market Volatility: Tips for Investors', excerpt: 'Strategies to protect your portfolio and find opportunities during turbulent market conditions. Learn from historical data and AI predictions.', images: [{ imageUrl: 'https://placehold.co/600x400.png', dataAiHint: 'stock market' }, { imageUrl: 'https://placehold.co/600x300.png', dataAiHint: 'market analysis chart' }], date: 'October 20, 2023', category: 'Market Analysis' },
 ];
 
 export default function BlogPage() {
@@ -25,16 +40,18 @@ export default function BlogPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {blogPosts.map((post) => (
           <Card key={post.id} className="flex flex-col overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300">
-            <Link href={`/blog/${post.id}`} className="block">
-              <Image 
-                src={post.imageUrl} 
-                alt={post.title} 
-                width={600} 
-                height={300} // Adjusted for better aspect ratio
-                className="w-full h-48 object-cover"
-                data-ai-hint={post.dataAiHint} 
-              />
-            </Link>
+            {post.images && post.images.length > 0 && (
+              <Link href={`/blog/${post.id}`} className="block">
+                <Image 
+                  src={post.images[0].imageUrl} 
+                  alt={post.title} 
+                  width={600} 
+                  height={300} // Adjusted for better aspect ratio
+                  className="w-full h-48 object-cover"
+                  data-ai-hint={post.images[0].dataAiHint} 
+                />
+              </Link>
+            )}
             <CardHeader>
               <Link href={`/blog/${post.id}`} className="block">
                 <CardTitle className="font-headline text-xl hover:text-primary transition-colors">{post.title}</CardTitle>
