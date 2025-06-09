@@ -4,7 +4,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import Image from 'next/image';
 import Link from 'next/link';
-import { ArrowLeft, Button } from 'lucide-react'; // Button was missing, assuming it's needed or remove if not used in this file
+import { ArrowLeft } from 'lucide-react'; 
+import { Button } from '@/components/ui/button';
+
 
 // Placeholder for fetching actual blog post data based on slug
 // In a real app, this would fetch from a database or CMS
@@ -44,21 +46,34 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
   let seoContent = { title: postDetails.title, content: `Detailed content for ${postDetails.title} goes here. This article will delve into ${postDetails.keywords.join(', ')} offering valuable insights and practical advice.` };
   try {
     seoContent = await generateSeoContent({
-      calculatorName: `Blog Post: ${postDetails.title}`, // Using calculatorName for topic for the AI
+      calculatorName: `Blog Post: ${postDetails.title}`, 
       keywords: postDetails.keywords.join(', '),
     });
   } catch (error: any) {
-    console.error(`Failed to generate blog content for "${postDetails.title}". Details:`, error);
-    if (error && typeof error === 'object') {
-      if ('message' in error) console.error("Error message:", error.message);
-      if ('stack' in error) console.error("Error stack:", error.stack);
-      if (!(error instanceof Error)) {
+    const itemName = postDetails.title;
+    let errorDetailsText = "Unknown error occurred.";
+
+    if (error instanceof Error) {
+      errorDetailsText = `Message: ${error.message}`;
+      console.error(`Failed to generate blog content for "${itemName}". ${errorDetailsText}`);
+      if (error.stack) {
+        console.error("Stack trace for the above error:", error.stack);
+      }
+    } else if (error && typeof error === 'object') {
+      if (error.message) { 
+        errorDetailsText = `Message: ${error.message}`;
+      } else {
         try {
-            console.error("Full error object (JSON):", JSON.stringify(error, null, 2));
-        } catch (e) {
-            console.error("Could not stringify full error object.");
+          errorDetailsText = `Object: ${JSON.stringify(error, null, 2)}`;
+        } catch (stringifyError) {
+          errorDetailsText = `Unstringifiable Object. Keys: ${Object.keys(error).join(', ')}`;
         }
       }
+      console.error(`Failed to generate blog content for "${itemName}". ${errorDetailsText}`);
+      console.error("Raw error object details:", error);
+    } else {
+      errorDetailsText = `Details: ${String(error)}`;
+      console.error(`Failed to generate blog content for "${itemName}". ${errorDetailsText}`);
     }
   }
   

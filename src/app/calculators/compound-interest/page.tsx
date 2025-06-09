@@ -21,17 +21,30 @@ export default async function CompoundInterestPage() {
       keywords: calculatorInfo.keywords.join(', '),
     });
   } catch (error: any) {
-    console.error(`Failed to generate SEO content for ${calculatorInfo.name}. Details:`, error);
-    if (error && typeof error === 'object') {
-      if ('message' in error) console.error("Error message:", error.message);
-      if ('stack' in error) console.error("Error stack:", error.stack);
-      if (!(error instanceof Error)) {
+    const itemName = calculatorInfo.name;
+    let errorDetailsText = "Unknown error occurred.";
+
+    if (error instanceof Error) {
+      errorDetailsText = `Message: ${error.message}`;
+      console.error(`Failed to generate SEO content for "${itemName}". ${errorDetailsText}`);
+      if (error.stack) {
+        console.error("Stack trace for the above error:", error.stack);
+      }
+    } else if (error && typeof error === 'object') {
+      if (error.message) { 
+        errorDetailsText = `Message: ${error.message}`;
+      } else {
         try {
-            console.error("Full error object (JSON):", JSON.stringify(error, null, 2));
-        } catch (e) {
-            console.error("Could not stringify full error object.");
+          errorDetailsText = `Object: ${JSON.stringify(error, null, 2)}`;
+        } catch (stringifyError) {
+          errorDetailsText = `Unstringifiable Object. Keys: ${Object.keys(error).join(', ')}`;
         }
       }
+      console.error(`Failed to generate SEO content for "${itemName}". ${errorDetailsText}`);
+      console.error("Raw error object details:", error);
+    } else {
+      errorDetailsText = `Details: ${String(error)}`;
+      console.error(`Failed to generate SEO content for "${itemName}". ${errorDetailsText}`);
     }
     // Use fallback content
   }
@@ -39,12 +52,10 @@ export default async function CompoundInterestPage() {
   const formattedSeoContent = seoContent.content
     .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') // Bold
     .replace(/\*(.*?)\*/g, '<em>$1</em>')         // Italics
-    .replace(/### (.*?)\n/g, '<h3>$1</h3>')       // H3
-    .replace(/## (.*?)\n/g, '<h2>$1</h2>')         // H2
-    .replace(/# (.*?)\n/g, '<h1>$1</h1>')           // H1
-    .replace(/^- (.*?)\n/gm, '<li>$1</li>')       // List items (basic)
-    // This is a basic list conversion. For nested lists or numbered lists, more complex regex is needed.
-    // Wrap sequences of <li> into <ul>
+    .replace(/### (.*?)(?:\n|<br \/>)/g, '<h3>$1</h3>')       // H3
+    .replace(/## (.*?)(?:\n|<br \/>)/g, '<h2>$1</h2>')         // H2
+    .replace(/# (.*?)(?:\n|<br \/>)/g, '<h1>$1</h1>')           // H1
+    .replace(/^- (.*?)(?:\n|<br \/>)/gm, '<li>$1</li>')       // List items (basic)
     .replace(/(<li>.*?<\/li>)+/gs, (match) => `<ul>${match}</ul>`)
     .replace(/\n/g, '<br />');
 
