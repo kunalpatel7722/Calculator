@@ -38,24 +38,54 @@ interface CalculatorGuideBlogPostDetails extends BaseBlogPostDetails {
 type BlogPostDetailsExtended = OriginalBlogPostDetails | CalculatorGuideBlogPostDetails;
 
 
-const originalBlogPosts: BaseBlogPostDetails[] = [
-    { slug: 'understanding-compound-interest', title: 'Understanding Compound Interest for Long-Term Growth', category: 'Investing Basics', date: 'October 26, 2023', images: [{ imageUrl: 'https://placehold.co/800x400.png', dataAiHint: 'financial education' }, { imageUrl: 'https://placehold.co/800x300.png', dataAiHint: 'investment chart' }], keywords: ['compound interest', 'investment growth', 'finance basics'], excerpt: 'Explore the fundamentals of compound interest.' },
-    { slug: 'beginners-guide-bitcoin-roi', title: 'Beginner\'s Guide to Bitcoin ROI Calculation', category: 'Cryptocurrency', date: 'October 24, 2023', images: [{ imageUrl: 'https://placehold.co/800x400.png', dataAiHint: 'crypto chart' }, { imageUrl: 'https://placehold.co/800x300.png', dataAiHint: 'bitcoin analysis' }], keywords: ['bitcoin roi', 'crypto basics', 'digital assets'], excerpt: 'Learn to calculate Bitcoin ROI.' },
-    { slug: 'maximizing-sip-investments', title: 'Maximizing Your SIP Investments with AI Insights', category: 'Mutual Funds', date: 'October 22, 2023', images: [{ imageUrl: 'https://placehold.co/800x400.png', dataAiHint: 'investment plan' }, { imageUrl: 'https://placehold.co/800x300.png', dataAiHint: 'ai finance' }], keywords: ['sip strategy', 'ai investing', 'mutual funds'], excerpt: 'Optimize your SIP investments.' },
-    { slug: 'navigating-market-volatility', title: 'Navigating Market Volatility: Tips for Investors', category: 'Market Analysis', date: 'October 20, 2023', images: [{ imageUrl: 'https://placehold.co/800x400.png', dataAiHint: 'stock analysis' }, { imageUrl: 'https://placehold.co/800x300.png', dataAiHint: 'market graph' }], keywords: ['market volatility', 'investment tips', 'risk management'], excerpt: 'Tips for volatile markets.' },
+const originalBlogPosts: OriginalBlogPostDetails[] = [
+    { slug: 'understanding-compound-interest', title: 'Understanding Compound Interest for Long-Term Growth', category: 'Investing Basics', date: 'October 26, 2023', images: [{ imageUrl: 'https://placehold.co/800x400.png', dataAiHint: 'financial education' }, { imageUrl: 'https://placehold.co/800x300.png', dataAiHint: 'investment chart' }], keywords: ['compound interest', 'investment growth', 'finance basics'], excerpt: 'Explore the fundamentals of compound interest.', type: 'original', calculatorNameForAi: 'Blog Post: Understanding Compound Interest for Long-Term Growth' },
+    { slug: 'beginners-guide-bitcoin-roi', title: 'Beginner\'s Guide to Bitcoin ROI Calculation', category: 'Cryptocurrency', date: 'October 24, 2023', images: [{ imageUrl: 'https://placehold.co/800x400.png', dataAiHint: 'crypto chart' }, { imageUrl: 'https://placehold.co/800x300.png', dataAiHint: 'bitcoin analysis' }], keywords: ['bitcoin roi', 'crypto basics', 'digital assets'], excerpt: 'Learn to calculate Bitcoin ROI.', type: 'original', calculatorNameForAi: 'Blog Post: Beginner\'s Guide to Bitcoin ROI Calculation' },
+    { slug: 'maximizing-sip-investments', title: 'Maximizing Your SIP Investments with AI Insights', category: 'Mutual Funds', date: 'October 22, 2023', images: [{ imageUrl: 'https://placehold.co/800x400.png', dataAiHint: 'investment plan' }, { imageUrl: 'https://placehold.co/800x300.png', dataAiHint: 'ai finance' }], keywords: ['sip strategy', 'ai investing', 'mutual funds'], excerpt: 'Optimize your SIP investments.', type: 'original', calculatorNameForAi: 'Blog Post: Maximizing Your SIP Investments with AI Insights' },
+    { slug: 'navigating-market-volatility', title: 'Navigating Market Volatility: Tips for Investors', category: 'Market Analysis', date: 'October 20, 2023', images: [{ imageUrl: 'https://placehold.co/800x400.png', dataAiHint: 'stock analysis' }, { imageUrl: 'https://placehold.co/800x300.png', dataAiHint: 'market graph' }], keywords: ['market volatility', 'investment tips', 'risk management'], excerpt: 'Tips for volatile markets.', type: 'original', calculatorNameForAi: 'Blog Post: Navigating Market Volatility: Tips for Investors' },
 ];
+
+const getCalculatorBlogImageHints = (calculator: CalculatorFeature): { hint1: string, hint2: string } => {
+  const nameLower = calculator.name.toLowerCase();
+  const keywordsLower = calculator.keywords.map(k => k.toLowerCase());
+
+  let hint1 = "financial tool";
+  let hint2 = "investment idea";
+
+  if (nameLower.includes("loan") || keywordsLower.includes("loan")) {
+    hint1 = "loan calculator";
+    hint2 = "finance plan";
+  } else if (nameLower.includes("bitcoin") || nameLower.includes("crypto") || nameLower.includes("blockchain") || nameLower.includes("ico") || nameLower.includes("ido")) {
+    hint1 = "crypto concept";
+    hint2 = "digital money";
+  } else if (nameLower.includes("stock") || nameLower.includes("dividend") || nameLower.includes("market") || nameLower.includes("volatility")) {
+    hint1 = "stock trading";
+    hint2 = "market data";
+  } else if (nameLower.includes("portfolio") || nameLower.includes("allocation")) {
+    hint1 = "portfolio management";
+    hint2 = "asset chart";
+  } else if (nameLower.includes("real estate")) {
+    hint1 = "property value";
+    hint2 = "house market";
+  } else if (nameLower.includes("tax")) {
+    hint1 = "tax forms";
+    hint2 = "finance documents";
+  } else if (nameLower.includes("retirement") || nameLower.includes("annuity")) {
+    hint1 = "retirement plan";
+    hint2 = "savings growth";
+  } else if (nameLower.includes("sip") || nameLower.includes("dca") || nameLower.includes("compound") || nameLower.includes("goal") || nameLower.includes("time value") ) {
+    hint1 = "financial calculator";
+    hint2 = "planning tools";
+  }
+  return { hint1, hint2 };
+};
 
 
 const getBlogPostBySlug = async (slug: string): Promise<BlogPostDetailsExtended | undefined> => {
   // Try predefined posts first
   const predefinedPost = originalBlogPosts.find(p => p.slug === slug);
   if (predefinedPost) {
-    return {
-      ...predefinedPost,
-      keywords: predefinedPost.keywords || [], 
-      calculatorNameForAi: `Blog Post: ${predefinedPost.title}`,
-      type: 'original',
-    };
+    return predefinedPost;
   }
 
   // Check if it's a calculator guide slug
@@ -65,14 +95,15 @@ const getBlogPostBySlug = async (slug: string): Promise<BlogPostDetailsExtended 
     const calcId = slug.substring(calcGuidePrefix.length, slug.length - calcGuideSuffix.length);
     const calculator = getCalculatorById(calcId);
     if (calculator) {
+      const { hint1, hint2 } = getCalculatorBlogImageHints(calculator);
       return {
         slug,
         title: `Comprehensive Guide: ${calculator.name}`, 
         category: calculator.category,
         date: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
         images: [ 
-          { imageUrl: 'https://placehold.co/800x400.png', dataAiHint: `${calculator.keywords[0] || 'finance'} guide` },
-          { imageUrl: 'https://placehold.co/800x300.png', dataAiHint: `${calculator.keywords[1] || 'investment'} chart` },
+          { imageUrl: 'https://placehold.co/800x400.png', dataAiHint: hint1 },
+          { imageUrl: 'https://placehold.co/800x300.png', dataAiHint: hint2 },
         ],
         keywords: [...calculator.keywords, 'guide', calculator.name.toLowerCase().replace(/\s+/g, ' ')],
         excerpt: `Learn all about the ${calculator.name} and how to use it effectively.`,

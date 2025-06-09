@@ -22,29 +22,65 @@ interface BlogPostEntry {
 
 // Original blog posts
 const originalBlogPosts: BlogPostEntry[] = [
-  { id: 'understanding-compound-interest', title: 'Understanding Compound Interest for Long-Term Growth', excerpt: 'Learn how the power of compounding can significantly boost your investments over time. An essential read for new and seasoned investors alike.', images: [{ imageUrl: 'https://placehold.co/600x400.png', dataAiHint: 'finance chart' }, { imageUrl: 'https://placehold.co/600x300.png', dataAiHint: 'growth graph' }], date: 'October 26, 2023', category: 'Investing Basics' },
-  { id: 'beginners-guide-bitcoin-roi', title: 'Beginner\'s Guide to Bitcoin ROI Calculation', excerpt: 'Demystifying Bitcoin investments and how to calculate potential returns and risks. Understand the volatility and opportunities.', images: [{ imageUrl: 'https://placehold.co/600x400.png', dataAiHint: 'bitcoin graph' }, { imageUrl: 'https://placehold.co/600x300.png', dataAiHint: 'crypto currency' }], date: 'October 24, 2023', category: 'Cryptocurrency' },
-  { id: 'maximizing-sip-investments', title: 'Maximizing Your SIP Investments with AI Insights', excerpt: 'Discover strategies to optimize your Systematic Investment Plans using AI-driven analytics and market trends.', images: [{ imageUrl: 'https://placehold.co/600x400.png', dataAiHint: 'investment portfolio' }, { imageUrl: 'https://placehold.co/600x300.png', dataAiHint: 'financial planning' }], date: 'October 22, 2023', category: 'Mutual Funds' },
-  { id: 'navigating-market-volatility', title: 'Navigating Market Volatility: Tips for Investors', excerpt: 'Strategies to protect your portfolio and find opportunities during turbulent market conditions. Learn from historical data and AI predictions.', images: [{ imageUrl: 'https://placehold.co/600x400.png', dataAiHint: 'stock market' }, { imageUrl: 'https://placehold.co/600x300.png', dataAiHint: 'market analysis chart' }], date: 'October 20, 2023', category: 'Market Analysis' },
+  { id: 'understanding-compound-interest', title: 'Understanding Compound Interest for Long-Term Growth', excerpt: 'Learn how the power of compounding can significantly boost your investments over time. An essential read for new and seasoned investors alike.', images: [{ imageUrl: 'https://placehold.co/600x400.png', dataAiHint: 'financial education' }, { imageUrl: 'https://placehold.co/600x300.png', dataAiHint: 'investment chart' }], date: 'October 26, 2023', category: 'Investing Basics' },
+  { id: 'beginners-guide-bitcoin-roi', title: 'Beginner\'s Guide to Bitcoin ROI Calculation', excerpt: 'Demystifying Bitcoin investments and how to calculate potential returns and risks. Understand the volatility and opportunities.', images: [{ imageUrl: 'https://placehold.co/600x400.png', dataAiHint: 'crypto chart' }, { imageUrl: 'https://placehold.co/600x300.png', dataAiHint: 'bitcoin analysis' }], date: 'October 24, 2023', category: 'Cryptocurrency' },
+  { id: 'maximizing-sip-investments', title: 'Maximizing Your SIP Investments with AI Insights', excerpt: 'Discover strategies to optimize your Systematic Investment Plans using AI-driven analytics and market trends.', images: [{ imageUrl: 'https://placehold.co/600x400.png', dataAiHint: 'investment plan' }, { imageUrl: 'https://placehold.co/600x300.png', dataAiHint: 'ai finance' }], date: 'October 22, 2023', category: 'Mutual Funds' },
+  { id: 'navigating-market-volatility', title: 'Navigating Market Volatility: Tips for Investors', excerpt: 'Strategies to protect your portfolio and find opportunities during turbulent market conditions. Learn from historical data and AI predictions.', images: [{ imageUrl: 'https://placehold.co/600x400.png', dataAiHint: 'stock analysis' }, { imageUrl: 'https://placehold.co/600x300.png', dataAiHint: 'market graph' }], date: 'October 20, 2023', category: 'Market Analysis' },
 ];
+
+const getCalculatorBlogImageHints = (calculator: CalculatorFeature): { hint1: string, hint2: string } => {
+  const nameLower = calculator.name.toLowerCase();
+  const keywordsLower = calculator.keywords.map(k => k.toLowerCase());
+
+  let hint1 = "financial tool";
+  let hint2 = "investment idea"; // A common, versatile second hint for the detailed page
+
+  if (nameLower.includes("loan") || keywordsLower.includes("loan")) {
+    hint1 = "loan calculator";
+    hint2 = "finance plan";
+  } else if (nameLower.includes("bitcoin") || nameLower.includes("crypto") || nameLower.includes("blockchain") || nameLower.includes("ico") || nameLower.includes("ido")) {
+    hint1 = "crypto concept";
+    hint2 = "digital money";
+  } else if (nameLower.includes("stock") || nameLower.includes("dividend") || nameLower.includes("market") || nameLower.includes("volatility")) {
+    hint1 = "stock trading";
+    hint2 = "market data";
+  } else if (nameLower.includes("portfolio") || nameLower.includes("allocation")) {
+    hint1 = "portfolio management";
+    hint2 = "asset chart";
+  } else if (nameLower.includes("real estate")) {
+    hint1 = "property value";
+    hint2 = "house market";
+  } else if (nameLower.includes("tax")) {
+    hint1 = "tax forms";
+    hint2 = "finance documents";
+  } else if (nameLower.includes("retirement") || nameLower.includes("annuity")) {
+    hint1 = "retirement plan";
+    hint2 = "savings growth";
+  } else if (nameLower.includes("sip") || nameLower.includes("dca") || nameLower.includes("compound") || nameLower.includes("goal") || nameLower.includes("time value") ) {
+    hint1 = "financial calculator";
+    hint2 = "planning tools";
+  }
+  return { hint1, hint2 };
+};
 
 // Generate blog post entries for each calculator
 const calculatorBlogPosts: BlogPostEntry[] = CALCULATORS_DATA.map((calculator: CalculatorFeature) => {
   const slug = `guide-to-${calculator.id}-calculator`;
+  const { hint1, hint2 } = getCalculatorBlogImageHints(calculator);
   return {
     id: slug,
     title: `A Comprehensive Guide to the ${calculator.name}`,
     excerpt: `Explore the ${calculator.name}: understand its calculations, benefits, and how to use it effectively for your financial planning.`,
     images: [
-      { imageUrl: 'https://placehold.co/600x400.png', dataAiHint: `${calculator.keywords[0] || 'finance'} guide` },
-      { imageUrl: 'https://placehold.co/600x300.png', dataAiHint: `${calculator.keywords[1] || 'investment'} concept` }
+      { imageUrl: 'https://placehold.co/600x400.png', dataAiHint: hint1 },
+      { imageUrl: 'https://placehold.co/600x300.png', dataAiHint: hint2 } // Second image for detailed view, first is cover
     ],
-    date: 'November 15, 2023', // Generic recent date for these auto-generated entries
+    date: 'November 15, 2023', // Generic recent date
     category: calculator.category,
   };
 });
 
-const allBlogPosts: BlogPostEntry[] = [...originalBlogPosts, ...calculatorBlogPosts];
+const allBlogPosts: BlogPostEntry[] = [...originalBlogPosts, ...calculatorBlogPosts].sort((a,b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
 export default function BlogPage() {
   return (
@@ -65,7 +101,7 @@ export default function BlogPage() {
                   src={post.images[0].imageUrl} 
                   alt={post.title} 
                   width={600} 
-                  height={300} // Adjusted for better aspect ratio
+                  height={300} 
                   className="w-full h-48 object-cover"
                   data-ai-hint={post.images[0].dataAiHint} 
                 />
