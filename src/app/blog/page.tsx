@@ -88,6 +88,10 @@ const calculatorBlogPosts: BlogPostEntry[] = CALCULATORS_DATA.map((calculator: C
     firstImageUrl = 'https://images.unsplash.com/photo-1543699539-33a389c5dcfe?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxiaXRjb2lufGVufDB8fHx8MTc0OTQ1ODU1OXww&ixlib=rb-4.1.0&q=80&w=1080';
     firstImageHint = 'bitcoin currency';
     secondImageHint = hints.hint2; 
+  } else if (calculator.id === 'portfolio-allocation') {
+    firstImageUrl = 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxwb3J0Zm9saW8lMjBhbGxvY2F0aW9ufGVufDB8fHx8MTc0OTQ5MzQzNnww&ixlib=rb-4.1.0&q=80&w=1080';
+    firstImageHint = 'portfolio charts';
+    secondImageHint = hints.hint2;
   } else if (calculator.category === 'Crypto') {
     firstImageUrl = 'https://images.unsplash.com/photo-1526378800651-c32d170fe6f8?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxibG9ja2NoYWlufGVufDB8fHx8MTc0OTQ5MTQ1MHww&ixlib=rb-4.1.0&q=80&w=1080';
     firstImageHint = 'blockchain technology';
