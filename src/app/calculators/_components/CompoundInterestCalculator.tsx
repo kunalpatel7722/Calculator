@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -11,6 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
+import { CurrencyToggle, AVAILABLE_CURRENCIES, type Currency } from '@/components/shared/CurrencyToggle';
 
 const formSchema = z.object({
   principal: z.coerce.number().min(0.01, "Principal must be greater than 0"),
@@ -29,6 +31,7 @@ interface CalculationResult {
 
 export function CompoundInterestCalculator() {
   const [result, setResult] = useState<CalculationResult | null>(null);
+  const [currency, setCurrency] = useState<Currency>(AVAILABLE_CURRENCIES.find(c => c.value === 'USD') || AVAILABLE_CURRENCIES[0]);
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -82,7 +85,7 @@ export function CompoundInterestCalculator() {
         <CardContent className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <Label htmlFor="principal">Principal Amount ($)</Label>
+              <Label htmlFor="principal">Principal Amount ({currency.symbol})</Label>
               <Input id="principal" type="number" step="any" {...form.register('principal')} />
               {form.formState.errors.principal && <p className="text-sm text-destructive mt-1">{form.formState.errors.principal.message}</p>}
             </div>
@@ -114,6 +117,16 @@ export function CompoundInterestCalculator() {
               {form.formState.errors.compoundingFrequency && <p className="text-sm text-destructive mt-1">{form.formState.errors.compoundingFrequency.message}</p>}
             </div>
           </div>
+           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <Label htmlFor="currency-toggle">Currency</Label>
+              <CurrencyToggle
+                id="currency-toggle"
+                selectedCurrency={currency}
+                onCurrencyChange={setCurrency}
+              />
+            </div>
+          </div>
         </CardContent>
         <CardFooter>
           <Button type="submit" className="w-full md:w-auto">Calculate</Button>
@@ -124,8 +137,8 @@ export function CompoundInterestCalculator() {
         <div className="p-6 border-t">
           <h3 className="text-xl font-semibold mb-4 font-headline">Results</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 text-lg">
-            <p><strong>Future Value:</strong> ${result.futureValue.toLocaleString()}</p>
-            <p><strong>Total Interest Earned:</strong> ${result.totalInterest.toLocaleString()}</p>
+            <p><strong>Future Value:</strong> {currency.symbol}{result.futureValue.toLocaleString()}</p>
+            <p><strong>Total Interest Earned:</strong> {currency.symbol}{result.totalInterest.toLocaleString()}</p>
           </div>
 
           <div className="mb-8 h-80 md:h-96">
@@ -133,10 +146,11 @@ export function CompoundInterestCalculator() {
                 <LineChart data={result.annualBreakdown} margin={{ top: 5, right: 20, left: 20, bottom: 5 }}>
                     <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
                     <XAxis dataKey="year" unit="yr" stroke="hsl(var(--muted-foreground))" />
-                    <YAxis stroke="hsl(var(--muted-foreground))" tickFormatter={(value) => `$${value.toLocaleString()}`} />
+                    <YAxis stroke="hsl(var(--muted-foreground))" tickFormatter={(value) => `${currency.symbol}${value.toLocaleString()}`} />
                     <Tooltip
-                      contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: 'var(--radius)' }}
-                      labelStyle={{ color: 'hsl(var(--foreground))', fontWeight: 'bold' }}
+                        formatter={(value: number, name: string) => [`${currency.symbol}${value.toLocaleString()}`, name]}
+                        contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: 'var(--radius)' }}
+                        labelStyle={{ color: 'hsl(var(--foreground))', fontWeight: 'bold' }}
                     />
                     <Legend wrapperStyle={{ color: 'hsl(var(--foreground))' }}/>
                     <Line type="monotone" dataKey="value" name="Investment Value" stroke="hsl(var(--primary))" strokeWidth={2} dot={{ r: 4, fill: 'hsl(var(--primary))' }} activeDot={{ r: 6 }} />
@@ -159,8 +173,8 @@ export function CompoundInterestCalculator() {
                 {result.annualBreakdown.map((item) => (
                   <TableRow key={item.year}>
                     <TableCell>{item.year}</TableCell>
-                    <TableCell>${item.interestEarned.toLocaleString()}</TableCell>
-                    <TableCell className="text-right">${item.value.toLocaleString()}</TableCell>
+                    <TableCell>{currency.symbol}{item.interestEarned.toLocaleString()}</TableCell>
+                    <TableCell className="text-right">{currency.symbol}{item.value.toLocaleString()}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
