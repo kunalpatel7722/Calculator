@@ -54,28 +54,28 @@ const getCalculatorBlogImageHints = (calculator: CalculatorFeature): { hint1: st
   let hint2 = "investment idea"; // Default general hint
 
   if (nameLower.includes("loan") || keywordsLower.includes("loan")) {
-    hint1 = "loan calculator"; // More specific
+    hint1 = "loan calculator";
     hint2 = "finance plan";
   } else if (nameLower.includes("bitcoin") || nameLower.includes("crypto") || nameLower.includes("blockchain") || nameLower.includes("ico") || nameLower.includes("ido")) {
-    hint1 = "crypto concept"; // More specific
+    hint1 = "crypto concept";
     hint2 = "digital money";
   } else if (nameLower.includes("stock") || nameLower.includes("dividend") || nameLower.includes("market") || nameLower.includes("volatility")) {
-    hint1 = "stock trading"; // More specific
+    hint1 = "stock trading";
     hint2 = "market data";
   } else if (nameLower.includes("portfolio") || nameLower.includes("allocation")) {
-    hint1 = "portfolio management"; // More specific
+    hint1 = "portfolio management";
     hint2 = "asset chart";
   } else if (nameLower.includes("real estate")) {
-    hint1 = "property value"; // More specific
+    hint1 = "property value";
     hint2 = "house market";
   } else if (nameLower.includes("tax")) {
-    hint1 = "tax forms"; // More specific
+    hint1 = "tax forms";
     hint2 = "finance documents";
   } else if (nameLower.includes("retirement") || nameLower.includes("annuity")) {
-    hint1 = "retirement plan"; // More specific
+    hint1 = "retirement plan";
     hint2 = "savings growth";
   } else if (nameLower.includes("sip") || nameLower.includes("dca") || nameLower.includes("compound") || nameLower.includes("goal") || nameLower.includes("time value") ) {
-    hint1 = "financial calculator"; // More specific
+    hint1 = "financial calculator";
     hint2 = "planning tools";
   }
   return { hint1, hint2 };
@@ -95,6 +95,13 @@ const getBlogPostBySlug = async (slug: string): Promise<BlogPostDetailsExtended 
     const calculator = getCalculatorById(calcId);
     if (calculator) {
       const { hint1, hint2 } = getCalculatorBlogImageHints(calculator);
+      
+      const secondImageIsUnsplash = hint2 === 'planning tools';
+      const secondImageUrl = secondImageIsUnsplash 
+        ? 'https://images.unsplash.com/photo-1626266061368-46a8f578ddd6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxjYWxjdWxhdG9yfGVufDB8fHx8MTc0OTQ4Njc1M3ww&ixlib=rb-4.1.0&q=80&w=1080'
+        : 'https://placehold.co/800x300.png';
+      const secondImageHint = secondImageIsUnsplash ? 'calculation tools' : hint2;
+
       return {
         slug,
         title: `Comprehensive Guide: ${calculator.name}`,
@@ -102,7 +109,7 @@ const getBlogPostBySlug = async (slug: string): Promise<BlogPostDetailsExtended 
         date: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
         images: [
           { imageUrl: 'https://placehold.co/800x400.png', dataAiHint: hint1 },
-          { imageUrl: 'https://placehold.co/800x300.png', dataAiHint: hint2 },
+          { imageUrl: secondImageUrl, dataAiHint: secondImageHint },
         ],
         keywords: [...calculator.keywords, 'guide', calculator.name.toLowerCase().replace(/\s+/g, ' ')],
         excerpt: `Learn all about the ${calculator.name} and how to use it effectively.`,
@@ -205,7 +212,7 @@ async function AiGeneratedContent({ postDetails, initialSeoTitleForImage }: {
 
       {secondImage && (
         <Image
-          key={postDetails.slug + '-img2'}
+          key={postDetails.slug + '-img2-' + secondImage.imageUrl}
           src={secondImage.imageUrl}
           alt={`${seoContent.title || initialSeoTitleForImage || 'Blog illustration'} - illustration`}
           width={800}
@@ -271,9 +278,9 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
         </header>
 
         <Image
-          key={postDetails.slug + '-img1'}
+          key={postDetails.slug + '-img1-' + firstImage.imageUrl}
           src={firstImage.imageUrl}
-          alt={postDetails.title || "Main blog image"}
+          alt={postDetails.title}
           width={800}
           height={400}
           className="w-full rounded-lg shadow-md mb-8 object-cover"
