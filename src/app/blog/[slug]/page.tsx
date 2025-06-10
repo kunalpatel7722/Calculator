@@ -135,6 +135,10 @@ const getBlogPostBySlug = async (slug: string): Promise<BlogPostDetailsExtended 
         firstImageUrl = 'https://images.unsplash.com/photo-1533749047139-189de3cf06d3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHx0aW1lJTIwdmFsdWUlMjBtb25leXxlbnwwfHx8fDE3NDk1MzgyMjd8MA&ixlib=rb-4.1.0&q=80&w=1080';
         firstImageHint = 'time money';
         secondImageHint = hints.hint2;
+      } else if (calcId === 'sip-calculator') {
+        firstImageUrl = 'https://images.unsplash.com/photo-1560520653-9e0e4c89eb11?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxpbnZlc3RtZW50JTIwc2NyYWJibGUgdGV4dHxlbnwwfHx8fDE3NTAxNjIxNzJ8MA&ixlib=rb-4.0.3&q=80&w=1080';
+        firstImageHint = 'investment scrabble';
+        secondImageHint = hints.hint2; 
       } else if (calculator.category === 'Crypto') {
         firstImageUrl = 'https://images.unsplash.com/photo-1526378800651-c32d170fe6f8?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxibG9ja2NoYWlufGVufDB8fHx8MTc0OTQ5MTQ1MHww&ixlib=rb-4.1.0&q=80&w=1080';
         firstImageHint = 'blockchain technology';
