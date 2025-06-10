@@ -46,7 +46,7 @@ export default function CalculatorsPage() {
           <Input
             type="search"
             placeholder="Search calculators (e.g., 'compound interest', 'crypto', 'roi')..."
-            className="w-full pl-10 pr-4 py-2 text-lg rounded-lg shadow-md focus:ring-2 focus:ring-primary"
+            className="w-full pl-10 pr-4 py-2 text-lg h-11 rounded-lg shadow-md focus:ring-2 focus:ring-primary"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             aria-label="Search calculators"
