@@ -1,10 +1,14 @@
 
+'use client';
+
+import { useState, useMemo } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Image from 'next/image';
 import Link from 'next/link';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, Search } from 'lucide-react';
 import { CALCULATORS_DATA, type CalculatorFeature } from '@/lib/calculator-definitions';
+import { Input } from '@/components/ui/input';
 
 interface BlogImage {
   imageUrl: string;
@@ -126,17 +130,49 @@ const calculatorBlogPosts: BlogPostEntry[] = CALCULATORS_DATA.map((calculator: C
 const allBlogPosts: BlogPostEntry[] = [...originalBlogPosts, ...calculatorBlogPosts].sort((a,b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
 export default function BlogPage() {
+  const [searchTerm, setSearchTerm] = useState('');
+
+  const filteredBlogPosts = useMemo(() => {
+    if (!searchTerm) {
+      return allBlogPosts;
+    }
+    const lowerCaseSearchTerm = searchTerm.toLowerCase();
+    return allBlogPosts.filter(post =>
+      post.title.toLowerCase().includes(lowerCaseSearchTerm) ||
+      post.excerpt.toLowerCase().includes(lowerCaseSearchTerm) ||
+      post.category.toLowerCase().includes(lowerCaseSearchTerm)
+    );
+  }, [searchTerm]);
+
   return (
     <div className="container mx-auto py-12 px-4">
       <header className="text-center mb-12">
         <h1 className="text-4xl font-bold mb-4 font-headline">InvestAI Blog</h1>
-        <p className="text-xl text-muted-foreground">
+        <p className="text-xl text-muted-foreground mb-8">
           Insights, guides, and updates on the world of investment, powered by AI.
         </p>
+        <div className="relative max-w-xl mx-auto">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+          <Input
+            type="search"
+            placeholder="Search blog posts (e.g., 'compound interest', 'bitcoin', 'guide')..."
+            className="w-full pl-10 pr-4 py-2 text-lg h-11 rounded-lg shadow-md focus:ring-2 focus:ring-primary"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            aria-label="Search blog posts"
+          />
+        </div>
       </header>
 
+      {filteredBlogPosts.length === 0 && searchTerm && (
+        <div className="text-center py-10">
+          <p className="text-xl text-muted-foreground">No blog posts found matching your search term "{searchTerm}".</p>
+          <p className="text-md text-muted-foreground mt-2">Try a different keyword or clear the search.</p>
+        </div>
+      )}
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {allBlogPosts.map((post) => (
+        {filteredBlogPosts.map((post) => (
           <Card key={post.id} className="flex flex-col overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300">
             {post.images && post.images.length > 0 && (
               <Link href={`/blog/${post.id}`} className="block">
@@ -169,6 +205,11 @@ export default function BlogPage() {
           </Card>
         ))}
       </div>
+       {filteredBlogPosts.length > 0 && filteredBlogPosts.length < allBlogPosts.length && searchTerm && (
+         <div className="text-center mt-8">
+            <p className="text-sm text-muted-foreground">Showing {filteredBlogPosts.length} of {allBlogPosts.length} blog posts.</p>
+         </div>
+       )}
     </div>
   );
 }
