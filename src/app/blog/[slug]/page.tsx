@@ -127,6 +127,10 @@ const getBlogPostBySlug = async (slug: string): Promise<BlogPostDetailsExtended 
         firstImageUrl = 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxyZWFsJTIwZXN0YXRlfGVufDB8fHx8MTc0OTQ5NDE5Nnww&ixlib=rb-4.1.0&q=80&w=1080';
         firstImageHint = 'property investment';
         secondImageHint = hints.hint2;
+      } else if (calcId === 'goal-planning') {
+        firstImageUrl = 'https://images.unsplash.com/photo-1589144287053-76138d176958?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080';
+        firstImageHint = 'coffee planner';
+        secondImageHint = hints.hint2; // Keep derived hint for second image
       } else if (calculator.category === 'Crypto') {
         firstImageUrl = 'https://images.unsplash.com/photo-1526378800651-c32d170fe6f8?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxibG9ja2NoYWlufGVufDB8fHx8MTc0OTQ5MTQ1MHww&ixlib=rb-4.1.0&q=80&w=1080';
         firstImageHint = 'blockchain technology';
