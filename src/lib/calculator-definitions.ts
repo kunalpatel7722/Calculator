@@ -1,3 +1,4 @@
+
 import type { LucideIcon } from 'lucide-react';
 import { 
   TrendingUp, Activity, PieChart, Scale, Waves, Bitcoin, Repeat, Link2, Receipt, Rocket, 
@@ -43,7 +44,7 @@ export const CALCULATORS_DATA: CalculatorFeature[] = [
   { id: 'portfolio-allocation', name: 'Portfolio Allocation Calculator', icon: LayoutGrid, description: 'Plan your asset allocation strategy.', category: 'General Investment', path: '/calculators/portfolio-allocation', keywords: ['portfolio allocation', 'asset distribution', 'investment diversification'] },
   { id: 'loan-vs-investment', name: 'Loan vs Investment Calculator', icon: Landmark, description: 'Compare paying off loans vs. investing.', category: 'General Investment', path: '/calculators/loan-vs-investment', keywords: ['loan vs investment', 'debt management', 'financial decisions'] },
   { id: 'real-estate-roi', name: 'Real Estate ROI Calculator', icon: Home, description: 'Calculate ROI for real estate investments.', category: 'General Investment', path: '/calculators/real-estate-roi', keywords: ['real estate roi', 'property investment', 'rental income'] },
-  { id: 'goal-planning', name: 'Goal Planning Calculator', icon: Target, description: 'Plan investments to reach financial goals.', category: 'General Investment', path: '/calculators/goal-planning', keywords: ['goal planning', 'financial goals', 'investment targets'] },
+  { id: 'goal-planning', name: 'Goal Planning Calculator', icon: Target, description: 'Plan investments to reach financial goals.', category: 'General Investment', path: '/calculators/goalsandplanning', keywords: ['goal planning', 'financial goals', 'investment targets'] },
   { id: 'time-value-of-money', name: 'Time Value of Money Calculator', icon: Clock, description: 'Understand the time value of money.', category: 'General Investment', path: '/calculators/time-value-of-money', keywords: ['time value of money', 'tvm', 'future value', 'present value'] },
 
   // Mutual Funds & SIP Calculators
