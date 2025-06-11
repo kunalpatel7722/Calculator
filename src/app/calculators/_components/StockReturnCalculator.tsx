@@ -53,7 +53,7 @@ export function StockReturnCalculator() {
     defaultValues: { purchasePrice: 100, sellingPrice: 120, shares: 10 },
   });
   
-  const barChartConfig = { // Renamed for clarity
+  const barChartConfig = { 
     totalInvestment: { label: `Total Investment (${currency.symbol})`, color: "hsl(var(--chart-2))" },
     totalReturnValue: { label: `Total Return Value (${currency.symbol})`, color: "hsl(var(--chart-1))" },
   } satisfies ChartConfig;
@@ -75,12 +75,12 @@ export function StockReturnCalculator() {
     if (profitLoss >= 0) {
       newPieChartData.push({ name: 'Initial Investment', value: totalInvestment, fill: 'hsl(var(--chart-1))'});
       newPieChartConfig['Initial Investment'] = { label: 'Initial Investment', color: 'hsl(var(--chart-1))' };
-      if (profitLoss > 0) { // Only add profit slice if there is actual profit
+      if (profitLoss > 0) { 
         newPieChartData.push({ name: 'Profit', value: profitLoss, fill: 'hsl(var(--chart-2))'});
         newPieChartConfig['Profit'] = { label: 'Profit', color: 'hsl(var(--chart-2))' };
       }
-    } else { // Loss
-      if (totalReturnValue > 0) { // Only add returned value if it's positive
+    } else { 
+      if (totalReturnValue > 0) { 
          newPieChartData.push({ name: 'Returned Value', value: totalReturnValue, fill: 'hsl(var(--chart-1))' });
          newPieChartConfig['Returned Value'] = { label: 'Returned Value', color: 'hsl(var(--chart-1))' };
       }
@@ -94,7 +94,7 @@ export function StockReturnCalculator() {
         profitLoss: parseFloat(profitLoss.toFixed(2)),
         returnPercentage: parseFloat(returnPercentage.toFixed(2)),
         barChartData,
-        pieChartData: newPieChartData.filter(d => d.value > 0.009), // Filter out zero or negligible values for pie
+        pieChartData: newPieChartData.filter(d => d.value > 0.009), 
         pieChartConfig: newPieChartConfig,
     });
   };
@@ -163,11 +163,7 @@ export function StockReturnCalculator() {
               selectedCurrency={currency}
               onCurrencyChange={(newCurrency) => {
                 setCurrency(newCurrency);
-                // Re-calculate if currency changes and results exist, or update config labels
                  if (result) {
-                    // This is tricky because barChartConfig is outside react state for labels.
-                    // For now, we'll just update the symbol in display. Full re-calc might be better.
-                    // Or make barChartConfig part of state or a memoized value depending on currency.
                  }
               }}
             />
@@ -235,7 +231,7 @@ export function StockReturnCalculator() {
             <div className="my-8">
               <h4 className="text-lg font-semibold mb-2 text-center font-headline">Breakdown</h4>
               <div className="h-80 md:h-96 flex justify-center">
-                <ChartContainer config={result.pieChartConfig} className="aspect-square max-h-[250px] sm:max-h-[300px]">
+                <ChartContainer config={result.pieChartConfig} className="aspect-square max-h-[300px] sm:max-h-[350px]">
                   <PieChart>
                     <ChartTooltip 
                       content={<CustomPieTooltip currency={currency}/>}
@@ -247,7 +243,7 @@ export function StockReturnCalculator() {
                       nameKey="name"
                       cx="50%"
                       cy="50%"
-                      outerRadius={80}
+                      outerRadius={100}
                       labelLine={false}
                       label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
                     >

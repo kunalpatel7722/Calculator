@@ -11,7 +11,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, TooltipProps } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, TooltipProps, PieChart, Pie, Cell, LegendProps } from 'recharts';
 import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLegendContent } from "@/components/ui/chart"
 import type { TooltipPayload } from 'recharts';
 import { CurrencyToggle, AVAILABLE_CURRENCIES, type Currency } from '@/components/shared/CurrencyToggle';
@@ -29,12 +29,19 @@ interface AnnualDataPoint {
   year: number;
   value: number;
   interestEarned: number;
-  principalContribution: number; // For chart stacking if needed
+  principalContribution: number; 
+}
+interface PieChartDataPoint {
+  name: string;
+  value: number;
+  fill: string;
 }
 interface CalculationResult {
   futureValue: number;
   totalInterest: number;
   annualBreakdown: AnnualDataPoint[];
+  pieChartData: PieChartDataPoint[];
+  pieChartConfig: ChartConfig;
 }
 
 export function CompoundInterestCalculator() {
@@ -47,7 +54,7 @@ export function CompoundInterestCalculator() {
       principal: 10000,
       rate: 7,
       time: 10,
-      compoundingFrequency: '1', // Default to Annually
+      compoundingFrequency: '1', 
     },
   });
 
@@ -62,7 +69,7 @@ export function CompoundInterestCalculator() {
     const annualBreakdown: CalculationResult['annualBreakdown'] = [];
     let currentPrincipal = principal;
     for (let year = 1; year <= time; year++) {
-      const valueAtYearEnd = currentPrincipal * Math.pow((1 + r / n), n * 1); // Calculate for 1 year
+      const valueAtYearEnd = currentPrincipal * Math.pow((1 + r / n), n * 1); 
       const interestEarnedThisYear = valueAtYearEnd - currentPrincipal;
       annualBreakdown.push({
         year,
@@ -73,10 +80,22 @@ export function CompoundInterestCalculator() {
       currentPrincipal = valueAtYearEnd;
     }
     
+    const pieChartData: PieChartDataPoint[] = [
+      { name: 'Total Principal', value: parseFloat(principal.toFixed(2)), fill: 'hsl(var(--chart-1))' },
+      { name: 'Total Interest', value: parseFloat(totalInterest.toFixed(2)), fill: 'hsl(var(--chart-2))' },
+    ].filter(d => d.value > 0);
+
+    const pieChartConfig: ChartConfig = {
+      'Total Principal': { label: 'Total Principal', color: 'hsl(var(--chart-1))' },
+      'Total Interest': { label: 'Total Interest', color: 'hsl(var(--chart-2))' },
+    };
+    
     setResult({
       futureValue: parseFloat(futureValue.toFixed(2)),
       totalInterest: parseFloat(totalInterest.toFixed(2)),
       annualBreakdown,
+      pieChartData,
+      pieChartConfig,
     });
   };
 
@@ -84,7 +103,7 @@ export function CompoundInterestCalculator() {
     calculateCompoundInterest(data);
   };
 
-  const chartConfig = {
+  const lineChartConfig = {
     value: {
       label: `Investment Value (${currency.symbol})`,
       color: "hsl(var(--chart-1))",
@@ -99,7 +118,7 @@ export function CompoundInterestCalculator() {
     }
   } satisfies ChartConfig;
 
-  const CustomTooltip = ({ active, payload, label }: TooltipProps<number, string>) => {
+  const CustomLineTooltip = ({ active, payload, label }: TooltipProps<number, string>) => {
     if (active && payload && payload.length) {
       const yearData = result?.annualBreakdown.find(d => d.year.toString() === label);
       return (
@@ -111,10 +130,29 @@ export function CompoundInterestCalculator() {
             </p>
           ))}
           {yearData && (
-             <p style={{ color: chartConfig.principal.color }}>
+             <p style={{ color: lineChartConfig.principal.color }}>
                 {`Initial Principal This Year: ${currency.symbol}${yearData.principalContribution.toLocaleString()}`}
              </p>
           )}
+        </div>
+      );
+    }
+    return null;
+  };
+
+  interface CustomPieTooltipProps extends TooltipProps<number, string> {
+    currency: Currency;
+  }
+
+  const CustomPieTooltip = ({ active, payload, currency: currentCurrency }: CustomPieTooltipProps) => {
+    if (active && payload && payload.length) {
+      const data = payload[0].payload as PieChartDataPoint;
+      const percentage = payload[0].percent !== undefined ? (payload[0].percent * 100).toFixed(2) : null;
+      return (
+        <div className="p-2 text-sm bg-background/90 border border-border rounded-md shadow-lg">
+          <p className="font-bold mb-1" style={{ color: data.fill }}>{data.name}</p>
+          <p>{`Amount: ${currentCurrency.symbol}${data.value.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`}</p>
+          {percentage && <p>{`Percentage: ${percentage}%`}</p>}
         </div>
       );
     }
@@ -189,7 +227,7 @@ export function CompoundInterestCalculator() {
           </div>
 
           <div className="mb-8 h-80 md:h-96">
-             <ChartContainer config={chartConfig} className="w-full h-full">
+             <ChartContainer config={lineChartConfig} className="w-full h-full">
                 <LineChart accessibilityLayer data={result.annualBreakdown} margin={{ top: 5, right: 20, left: 20, bottom: 5 }}>
                     <CartesianGrid vertical={false} strokeDasharray="3 3" />
                     <XAxis dataKey="year" unit="yr" tickLine={false} axisLine={false} tickMargin={8} />
@@ -199,14 +237,51 @@ export function CompoundInterestCalculator() {
                         tickMargin={8}
                         tickFormatter={(value) => `${currency.symbol}${value.toLocaleString()}`} 
                     />
-                    <ChartTooltip content={<CustomTooltip />} cursorStyle={{strokeDasharray: '3 3', strokeWidth: 1.5, fillOpacity: 0.1}}/>
+                    <ChartTooltip content={<CustomLineTooltip />} cursorStyle={{strokeDasharray: '3 3', strokeWidth: 1.5, fillOpacity: 0.1}}/>
                     <ChartLegend content={<ChartLegendContent />} />
-                    <Line dataKey="value" type="monotone" name={chartConfig.value.label} stroke={chartConfig.value.color} strokeWidth={2.5} dot={false} activeDot={{ r: 6 }} />
-                    <Line dataKey="interestEarned" type="monotone" name={chartConfig.interestEarned.label} stroke={chartConfig.interestEarned.color} strokeWidth={2.5} dot={false} activeDot={{ r: 6 }} />
+                    <Line dataKey="value" type="monotone" name={lineChartConfig.value.label} stroke={lineChartConfig.value.color} strokeWidth={2.5} dot={false} activeDot={{ r: 6 }} />
+                    <Line dataKey="interestEarned" type="monotone" name={lineChartConfig.interestEarned.label} stroke={lineChartConfig.interestEarned.color} strokeWidth={2.5} dot={false} activeDot={{ r: 6 }} />
                 </LineChart>
             </ChartContainer>
           </div>
           
+          {result.pieChartData && result.pieChartData.length > 0 && result.pieChartConfig && (
+            <div className="my-8">
+              <h4 className="text-lg font-semibold mb-2 text-center font-headline">Investment Breakdown</h4>
+              <div className="h-80 md:h-96 flex justify-center">
+                <ChartContainer config={result.pieChartConfig} className="aspect-square max-h-[300px] sm:max-h-[350px]">
+                  <PieChart>
+                    <ChartTooltip 
+                      content={<CustomPieTooltip currency={currency}/>}
+                      cursor={{ fill: "hsl(var(--muted))", opacity: 0.3 }}
+                    />
+                    <Pie
+                      data={result.pieChartData}
+                      dataKey="value"
+                      nameKey="name"
+                      cx="50%"
+                      cy="50%"
+                      outerRadius={100}
+                      innerRadius={50}
+                      labelLine={false}
+                      label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
+                    >
+                      {result.pieChartData.map((entry, index) => (
+                        <Cell key={`cell-pie-${index}`} fill={entry.fill} />
+                      ))}
+                    </Pie>
+                     <ChartLegend 
+                        content={<ChartLegendContent nameKey="name" />} 
+                        verticalAlign="bottom"
+                        align="center"
+                        wrapperStyle={{paddingTop: "20px"}}
+                    />
+                  </PieChart>
+                </ChartContainer>
+              </div>
+            </div>
+          )}
+
           <h4 className="text-lg font-semibold mb-2 font-headline">Annual Breakdown</h4>
           <div className="max-h-96 overflow-y-auto">
             <Table>

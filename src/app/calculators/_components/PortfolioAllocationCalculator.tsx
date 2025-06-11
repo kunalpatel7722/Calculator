@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -30,7 +31,7 @@ interface AllocationData {
   name: string;
   value: number;
   percentage: number;
-  fill: string; // This will be used by chartConfig as well
+  fill: string; 
 }
 
 const COLORS_THEME = ['hsl(var(--chart-1))', 'hsl(var(--chart-2))', 'hsl(var(--chart-3))', 'hsl(var(--chart-4))', 'hsl(var(--chart-5))'];
@@ -79,7 +80,7 @@ export function PortfolioAllocationCalculator() {
 
   const CustomPieTooltip = ({ active, payload }: TooltipProps<number, string>) => {
     if (active && payload && payload.length) {
-      const data = payload[0].payload as AllocationData; // Explicitly type payload data
+      const data = payload[0].payload as AllocationData; 
       return (
         <div className="p-2 text-sm bg-background/90 border border-border rounded-md shadow-lg">
           <p className="font-bold mb-1" style={{ color: data.fill }}>{data.name}</p>
@@ -141,7 +142,7 @@ export function PortfolioAllocationCalculator() {
           <h3 className="text-xl font-semibold mb-4 font-headline">Portfolio Allocation</h3>
           <p className="mb-4"><strong>Total Portfolio Value:</strong> {currency.symbol}{totalValue.toLocaleString()}</p>
           <div className="h-80 md:h-96 mb-6 flex justify-center">
-            <ChartContainer config={chartConfig} className="aspect-square max-h-[300px]">
+            <ChartContainer config={chartConfig} className="aspect-square max-h-[300px] sm:max-h-[350px]">
               <PieChart accessibilityLayer>
                 <ChartTooltip 
                   content={<CustomPieTooltip />} 
@@ -158,8 +159,8 @@ export function PortfolioAllocationCalculator() {
                     <text
                       x={x}
                       y={y}
-                      fill={fill} // Use slice color for label, or a contrasting theme color
-                      textAnchor={x > (150) ? "start" : "end"} // 150 is approx center of 300px chart
+                      fill={fill} 
+                      textAnchor={x > (150) ? "start" : "end"} 
                       dominantBaseline="central"
                       className="text-xs font-medium"
                     >
@@ -167,7 +168,7 @@ export function PortfolioAllocationCalculator() {
                     </text>
                   )}
                   outerRadius={100}
-                  innerRadius={40} // Makes it a Donut chart
+                  innerRadius={50} 
                   paddingAngle={2}
                 >
                   {allocation.map((entry) => (
