@@ -263,10 +263,12 @@ async function AiGeneratedContent({ postDetails, initialSeoTitleForImage }: {
   }
 
   const secondImage = postDetails.images.length > 1 ? postDetails.images[1] : null;
+  const pageTitle = seoContent.title || initialSeoTitleForImage || postDetails.title;
+
 
   return (
     <>
-      <h1 className="text-4xl font-bold mb-3 font-headline">{seoContent.title || initialSeoTitleForImage}</h1>
+      <h1 className="text-4xl font-bold mb-3 font-headline">{pageTitle}</h1>
       <p className="text-muted-foreground text-sm mb-8">{postDetails.date}</p>
       
       <div className="prose prose-lg dark:prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: contentPart1 }} />
@@ -275,7 +277,7 @@ async function AiGeneratedContent({ postDetails, initialSeoTitleForImage }: {
         <Image
           key={`${postDetails.slug}-img2-${secondImage.imageUrl}`}
           src={secondImage.imageUrl}
-          alt={`${seoContent.title || initialSeoTitleForImage || 'Blog illustration'} - illustration`}
+          alt={`Supporting illustration for ${pageTitle}`}
           width={800}
           height={300}
           className="w-full rounded-lg shadow-md my-8 object-cover"
@@ -322,7 +324,8 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
   }
 
   const firstImage = postDetails.images[0];
-  const uniqueKeywords = [...new Set(postDetails.keywords)];
+  const uniqueKeywords = [...new Set(postDetails.keywords.map(kw => kw.toLowerCase()))];
+
 
   return (
     <div className="container mx-auto py-12 px-4 max-w-4xl">
@@ -342,7 +345,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
         <Image
           key={`${postDetails.slug}-img1-${firstImage.imageUrl}`}
           src={firstImage.imageUrl}
-          alt={postDetails.title}
+          alt={`Cover photo for ${postDetails.title}`}
           width={800}
           height={400}
           className="w-full rounded-lg shadow-md mb-8 object-cover"
