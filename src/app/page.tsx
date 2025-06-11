@@ -1,3 +1,4 @@
+
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -82,7 +83,7 @@ export default function HomePage() {
             </div>
             <div className="flex flex-col items-center p-6">
               <CheckCircle className="h-12 w-12 text-accent mb-4" />
-              <h3 className="text-xl font-semibold mb-2 font-headline text-foreground">SEO Optimized Content</h3>
+              <h3 className="text-xl font-semibold mb-2 font-headline text-foreground">In-Depth Articles</h3>
               <p className="text-muted-foreground">In-depth articles and guides to help you understand your investments.</p>
             </div>
           </div>
