@@ -113,8 +113,12 @@ const calculatorBlogPosts: BlogPostEntry[] = CALCULATORS_DATA.map((calculator: C
     firstImageHint = 'time money';
     secondImageHint = hints.hint2;
   } else if (calculator.id === 'sip-calculator') {
-    firstImageUrl = 'https://images.unsplash.com/photo-1611125832047-1d7ad1e8e48f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxjYWxjdWxhdG9yfGVufDB8fHx8MTc0OTQ4Njc1M3ww&ixlib=rb-4.1.0&q=80&w=1080';
+    firstImageUrl = 'https://images.unsplash.com/photo-1564939558297-fc396f18e5c7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHxjYWxjdWxhdG9yfGVufDB8fHx8MTc0OTYxMzA3MHww&ixlib=rb-4.1.0&q=80&w=1080';
     firstImageHint = 'sip';
+    secondImageHint = hints.hint2;
+  } else if (calculator.id === 'swp-calculator') {
+    firstImageUrl = 'https://images.unsplash.com/photo-1513159446162-54eb8bdaa79b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxvbGQlMjB8ZW58MHx8fHwxNzQ5NjEzMjA3fDA&ixlib=rb-4.1.0&q=80&w=1080';
+    firstImageHint = 'swp';
     secondImageHint = hints.hint2;
   } else if (calculator.id === 'currency-converter') {
     firstImageUrl = 'https://images.unsplash.com/photo-1583574928108-53be39420a8d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8ZG9sbGFyfGVufDB8fHx8MTc0OTYxMjY5M3ww&ixlib=rb-4.1.0&q=80&w=1080';
