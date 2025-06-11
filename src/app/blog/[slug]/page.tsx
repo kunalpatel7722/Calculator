@@ -322,6 +322,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
   }
 
   const firstImage = postDetails.images[0];
+  const uniqueKeywords = [...new Set(postDetails.keywords)];
 
   return (
     <div className="container mx-auto py-12 px-4 max-w-4xl">
@@ -359,7 +360,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
       <aside className="mt-12 pt-8 border-t">
         <h2 className="text-2xl font-semibold mb-6 font-headline">Related Topics</h2>
         <div className="space-y-4">
-          {postDetails.keywords.map(keyword => (
+          {uniqueKeywords.map(keyword => (
             <Badge key={keyword} variant="outline" className="mr-2">{keyword}</Badge>
           ))}
         </div>
