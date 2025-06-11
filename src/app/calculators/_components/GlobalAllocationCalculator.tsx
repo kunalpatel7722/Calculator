@@ -12,17 +12,17 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { CurrencyToggle, AVAILABLE_CURRENCIES, type Currency } from '@/components/shared/CurrencyToggle';
 
 const formSchema = z.object({
-  northAmerica: z.coerce.number().min(0).max(100).optional().default(0),
-  europe: z.coerce.number().min(0).max(100).optional().default(0),
-  asiaPacific: z.coerce.number().min(0).max(100).optional().default(0),
-  emergingMarkets: z.coerce.number().min(0).max(100).optional().default(0),
-  otherRegions: z.coerce.number().min(0).max(100).optional().default(0),
+  northAmerica: z.coerce.number().min(0, "Allocation must be non-negative.").max(100).optional().default(0),
+  europe: z.coerce.number().min(0, "Allocation must be non-negative.").max(100).optional().default(0),
+  asiaPacific: z.coerce.number().min(0, "Allocation must be non-negative.").max(100).optional().default(0),
+  emergingMarkets: z.coerce.number().min(0, "Allocation must be non-negative.").max(100).optional().default(0),
+  otherRegions: z.coerce.number().min(0, "Allocation must be non-negative.").max(100).optional().default(0),
 }).refine(data => {
   const total = (data.northAmerica || 0) + (data.europe || 0) + (data.asiaPacific || 0) + (data.emergingMarkets || 0) + (data.otherRegions || 0);
-  return total >= 0 && total <= 100; 
+  return total <= 100; 
 }, {
-  message: "Total allocation must be between 0% and 100%. Please ensure the sum of allocations is not negative or over 100%.",
-  path: ["northAmerica"], 
+  message: "Total allocation cannot exceed 100%.",
+  path: ["northAmerica"], // Error shown on the first field, or any other appropriate field
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -42,7 +42,7 @@ export function GlobalAllocationCalculator() {
     defaultValues: { northAmerica: 60, europe: 20, asiaPacific: 10, emergingMarkets: 10, otherRegions: 0 },
   });
   
-  const { watch, getValues } = form;
+  const { watch, getValues, formState: { errors } } = form;
 
   useEffect(() => {
     const calculateAndSetTotalPercentage = (values: Partial<FormData>) => {
@@ -67,28 +67,19 @@ export function GlobalAllocationCalculator() {
 
 
   const onSubmit: SubmitHandler<FormData> = (data) => {
+    // Zod validation handles the total percentage check via `refine`
+    // If we reach here, the data is valid according to the schema.
     const allocations: AllocationItem[] = [
         { name: "North America", percentage: data.northAmerica || 0},
         { name: "Europe", percentage: data.europe || 0 },
         { name: "Asia-Pacific", percentage: data.asiaPacific || 0 },
         { name: "Emerging Markets", percentage: data.emergingMarkets || 0 },
         { name: "Other Regions", percentage: data.otherRegions || 0 },
-    ].filter(item => item.percentage >= 0); 
+    ].filter(item => item.percentage >= 0); // Individual percentages are already >=0 due to schema min(0)
 
     const currentTotal = allocations.reduce((sum, item) => sum + item.percentage, 0);
-    // totalPercentage state is already updated by the useEffect watch
-    
-    if (currentTotal > 100) {
-        form.setError("northAmerica", {type: "manual", message: "Total allocation cannot exceed 100%."});
-        setResult(null); 
-        return;
-    }
-     if (currentTotal < 0) { 
-        form.setError("northAmerica", {type: "manual", message: "Allocations cannot be negative."});
-        setResult(null);
-        return;
-    }
-    
+    setTotalPercentage(currentTotal); // Update totalPercentage state based on submitted valid data
+
     setResult(allocations.filter(item => item.percentage > 0)); 
   };
   
@@ -96,7 +87,7 @@ export function GlobalAllocationCalculator() {
     <div>
       <Label htmlFor={name}>{label} (%)</Label>
       <Input id={name} type="number" {...form.register(name)} className="mt-1" />
-      {form.formState.errors[name] && <p className="text-sm text-destructive mt-1">{form.formState.errors[name]?.message}</p>}
+      {errors[name] && <p className="text-sm text-destructive mt-1">{errors[name]?.message}</p>}
     </div>
   );
 
@@ -116,7 +107,8 @@ export function GlobalAllocationCalculator() {
             {renderAllocationField("emergingMarkets", "Emerging Markets")}
             {renderAllocationField("otherRegions", "Other Regions")}
           </div>
-            {form.formState.errors.northAmerica && form.formState.errors.northAmerica.message?.includes("Total allocation") && <p className="text-sm text-destructive mt-1">{form.formState.errors.northAmerica.message}</p>}
+            {/* Display the refine error if it exists (attached to northAmerica or another field by Zod) */}
+            {errors.northAmerica && errors.northAmerica.message?.includes("Total allocation") && <p className="text-sm text-destructive mt-1">{errors.northAmerica.message}</p>}
           <div>
             <Label htmlFor="currency-toggle">Reference Currency (for context)</Label>
             <CurrencyToggle
@@ -147,11 +139,12 @@ export function GlobalAllocationCalculator() {
           </ul>
         </div>
       )}
-      {result === null && totalPercentage > 100 && (
+      {/* This condition might not be hit if Zod validation prevents submission */}
+      {/* {result === null && totalPercentage > 100 && ( 
          <div className="p-6 border-t">
             <p className="text-destructive">Total allocation ({totalPercentage}%) exceeds 100%. Please adjust values.</p>
          </div>
-      )}
+      )} */}
     </Card>
   );
 }
