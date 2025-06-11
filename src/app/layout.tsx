@@ -5,6 +5,7 @@ import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import { Inter } from 'next/font/google';
 import DynamicChatbotButtonWrapper from '@/components/shared/DynamicChatbotButtonWrapper';
+import FirebasePerformanceInitializer from '@/components/firebase/FirebasePerformanceInitializer'; // Added import
 
 const inter = Inter({
   subsets: ['latin'],
@@ -26,6 +27,7 @@ export default function RootLayout({
     <html lang="en" className={`${inter.variable} antialiased`} suppressHydrationWarning>
       <head />
       <body className="font-body flex flex-col min-h-screen">
+        <FirebasePerformanceInitializer /> {/* Added component */}
         <Header />
         <main className="flex-grow">
           {children}
