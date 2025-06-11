@@ -138,7 +138,7 @@ const getBlogPostBySlug = async (slug: string): Promise<BlogPostDetailsExtended 
       } else if (calcId === 'sip-calculator') {
         firstImageUrl = 'https://images.unsplash.com/photo-1564939558297-fc396f18e5c7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHxjYWxjdWxhdG9yfGVufDB8fHx8MTc0OTYxMzA3MHww&ixlib=rb-4.1.0&q=80&w=1080';
         firstImageHint = 'sip';
-        secondImageUrl = 'https://placehold.co/800x300.png'; // Default for second, can be overridden by hints if needed
+        secondImageUrl = 'https://placehold.co/800x300.png'; 
         secondImageHint = hints.hint2; 
       } else if (calcId === 'swp-calculator') {
         firstImageUrl = 'https://images.unsplash.com/photo-1513159446162-54eb8bdaa79b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxvbGQlMjB8ZW58MHx8fHwxNzQ5NjEzMjA3fDA&ixlib=rb-4.1.0&q=80&w=1080';
@@ -147,6 +147,10 @@ const getBlogPostBySlug = async (slug: string): Promise<BlogPostDetailsExtended 
       } else if (calcId === 'currency-converter') {
         firstImageUrl = 'https://images.unsplash.com/photo-1583574928108-53be39420a8d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8ZG9sbGFyfGVufDB8fHx8MTc0OTYxMjY5M3ww&ixlib=rb-4.1.0&q=80&w=1080';
         firstImageHint = 'currency';
+        secondImageHint = hints.hint2;
+      } else if (calcId === 'annuity-calculator') {
+        firstImageUrl = 'https://images.unsplash.com/photo-1604594849809-dfedbc827105?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxhbm51aXR5fGVufDB8fHx8MTc0OTYxODc1MXww&ixlib=rb-4.1.0&q=80&w=1080';
+        firstImageHint = 'annuity';
         secondImageHint = hints.hint2;
       } else if (calculator.category === 'Crypto') {
         firstImageUrl = 'https://images.unsplash.com/photo-1526378800651-c32d170fe6f8?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxibG9ja2NoYWlufGVufDB8fHx8MTc0OTQ5MTQ1MHww&ixlib=rb-4.1.0&q=80&w=1080';
@@ -158,17 +162,6 @@ const getBlogPostBySlug = async (slug: string): Promise<BlogPostDetailsExtended 
         secondImageHint = hints.hint2;
       }
       
-      // This specific if block for compound-interest second image was identified as potentially problematic
-      // as secondImageUrl would have already been set to an Unsplash URL if calcId was 'compound-interest',
-      // making the condition `secondImageUrl === 'https://placehold.co/800x300.png'` false.
-      // It's removed for clarity as the logic for 'compound-interest' second image is handled above.
-      // if (calcId === 'compound-interest' && secondImageUrl === 'https://placehold.co/800x300.png') {
-      //     if (hints.hint2 !== "growth") {
-      //       secondImageHint = hints.hint2;
-      //     } else {
-      //       secondImageHint = "calculation tools"; 
-      //     }
-      // }
 
       return {
         slug,
@@ -208,7 +201,6 @@ async function AiGeneratedContent({ postDetails, initialSeoTitleForImage }: {
   let seoContent = { title: postDetails.title, content: `Detailed content for ${postDetails.title} goes here. This article will delve into ${postDetails.keywords.join(', ')} offering valuable insights and practical advice.` };
   
   const contentGenLabel = `AI_BLOG_CONTENT_GENERATION_FOR_SLUG_${postDetails.slug}`;
-  // console.time(contentGenLabel); // Removed to avoid console warnings in dev
 
   try {
     seoContent = await generateSeoContent({
@@ -239,7 +231,7 @@ async function AiGeneratedContent({ postDetails, initialSeoTitleForImage }: {
     seoContent.title = postDetails.title; 
     seoContent.content = `Apologies, we had trouble generating the full content for this topic. This post is about ${postDetails.title}. We will cover aspects like ${postDetails.keywords.join(', ')}.`;
   } finally {
-    // console.timeEnd(contentGenLabel); // Removed to avoid console warnings in dev
+    // console.timeEnd(contentGenLabel); 
   }
 
   const formattedSeoContent = seoContent.content
