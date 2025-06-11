@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -59,27 +60,14 @@ export function TimeValueOfMoneyCalculator() {
       finalCalculatedValue = currentValue;
     } else { // PV
       label = "Present Value (PV)";
-      // For PV breakdown, we typically show how a future value discounts back to present
-      // Or how a present value would need to be at each past period to reach the 'value' (FV)
-      // Let's show the discounted value at each period going backwards from data.value (as FV)
-      let fvReference = data.value;
+      const fvReference = data.value;
       finalCalculatedValue = fvReference / Math.pow(1 + r_period, data.periods); // This is the actual PV
       
-      // For breakdown, show what PV would be needed at start of each period to reach fvReference
-      // Or, show the PV of fvReference at each intermediate period 'i' from future
+      // For breakdown, show the growth of the calculated PV over the periods.
       for (let period = 1; period <= data.periods; period++) {
-         const discountedValue = fvReference / Math.pow(1 + r_period, data.periods - (period -1) );
-         // To make graph intuitive (growing from PV to FV):
-         // What PV grows to at period 'period' to eventually reach FV
-         // So, we graph the growth of the calculated PV.
-         const pvCalculated = finalCalculatedValue;
-         let valAtPeriod = pvCalculated;
-         for (let i=0; i<period; i++) {
-            valAtPeriod *= (1+r_period);
-         }
+         const valAtPeriod = finalCalculatedValue * Math.pow(1 + r_period, period);
          periodicBreakdown.push({ period, valueAtPeriodEnd: parseFloat(valAtPeriod.toFixed(2))});
       }
-
     }
     
     setResult({ calculatedValue: parseFloat(finalCalculatedValue.toFixed(2)), label, periodicBreakdown });
