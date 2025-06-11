@@ -10,8 +10,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { CurrencyToggle, AVAILABLE_CURRENCIES, type Currency } from '@/components/shared/CurrencyToggle';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, TooltipProps, Cell } from 'recharts'; // Added Cell here
-import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"; // Removed ChartLegend, ChartLegendContent as they aren't used
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, TooltipProps, Cell } from 'recharts'; 
+import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"; 
 import type { TooltipPayload } from 'recharts';
 
 const formSchema = z.object({
@@ -151,7 +151,7 @@ export function IcoIdoRoiCalculator() {
                     content={<CustomTooltip />} 
                     cursorStyle={{ fill: "hsl(var(--muted))", opacity: 0.5 }}
                   />
-                  <Bar dataKey="value" radius={4}>
+                  <Bar dataKey="value" radius={4} barSize={30}>
                     {result.chartData.map((entry) => (
                       <Cell key={`cell-${entry.name}`} fill={entry.fill} />
                     ))}

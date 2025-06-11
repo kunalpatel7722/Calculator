@@ -152,7 +152,7 @@ export function BitcoinRoiCalculator() {
                     content={<CustomTooltip />} 
                     cursorStyle={{ fill: "hsl(var(--muted))", opacity: 0.5 }}
                   />
-                  <Bar dataKey="value" radius={4}>
+                  <Bar dataKey="value" radius={4} barSize={30}>
                     {result.chartData.map((entry) => (
                       <Cell key={`cell-${entry.name}`} fill={entry.fill} />
                     ))}

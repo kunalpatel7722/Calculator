@@ -216,7 +216,7 @@ export function StockReturnCalculator() {
                       content={<CustomBarTooltip />} 
                       cursorStyle={{ fill: "hsl(var(--muted))", opacity: 0.5 }}
                     />
-                    <Bar dataKey="value" radius={4}>
+                    <Bar dataKey="value" radius={4} barSize={30}>
                       {result.barChartData.map((entry) => (
                         <Cell key={`cell-bar-${entry.name}`} fill={entry.fill} />
                       ))}
