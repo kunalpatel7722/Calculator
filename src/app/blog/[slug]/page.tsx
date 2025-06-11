@@ -422,21 +422,27 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
             <Badge key={keyword} variant="outline" className="mr-2">{keyword}</Badge>
           ))}
         </div>
-         <div className="mt-8">
-          {postDetails.type === 'calculatorGuide' ? (
+        <div className="mt-8 flex flex-col sm:flex-row gap-2 items-start">
+          {postDetails.type === 'calculatorGuide' && (
             <Button asChild>
               <Link href={`/calculators/${postDetails.calculatorId}`}>
                 Go to {postDetails.originalCalculatorName} Calculator <ArrowRight className="ml-2 h-4 w-4" />
               </Link>
             </Button>
-          ) : (
-            <Button asChild>
-                <Link href="/calculators">Explore Calculators</Link>
-            </Button>
           )}
+          <Button
+            variant={postDetails.type === 'calculatorGuide' ? "outline" : "default"}
+            asChild
+          >
+            <Link href="/calculators">
+              Explore All Calculators
+            </Link>
+          </Button>
         </div>
       </aside>
     </div>
   );
 }
 
+
+    
