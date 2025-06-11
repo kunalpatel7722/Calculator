@@ -2,7 +2,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useForm, type SubmitHandler, Controller } from 'react-hook-form';
+import { useForm, type SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Button } from '@/components/ui/button';
@@ -14,7 +14,6 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, TooltipProps } from 'recharts';
 import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLegendContent } from "@/components/ui/chart"
 import type { TooltipPayload } from 'recharts';
-import { Slider } from "@/components/ui/slider";
 import { CurrencyToggle, AVAILABLE_CURRENCIES, type Currency } from '@/components/shared/CurrencyToggle';
 
 const formSchema = z.object({
@@ -134,67 +133,19 @@ export function CompoundInterestCalculator() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <Label htmlFor="principal">Principal Amount ({currency.symbol})</Label>
-              <div className="flex items-center gap-4 mt-1">
-                <Input id="principal" type="number" step="any" {...form.register('principal')} className="w-[120px]" />
-                <Controller
-                  name="principal"
-                  control={form.control}
-                  render={({ field }) => (
-                    <Slider
-                      min={0.01}
-                      max={1000000}
-                      step={100}
-                      value={[field.value ?? 0.01]}
-                      onValueChange={(value) => field.onChange(value[0])}
-                      className="flex-1"
-                    />
-                  )}
-                />
-              </div>
+              <Input id="principal" type="number" step="any" {...form.register('principal')} />
               {form.formState.errors.principal && <p className="text-sm text-destructive mt-1">{form.formState.errors.principal.message}</p>}
             </div>
             <div>
               <Label htmlFor="rate">Annual Interest Rate (%)</Label>
-              <div className="flex items-center gap-4 mt-1">
-                <Input id="rate" type="number" step="any" {...form.register('rate')} className="w-[120px]" />
-                <Controller
-                  name="rate"
-                  control={form.control}
-                  render={({ field }) => (
-                    <Slider
-                      min={0.01}
-                      max={100}
-                      step={0.1}
-                      value={[field.value ?? 0.01]}
-                      onValueChange={(value) => field.onChange(value[0])}
-                      className="flex-1"
-                    />
-                  )}
-                />
-              </div>
+              <Input id="rate" type="number" step="any" {...form.register('rate')} />
               {form.formState.errors.rate && <p className="text-sm text-destructive mt-1">{form.formState.errors.rate.message}</p>}
             </div>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <Label htmlFor="time">Time Period (Years)</Label>
-              <div className="flex items-center gap-4 mt-1">
-                <Input id="time" type="number" {...form.register('time')} className="w-[120px]" />
-                <Controller
-                  name="time"
-                  control={form.control}
-                  render={({ field }) => (
-                    <Slider
-                      min={1}
-                      max={100}
-                      step={1}
-                      value={[field.value ?? 1]}
-                      onValueChange={(value) => field.onChange(value[0])}
-                      className="flex-1"
-                    />
-                  )}
-                />
-              </div>
+              <Input id="time" type="number" {...form.register('time')} />
               {form.formState.errors.time && <p className="text-sm text-destructive mt-1">{form.formState.errors.time.message}</p>}
             </div>
             <div>

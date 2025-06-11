@@ -1,15 +1,14 @@
 
 'use client';
 
-import { useState } from 'react';
-import { useForm, type SubmitHandler, Controller } from 'react-hook-form';
+import React, { useState, useEffect } from 'react';
+import { useForm, type SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Slider } from "@/components/ui/slider";
 import { CurrencyToggle, AVAILABLE_CURRENCIES, type Currency } from '@/components/shared/CurrencyToggle';
 
 const formSchema = z.object({
@@ -49,11 +48,11 @@ export function GlobalAllocationCalculator() {
     setTotalPercentage(currentTotal);
   };
   
-  React.useEffect(() => {
+  useEffect(() => {
     const subscription = form.watch(() => calculateTotalPercentage());
     calculateTotalPercentage(); // Initial calculation
     return () => subscription.unsubscribe();
-  }, [form.watch]);
+  }, [form.watch, form]);
 
 
   const onSubmit: SubmitHandler<FormData> = (data) => {
@@ -85,26 +84,7 @@ export function GlobalAllocationCalculator() {
   const renderAllocationField = (name: keyof FormData, label: string) => (
     <div>
       <Label htmlFor={name}>{label} (%)</Label>
-      <div className="flex items-center gap-4 mt-1">
-        <Input id={name} type="number" {...form.register(name)} className="w-[100px]" />
-        <Controller
-          name={name}
-          control={form.control}
-          render={({ field }) => (
-            <Slider
-              min={0}
-              max={100}
-              step={1}
-              value={[field.value ?? 0]}
-              onValueChange={(value) => {
-                field.onChange(value[0]);
-                calculateTotalPercentage();
-              }}
-              className="flex-1"
-            />
-          )}
-        />
-      </div>
+      <Input id={name} type="number" {...form.register(name)} className="mt-1" />
       {form.formState.errors[name] && <p className="text-sm text-destructive mt-1">{form.formState.errors[name]?.message}</p>}
     </div>
   );
