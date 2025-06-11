@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import Image from 'next/image';
 import Link from 'next/link';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { getCalculatorById, CALCULATORS_DATA, type CalculatorFeature } from '@/lib/calculator-definitions';
 import React, { Suspense } from 'react';
@@ -34,6 +34,7 @@ interface CalculatorGuideBlogPostDetails extends BaseBlogPostDetails {
   type: 'calculatorGuide';
   calculatorNameForAi: string;
   originalCalculatorName: string;
+  calculatorId: string; 
 }
 
 type BlogPostDetailsExtended = OriginalBlogPostDetails | CalculatorGuideBlogPostDetails;
@@ -190,9 +191,9 @@ const getBlogPostBySlug = async (slug: string): Promise<BlogPostDetailsExtended 
         secondImageHint = hints.hint2; 
       } else if (calcId === 'sip-vs-lumpsum') {
         firstImageUrl = 'https://images.unsplash.com/photo-1523540939399-141cbff6a8d7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHx0aXBzfGVufDB8fHx8MTc0OTY0MjUwNnww&ixlib=rb-4.1.0&q=80&w=1080';
-        firstImageHint = 'remote control'; // Matches the latest update
+        firstImageHint = 'decision tool';
         secondImageUrl = 'https://placehold.co/800x300.png';
-        secondImageHint = hints.hint2 !== 'decision tool' ? hints.hint2 : 'comparison chart'; // Updated condition
+        secondImageHint = hints.hint2 !== 'decision tool' ? hints.hint2 : 'comparison chart';
       } else if (calcId === 'swp-calculator') {
         firstImageUrl = 'https://images.unsplash.com/photo-1513159446162-54eb8bdaa79b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxvbGQlMjB8ZW58MHx8fHwxNzQ5NjEzMjA3fDA&ixlib=rb-4.1.0&q=80&w=1080';
         firstImageHint = 'retirement planning';
@@ -230,6 +231,7 @@ const getBlogPostBySlug = async (slug: string): Promise<BlogPostDetailsExtended 
         calculatorNameForAi: `Blog Post: A Comprehensive Guide to the ${calculator.name}`,
         type: 'calculatorGuide',
         originalCalculatorName: calculator.name,
+        calculatorId: calcId,
       };
     }
   }
@@ -421,9 +423,17 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
           ))}
         </div>
          <div className="mt-8">
+          {postDetails.type === 'calculatorGuide' ? (
+            <Button asChild>
+              <Link href={`/calculators/${postDetails.calculatorId}`}>
+                Go to {postDetails.originalCalculatorName} Calculator <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
+            </Button>
+          ) : (
             <Button asChild>
                 <Link href="/calculators">Explore Calculators</Link>
             </Button>
+          )}
         </div>
       </aside>
     </div>
