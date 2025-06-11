@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Menu, Bot } from 'lucide-react'; // Bot icon for InvestAI logo
 
 const navLinks = [
@@ -40,11 +40,15 @@ export default function Header() {
               </Button>
             </SheetTrigger>
             <SheetContent side="right">
-              <nav className="flex flex-col space-y-4 mt-8">
-                <Link href="/" className="flex items-center gap-2 text-lg font-bold text-primary mb-4 font-headline">
-                  <Bot className="h-6 w-6" />
-                  <span>InvestAI</span>
-                </Link>
+              <SheetHeader className="p-4 border-b -mx-6 -mt-6 mb-4"> {/* Adjust padding to match original visual */}
+                <SheetTitle asChild>
+                  <Link href="/" className="flex items-center gap-2 text-lg font-bold text-primary font-headline">
+                    <Bot className="h-6 w-6" />
+                    <span>InvestAI Menu</span>
+                  </Link>
+                </SheetTitle>
+              </SheetHeader>
+              <nav className="flex flex-col space-y-2"> {/* Reduced top margin as SheetHeader now handles spacing */}
                 {navLinks.map((link) => (
                   <Button key={link.href} variant="ghost" asChild className="w-full justify-start">
                     <Link href={link.href} className="text-base">
