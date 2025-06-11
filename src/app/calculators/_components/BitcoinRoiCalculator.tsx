@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -9,6 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { CurrencyToggle, AVAILABLE_CURRENCIES, type Currency } from '@/components/shared/CurrencyToggle';
+import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table';
 
 const formSchema = z.object({
   initialInvestment: z.coerce.number().min(0.01, "Initial investment must be greater than 0"),
@@ -17,6 +19,8 @@ const formSchema = z.object({
 type FormData = z.infer<typeof formSchema>;
 
 interface CalculationResult {
+  initialInvestment: number;
+  currentValue: number;
   roiPercentage: number;
   profitLoss: number;
 }
@@ -32,8 +36,10 @@ export function BitcoinRoiCalculator() {
 
   const onSubmit: SubmitHandler<FormData> = (data) => {
     const profitLoss = data.currentValue - data.initialInvestment;
-    const roiPercentage = (profitLoss / data.initialInvestment) * 100;
+    const roiPercentage = data.initialInvestment !== 0 ? (profitLoss / data.initialInvestment) * 100 : 0;
     setResult({ 
+      initialInvestment: data.initialInvestment,
+      currentValue: data.currentValue,
       roiPercentage: parseFloat(roiPercentage.toFixed(2)),
       profitLoss: parseFloat(profitLoss.toFixed(2)),
     });
@@ -74,8 +80,26 @@ export function BitcoinRoiCalculator() {
       {result && (
         <div className="p-6 border-t">
           <h3 className="text-xl font-semibold mb-4 font-headline">Results</h3>
-          <p><strong>Profit/Loss:</strong> {currency.symbol}{result.profitLoss.toLocaleString()}</p>
-          <p><strong>ROI Percentage:</strong> {result.roiPercentage.toLocaleString()}%</p>
+          <Table>
+            <TableBody>
+              <TableRow>
+                <TableCell className="font-medium">Initial Investment</TableCell>
+                <TableCell className="text-right">{currency.symbol}{result.initialInvestment.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell className="font-medium">Current Value</TableCell>
+                <TableCell className="text-right">{currency.symbol}{result.currentValue.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell className="font-medium">Profit/Loss</TableCell>
+                <TableCell className={`text-right font-semibold ${result.profitLoss >= 0 ? 'text-green-600' : 'text-destructive'}`}>{currency.symbol}{result.profitLoss.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell className="font-medium">ROI Percentage</TableCell>
+                <TableCell className={`text-right font-semibold ${result.roiPercentage >= 0 ? 'text-green-600' : 'text-destructive'}`}>{result.roiPercentage.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}%</TableCell>
+              </TableRow>
+            </TableBody>
+          </Table>
         </div>
       )}
     </Card>
