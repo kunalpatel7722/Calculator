@@ -121,7 +121,7 @@ export function RetirementCorpusCalculator() {
       {result && (
         <div className="p-6 border-t">
           <h3 className="text-xl font-semibold mb-4 font-headline">Results (Simplified Estimate)</h3>
-          <p><strong>Estimated Retirement Corpus Required:</strong> {currency.symbol}{result.requiredCorpus.toLocaleString()}</p>
+          <p><strong>Estimated Retirement Corpus Required:</strong> {currency.symbol}{result.requiredCorpus.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</p>
           <p className="text-xs mt-2 text-muted-foreground">Note: This is a simplified calculation. Consider consulting a financial advisor for comprehensive retirement planning.</p>
         </div>
       )}
