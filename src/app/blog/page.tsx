@@ -116,6 +116,11 @@ const calculatorBlogPosts: BlogPostEntry[] = CALCULATORS_DATA.map((calculator: C
     firstImageUrl = 'https://images.unsplash.com/photo-1564939558297-fc396f18e5c7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHxjYWxjdWxhdG9yfGVufDB8fHx8MTc0OTYxMzA3MHww&ixlib=rb-4.1.0&q=80&w=1080';
     firstImageHint = 'sip';
     secondImageHint = hints.hint2;
+  } else if (calculator.id === 'sip-vs-lumpsum') {
+    firstImageUrl = 'https://images.unsplash.com/photo-1700660669295-800088946f53?w=600&auto=format&fit=crop&q=75';
+    firstImageHint = 'remote control';
+    secondImageUrl = 'https://placehold.co/600x300.png';
+    secondImageHint = hints.hint2 !== 'remote' && hints.hint2 !== 'control' ? hints.hint2 : 'investment comparison';
   } else if (calculator.id === 'swp-calculator') {
     firstImageUrl = 'https://images.unsplash.com/photo-1513159446162-54eb8bdaa79b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxvbGQlMjB8ZW58MHx8fHwxNzQ5NjEzMjA3fDA&ixlib=rb-4.1.0&q=80&w=1080';
     firstImageHint = 'swp';
