@@ -1,0 +1,69 @@
+{
+  "node": {
+    "4049a0b778c65dc679ec58bc734feece070597c5f4": {
+      "workers": {
+        "app/auth/page": {
+          "moduleId": "[project]/.next-internal/server/app/auth/page/actions.js { ACTIONS_MODULE0 => \"[project]/src/ai/flows/ai-chatbot.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/src/ai/flows/email-validation.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false
+        },
+        "app/blog/[slug]/page": {
+          "moduleId": "[project]/.next-internal/server/app/blog/[slug]/page/actions.js { ACTIONS_MODULE0 => \"[project]/src/ai/flows/ai-chatbot.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/src/ai/flows/generate-seo-content.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false
+        },
+        "app/blog/page": {
+          "moduleId": "[project]/.next-internal/server/app/blog/page/actions.js { ACTIONS_MODULE0 => \"[project]/src/ai/flows/ai-chatbot.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false
+        },
+        "app/calculators/[slug]/page": {
+          "moduleId": "[project]/.next-internal/server/app/calculators/[slug]/page/actions.js { ACTIONS_MODULE0 => \"[project]/src/ai/flows/ai-chatbot.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/src/ai/flows/generate-seo-content.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false
+        },
+        "app/calculators/page": {
+          "moduleId": "[project]/.next-internal/server/app/calculators/page/actions.js { ACTIONS_MODULE0 => \"[project]/src/ai/flows/ai-chatbot.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false
+        },
+        "app/page": {
+          "moduleId": "[project]/.next-internal/server/app/page/actions.js { ACTIONS_MODULE0 => \"[project]/src/ai/flows/ai-chatbot.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false
+        }
+      },
+      "layer": {
+        "app/auth/page": "action-browser",
+        "app/blog/[slug]/page": "action-browser",
+        "app/blog/page": "action-browser",
+        "app/calculators/[slug]/page": "action-browser",
+        "app/calculators/page": "action-browser",
+        "app/page": "action-browser"
+      }
+    },
+    "40fb3889c0c53b39053a9fb9d19152682423a08bb6": {
+      "workers": {
+        "app/auth/page": {
+          "moduleId": "[project]/.next-internal/server/app/auth/page/actions.js { ACTIONS_MODULE0 => \"[project]/src/ai/flows/ai-chatbot.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/src/ai/flows/email-validation.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false
+        }
+      },
+      "layer": {
+        "app/auth/page": "action-browser"
+      }
+    },
+    "405cc6b37353bcab607876327781a79922c5b169f1": {
+      "workers": {
+        "app/blog/[slug]/page": {
+          "moduleId": "[project]/.next-internal/server/app/blog/[slug]/page/actions.js { ACTIONS_MODULE0 => \"[project]/src/ai/flows/ai-chatbot.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/src/ai/flows/generate-seo-content.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false
+        },
+        "app/calculators/[slug]/page": {
+          "moduleId": "[project]/.next-internal/server/app/calculators/[slug]/page/actions.js { ACTIONS_MODULE0 => \"[project]/src/ai/flows/ai-chatbot.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/src/ai/flows/generate-seo-content.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false
+        }
+      },
+      "layer": {
+        "app/blog/[slug]/page": "rsc",
+        "app/calculators/[slug]/page": "rsc"
+      }
+    }
+  },
+  "edge": {},
+  "encryptionKey": "vRukgT/rz7akwoVYVPGvDemwj2wosUwmDEPBWo35ntI="
+}

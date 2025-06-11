@@ -1,0 +1,27 @@
+{
+  "node": {
+    "4049a0b778c65dc679ec58bc734feece070597c5f4": {
+      "workers": {
+        "app/auth/page": {
+          "moduleId": "[project]/.next-internal/server/app/auth/page/actions.js { ACTIONS_MODULE0 => \"[project]/src/ai/flows/ai-chatbot.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/src/ai/flows/email-validation.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false
+        }
+      },
+      "layer": {
+        "app/auth/page": "action-browser"
+      }
+    },
+    "40fb3889c0c53b39053a9fb9d19152682423a08bb6": {
+      "workers": {
+        "app/auth/page": {
+          "moduleId": "[project]/.next-internal/server/app/auth/page/actions.js { ACTIONS_MODULE0 => \"[project]/src/ai/flows/ai-chatbot.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/src/ai/flows/email-validation.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false
+        }
+      },
+      "layer": {
+        "app/auth/page": "action-browser"
+      }
+    }
+  },
+  "edge": {}
+}

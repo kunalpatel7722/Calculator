@@ -1,0 +1,27 @@
+{
+  "node": {
+    "4049a0b778c65dc679ec58bc734feece070597c5f4": {
+      "workers": {
+        "app/calculators/compound-interest/page": {
+          "moduleId": "[project]/.next-internal/server/app/calculators/compound-interest/page/actions.js { ACTIONS_MODULE0 => \"[project]/src/ai/flows/ai-chatbot.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/src/ai/flows/generate-seo-content.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false
+        }
+      },
+      "layer": {
+        "app/calculators/compound-interest/page": "action-browser"
+      }
+    },
+    "405cc6b37353bcab607876327781a79922c5b169f1": {
+      "workers": {
+        "app/calculators/compound-interest/page": {
+          "moduleId": "[project]/.next-internal/server/app/calculators/compound-interest/page/actions.js { ACTIONS_MODULE0 => \"[project]/src/ai/flows/ai-chatbot.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/src/ai/flows/generate-seo-content.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false
+        }
+      },
+      "layer": {
+        "app/calculators/compound-interest/page": "rsc"
+      }
+    }
+  },
+  "edge": {}
+}
