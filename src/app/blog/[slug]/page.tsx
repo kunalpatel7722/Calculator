@@ -138,6 +138,7 @@ const getBlogPostBySlug = async (slug: string): Promise<BlogPostDetailsExtended 
       } else if (calcId === 'sip-calculator') {
         firstImageUrl = 'https://images.unsplash.com/photo-1564939558297-fc396f18e5c7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHxjYWxjdWxhdG9yfGVufDB8fHx8MTc0OTYxMzA3MHww&ixlib=rb-4.1.0&q=80&w=1080';
         firstImageHint = 'sip';
+        secondImageUrl = 'https://placehold.co/800x300.png'; // Default for second, can be overridden by hints if needed
         secondImageHint = hints.hint2; 
       } else if (calcId === 'swp-calculator') {
         firstImageUrl = 'https://images.unsplash.com/photo-1513159446162-54eb8bdaa79b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxvbGQlMjB8ZW58MHx8fHwxNzQ5NjEzMjA3fDA&ixlib=rb-4.1.0&q=80&w=1080';
@@ -157,14 +158,17 @@ const getBlogPostBySlug = async (slug: string): Promise<BlogPostDetailsExtended 
         secondImageHint = hints.hint2;
       }
       
-      if (calcId === 'compound-interest' && secondImageUrl === 'https://placehold.co/800x300.png') {
-          if (hints.hint2 !== "growth") {
-            secondImageHint = hints.hint2;
-          } else {
-            secondImageHint = "calculation tools"; 
-          }
-      }
-
+      // This specific if block for compound-interest second image was identified as potentially problematic
+      // as secondImageUrl would have already been set to an Unsplash URL if calcId was 'compound-interest',
+      // making the condition `secondImageUrl === 'https://placehold.co/800x300.png'` false.
+      // It's removed for clarity as the logic for 'compound-interest' second image is handled above.
+      // if (calcId === 'compound-interest' && secondImageUrl === 'https://placehold.co/800x300.png') {
+      //     if (hints.hint2 !== "growth") {
+      //       secondImageHint = hints.hint2;
+      //     } else {
+      //       secondImageHint = "calculation tools"; 
+      //     }
+      // }
 
       return {
         slug,
