@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -9,6 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { CurrencyToggle, AVAILABLE_CURRENCIES, type Currency } from '@/components/shared/CurrencyToggle';
+import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table';
 
 const formSchema = z.object({
   purchasePrice: z.coerce.number().min(0, "Purchase price must be non-negative"),
@@ -88,12 +90,26 @@ export function StockReturnCalculator() {
       {result && (
         <div className="p-6 border-t">
           <h3 className="text-xl font-semibold mb-4 font-headline">Results</h3>
-          <div className="space-y-2">
-            <p><strong>Total Investment:</strong> {currency.symbol}{result.totalInvestment.toLocaleString()}</p>
-            <p><strong>Total Return Value:</strong> {currency.symbol}{result.totalReturnValue.toLocaleString()}</p>
-            <p><strong>Profit/Loss:</strong> {currency.symbol}{result.profitLoss.toLocaleString()}</p>
-            <p><strong>Return Percentage:</strong> {result.returnPercentage.toLocaleString()}%</p>
-          </div>
+          <Table>
+            <TableBody>
+              <TableRow>
+                <TableCell className="font-medium">Total Investment</TableCell>
+                <TableCell className="text-right">{currency.symbol}{result.totalInvestment.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell className="font-medium">Total Return Value</TableCell>
+                <TableCell className="text-right">{currency.symbol}{result.totalReturnValue.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell className="font-medium">Profit/Loss</TableCell>
+                <TableCell className={`text-right font-semibold ${result.profitLoss >= 0 ? 'text-green-600' : 'text-destructive'}`}>{currency.symbol}{result.profitLoss.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell className="font-medium">Return Percentage</TableCell>
+                <TableCell className={`text-right font-semibold ${result.returnPercentage >= 0 ? 'text-green-600' : 'text-destructive'}`}>{result.returnPercentage.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}%</TableCell>
+              </TableRow>
+            </TableBody>
+          </Table>
         </div>
       )}
     </Card>
