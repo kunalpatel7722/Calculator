@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -10,6 +11,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { CurrencyToggle, AVAILABLE_CURRENCIES, type Currency } from '@/components/shared/CurrencyToggle';
+import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table';
 
 const formSchema = z.object({
   historicalPrices: z.string().min(1, "Please enter historical prices"), // Comma-separated numbers
@@ -17,7 +19,7 @@ const formSchema = z.object({
 type FormData = z.infer<typeof formSchema>;
 
 interface CalculationResult {
-  volatility: number; // Placeholder, actual calculation is complex
+  volatility: number; 
   priceCount: number;
   averagePrice: number;
 }
@@ -81,9 +83,22 @@ export function VolatilityCalculator() {
       {result && (
         <div className="p-6 border-t">
           <h3 className="text-xl font-semibold mb-4 font-headline">Results (Simplified)</h3>
-          <p><strong>Calculated Volatility (Std. Dev. of Prices):</strong> {currency.symbol}{result.volatility.toLocaleString()}</p>
-          <p><strong>Number of Prices Analyzed:</strong> {result.priceCount}</p>
-          <p><strong>Average Price:</strong> {currency.symbol}{result.averagePrice.toLocaleString()}</p>
+          <Table>
+            <TableBody>
+              <TableRow>
+                <TableCell className="font-medium">Calculated Volatility (Std. Dev. of Prices)</TableCell>
+                <TableCell className="text-right">{currency.symbol}{result.volatility.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell className="font-medium">Number of Prices Analyzed</TableCell>
+                <TableCell className="text-right">{result.priceCount}</TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell className="font-medium">Average Price</TableCell>
+                <TableCell className="text-right">{currency.symbol}{result.averagePrice.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</TableCell>
+              </TableRow>
+            </TableBody>
+          </Table>
         </div>
       )}
     </Card>
