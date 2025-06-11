@@ -10,6 +10,9 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { CurrencyToggle, AVAILABLE_CURRENCIES, type Currency } from '@/components/shared/CurrencyToggle';
+import { PieChart, Pie, Cell, TooltipProps } from 'recharts';
+import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLegendContent } from "@/components/ui/chart";
+import type { TooltipPayload } from 'recharts';
 
 const formSchema = z.object({
   northAmerica: z.coerce.number().min(0, "Allocation must be non-negative.").max(100).optional().default(0),
@@ -22,7 +25,7 @@ const formSchema = z.object({
   return total <= 100; 
 }, {
   message: "Total allocation cannot exceed 100%.",
-  path: ["northAmerica"], // Error shown on the first field, or any other appropriate field
+  path: ["northAmerica"], 
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -30,12 +33,22 @@ type FormData = z.infer<typeof formSchema>;
 interface AllocationItem {
     name: string;
     percentage: number;
+    fill: string; // Added for chart
 }
+
+const REGION_COLORS: Record<string, string> = {
+    "North America": "hsl(var(--chart-1))",
+    "Europe": "hsl(var(--chart-2))",
+    "Asia-Pacific": "hsl(var(--chart-3))",
+    "Emerging Markets": "hsl(var(--chart-4))",
+    "Other Regions": "hsl(var(--chart-5))",
+};
 
 export function GlobalAllocationCalculator() { 
   const [result, setResult] = useState<AllocationItem[] | null>(null);
   const [totalPercentage, setTotalPercentage] = useState<number>(0);
   const [currency, setCurrency] = useState<Currency>(AVAILABLE_CURRENCIES.find(c => c.value === 'USD') || AVAILABLE_CURRENCIES[0]);
+  const [chartConfig, setChartConfig] = useState<ChartConfig | null>(null);
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -59,7 +72,6 @@ export function GlobalAllocationCalculator() {
       calculateAndSetTotalPercentage(values as FormData);
     });
     
-    // Initial calculation
     calculateAndSetTotalPercentage(getValues());
     
     return () => subscription.unsubscribe();
@@ -67,20 +79,34 @@ export function GlobalAllocationCalculator() {
 
 
   const onSubmit: SubmitHandler<FormData> = (data) => {
-    // Zod validation handles the total percentage check via `refine`
-    // If we reach here, the data is valid according to the schema.
-    const allocations: AllocationItem[] = [
+    const allocationsRaw = [
         { name: "North America", percentage: data.northAmerica || 0},
         { name: "Europe", percentage: data.europe || 0 },
         { name: "Asia-Pacific", percentage: data.asiaPacific || 0 },
         { name: "Emerging Markets", percentage: data.emergingMarkets || 0 },
         { name: "Other Regions", percentage: data.otherRegions || 0 },
-    ].filter(item => item.percentage >= 0); // Individual percentages are already >=0 due to schema min(0)
+    ];
 
-    const currentTotal = allocations.reduce((sum, item) => sum + item.percentage, 0);
-    setTotalPercentage(currentTotal); // Update totalPercentage state based on submitted valid data
+    const currentTotal = allocationsRaw.reduce((sum, item) => sum + item.percentage, 0);
+    setTotalPercentage(currentTotal); 
 
-    setResult(allocations.filter(item => item.percentage > 0)); 
+    const allocationsWithColors: AllocationItem[] = allocationsRaw
+        .filter(item => item.percentage > 0)
+        .map(item => ({
+            ...item,
+            fill: REGION_COLORS[item.name] || "hsl(var(--muted))",
+        }));
+    
+    setResult(allocationsWithColors);
+
+    const newChartConfig = allocationsWithColors.reduce((acc, item) => {
+      acc[item.name] = { 
+        label: item.name,
+        color: item.fill,
+      };
+      return acc;
+    }, {} as ChartConfig);
+    setChartConfig(newChartConfig);
   };
   
   const renderAllocationField = (name: keyof FormData, label: string) => (
@@ -91,6 +117,20 @@ export function GlobalAllocationCalculator() {
     </div>
   );
 
+  interface CustomPieTooltipProps extends TooltipProps<number, string> {}
+
+  const CustomPieTooltip = ({ active, payload }: CustomPieTooltipProps) => {
+    if (active && payload && payload.length) {
+      const data = payload[0].payload as AllocationItem; 
+      return (
+        <div className="p-2 text-sm bg-background/90 border border-border rounded-md shadow-lg">
+          <p className="font-bold mb-1" style={{ color: data.fill }}>{data.name}</p>
+          <p>{`Percentage: ${data.percentage.toFixed(2)}%`}</p>
+        </div>
+      );
+    }
+    return null;
+  };
 
   return (
     <Card className="shadow-lg">
@@ -107,7 +147,6 @@ export function GlobalAllocationCalculator() {
             {renderAllocationField("emergingMarkets", "Emerging Markets")}
             {renderAllocationField("otherRegions", "Other Regions")}
           </div>
-            {/* Display the refine error if it exists (attached to northAmerica or another field by Zod) */}
             {errors.northAmerica && errors.northAmerica.message?.includes("Total allocation") && <p className="text-sm text-destructive mt-1">{errors.northAmerica.message}</p>}
           <div>
             <Label htmlFor="currency-toggle">Reference Currency (for context)</Label>
@@ -123,28 +162,56 @@ export function GlobalAllocationCalculator() {
         </CardFooter>
       </form>
 
-      {result && result.length > 0 && totalPercentage <= 100 && (
+      {result && result.length > 0 && totalPercentage <= 100 && chartConfig && (
         <div className="p-6 border-t">
           <h3 className="text-xl font-semibold mb-4 font-headline">Global Allocation Breakdown</h3>
           <p className="mb-2"><strong>Total Allocated:</strong> {totalPercentage.toLocaleString()}%</p>
           {totalPercentage < 100 && <p className="text-sm text-amber-600 mb-2">Note: Total allocation is less than 100%. {(100-totalPercentage).toLocaleString()}% is unallocated.</p>}
           
-          <ul className="space-y-1">
+          <div className="my-8 h-80 md:h-96 flex justify-center">
+            <ChartContainer config={chartConfig} className="aspect-square max-h-[300px] sm:max-h-[350px]">
+              <PieChart>
+                <ChartTooltip 
+                  content={<CustomPieTooltip />}
+                  cursor={{ fill: "hsl(var(--muted))", opacity: 0.3 }}
+                />
+                <Pie
+                  data={result}
+                  dataKey="percentage"
+                  nameKey="name"
+                  cx="50%"
+                  cy="50%"
+                  outerRadius={100}
+                  labelLine={false}
+                  label={({ name, percentage }) => `${name} (${percentage.toFixed(0)}%)`}
+                >
+                  {result.map((entry, index) => (
+                    <Cell key={`cell-pie-${index}`} fill={entry.fill} />
+                  ))}
+                </Pie>
+                <ChartLegend 
+                    content={<ChartLegendContent nameKey="name" />} 
+                    verticalAlign="bottom"
+                    align="center"
+                    wrapperStyle={{paddingTop: "20px"}}
+                />
+              </PieChart>
+            </ChartContainer>
+          </div>
+
+          <ul className="space-y-1 mt-6">
             {result.map(item => (
               <li key={item.name} className="flex justify-between">
-                <span>{item.name}:</span>
+                <span className="flex items-center">
+                   <span className="inline-block w-3 h-3 rounded-sm mr-2" style={{ backgroundColor: item.fill }}></span>
+                   {item.name}:
+                </span>
                 <span>{item.percentage.toLocaleString()}%</span>
               </li>
             ))}
           </ul>
         </div>
       )}
-      {/* This condition might not be hit if Zod validation prevents submission */}
-      {/* {result === null && totalPercentage > 100 && ( 
-         <div className="p-6 border-t">
-            <p className="text-destructive">Total allocation ({totalPercentage}%) exceeds 100%. Please adjust values.</p>
-         </div>
-      )} */}
     </Card>
   );
 }
