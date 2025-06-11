@@ -42,6 +42,8 @@ The content should be informative, engaging, and optimized for search engines.
 The content should include a title and a body. The title and content should be SEO optimized to rank on Google.
 The content must be related to finance and investment.
 
+Additionally, the content must be optimized for Generative Engines (GEO). This means it should be written with clarity, conciseness, and factual accuracy. Structure information logically, making it easily parsable and summarizable by AI language models. Strive to provide unique insights or a novel perspective when appropriate, while always maintaining an authoritative and trustworthy tone. Key information and takeaways should be presented directly and be easily extractable.
+
 If generating content for a calculator's descriptive section (i.e., when {{calculatorName}} refers to a specific calculator like "Compound Interest Calculator"):
 - Include a detailed explanation of the calculator.
 - Describe the finance and investment calculations involved.
