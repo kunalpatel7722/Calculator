@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -9,6 +10,9 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { CurrencyToggle, AVAILABLE_CURRENCIES, type Currency } from '@/components/shared/CurrencyToggle';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Cell, TooltipProps } from 'recharts';
+import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
+import type { TooltipPayload } from 'recharts';
 
 const formSchema = z.object({
   currentAge: z.coerce.number().int().min(18, "Current age must be at least 18").max(99),
@@ -24,8 +28,17 @@ const formSchema = z.object({
 
 type FormData = z.infer<typeof formSchema>;
 
+interface BarChartDataPoint {
+  name: string;
+  value: number;
+  fill: string;
+}
+
 interface CalculationResult {
-  requiredCorpus: number; // Placeholder
+  requiredCorpus: number;
+  totalNominalExpenses: number;
+  barChartData: BarChartDataPoint[];
+  barChartConfig: ChartConfig;
 }
 
 export function RetirementCorpusCalculator() { 
@@ -38,28 +51,49 @@ export function RetirementCorpusCalculator() {
   });
 
   const onSubmit: SubmitHandler<FormData> = (data) => {
-    // Placeholder: Real retirement corpus calculation is complex.
-    // This uses a very simplified approach.
     const annualExpensesAtRetirement = data.monthlyExpensesAtRetirement * 12;
     const yearsInRetirement = data.lifeExpectancyPostRetirement;
     
-    // Simplified: average annual withdrawal needed / (return rate - inflation rate)
-    // This doesn't account for sequence of returns risk, or changing expenses.
     const realReturnRate = (data.expectedReturnRatePostRetirement - data.expectedInflationRate) / 100;
     
-    let requiredCorpus;
+    let calculatedRequiredCorpus;
     if (realReturnRate <= 0) {
-      // If real return is zero or negative, corpus is simply total expenses
-      requiredCorpus = annualExpensesAtRetirement * yearsInRetirement;
+      calculatedRequiredCorpus = annualExpensesAtRetirement * yearsInRetirement;
     } else {
-      // Using present value of an annuity formula
-      // PV = PMT * [1 - (1 + r)^-n] / r
-      // PMT = annualExpensesAtRetirement, r = realReturnRate, n = yearsInRetirement
-       requiredCorpus = annualExpensesAtRetirement * (1 - Math.pow(1 + realReturnRate, -yearsInRetirement)) / realReturnRate;
+       calculatedRequiredCorpus = annualExpensesAtRetirement * (1 - Math.pow(1 + realReturnRate, -yearsInRetirement)) / realReturnRate;
     }
 
+    const totalNominalExpenses = data.monthlyExpensesAtRetirement * 12 * data.lifeExpectancyPostRetirement;
 
-    setResult({ requiredCorpus: parseFloat(requiredCorpus.toFixed(2)) });
+    const currentBarChartConfig: ChartConfig = {
+      requiredCorpus: { label: `Required Corpus (${currency.symbol})`, color: "hsl(var(--chart-1))" },
+      totalNominalExpenses: { label: `Total Nominal Expenses (${currency.symbol})`, color: "hsl(var(--chart-2))" },
+    };
+
+    const barChartData: BarChartDataPoint[] = [
+      { name: 'Required Corpus', value: parseFloat(calculatedRequiredCorpus.toFixed(2)), fill: currentBarChartConfig.requiredCorpus.color as string },
+      { name: 'Total Nominal Expenses', value: parseFloat(totalNominalExpenses.toFixed(2)), fill: currentBarChartConfig.totalNominalExpenses.color as string },
+    ];
+    
+    setResult({ 
+        requiredCorpus: parseFloat(calculatedRequiredCorpus.toFixed(2)),
+        totalNominalExpenses: parseFloat(totalNominalExpenses.toFixed(2)),
+        barChartData,
+        barChartConfig: currentBarChartConfig,
+    });
+  };
+
+  const CustomTooltip = ({ active, payload, currency: currentCurrency }: TooltipProps<number, string> & { currency: Currency }) => {
+    if (active && payload && payload.length) {
+      const data = payload[0];
+      return (
+        <div className="p-2 text-sm bg-background/90 border border-border rounded-md shadow-lg">
+          <p className="font-bold mb-1" style={{ color: data.payload.fill }}>{data.name}</p>
+          <p>{`Value: ${currentCurrency.symbol}${data.value?.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`}</p>
+        </div>
+      );
+    }
+    return null;
   };
 
   return (
@@ -109,7 +143,12 @@ export function RetirementCorpusCalculator() {
             <CurrencyToggle
               id="currency-toggle"
               selectedCurrency={currency}
-              onCurrencyChange={setCurrency}
+              onCurrencyChange={(newCurrency) => {
+                setCurrency(newCurrency);
+                if (form.formState.isSubmitted && result) {
+                  onSubmit(form.getValues()); // Recalculate with new currency for chart labels
+                }
+              }}
             />
           </div>
         </CardContent>
@@ -118,11 +157,41 @@ export function RetirementCorpusCalculator() {
         </CardFooter>
       </form>
 
-      {result && (
+      {result && result.barChartData && (
         <div className="p-6 border-t">
           <h3 className="text-xl font-semibold mb-4 font-headline">Results (Simplified Estimate)</h3>
           <p><strong>Estimated Retirement Corpus Required:</strong> {currency.symbol}{result.requiredCorpus.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</p>
-          <p className="text-xs mt-2 text-muted-foreground">Note: This is a simplified calculation. Consider consulting a financial advisor for comprehensive retirement planning.</p>
+          <p className="mb-4"><strong>Total Nominal Expenses During Retirement (for comparison):</strong> {currency.symbol}{result.totalNominalExpenses.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</p>
+          
+          {result.barChartData.length > 0 && result.barChartConfig && (
+            <div className="my-8">
+              <h4 className="text-lg font-semibold mb-2 text-center font-headline">Corpus vs. Nominal Expenses</h4>
+              <div className="h-80 md:h-96">
+                <ChartContainer config={result.barChartConfig} className="w-full h-full">
+                  <BarChart accessibilityLayer data={result.barChartData} margin={{ top: 5, right: 20, left: 20, bottom: 5 }}>
+                    <CartesianGrid vertical={false} strokeDasharray="3 3" />
+                    <XAxis dataKey="name" tickLine={false} axisLine={false} tickMargin={8} />
+                    <YAxis 
+                      tickLine={false} 
+                      axisLine={false} 
+                      tickMargin={8}
+                      tickFormatter={(value) => `${currency.symbol}${value.toLocaleString()}`}
+                    />
+                    <ChartTooltip 
+                      content={<CustomTooltip currency={currency} />} 
+                      cursorStyle={{ fill: "hsl(var(--muted))", opacity: 0.5 }}
+                    />
+                    <Bar dataKey="value" radius={4} barSize={50}>
+                      {result.barChartData.map((entry) => (
+                        <Cell key={`cell-${entry.name}`} fill={entry.fill} />
+                      ))}
+                    </Bar>
+                  </BarChart>
+                </ChartContainer>
+              </div>
+            </div>
+          )}
+          <p className="text-xs mt-2 text-muted-foreground">Note: This is a simplified calculation. Consider consulting a financial advisor for comprehensive retirement planning. Nominal expenses do not account for inflation during retirement or investment growth.</p>
         </div>
       )}
     </Card>
