@@ -18,7 +18,7 @@ import type { TooltipPayload } from 'recharts';
 
 const formSchema = z.object({
   periodicInvestment: z.coerce.number().min(1, "Periodic investment amount must be at least 1"),
-  investmentFrequency: z.enum(['monthly', 'quarterly', 'annually']).default('monthly'),
+  investmentFrequency: z.enum(['monthly', 'quarterly', 'annually']).default('annually'), // Default to annually
   investmentPeriodYears: z.coerce.number().int().min(1, "Investment period must be at least 1 year").max(50),
   averagePrice: z.coerce.number().min(0.000001, "Estimated average crypto price must be greater than 0"),
   expectedAnnualReturn: z.coerce.number().min(0, "Expected annual return rate must be non-negative").max(100).optional().default(0),
@@ -46,7 +46,7 @@ export function CryptoDcaCalculator() {
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
-    defaultValues: { periodicInvestment: 100, investmentFrequency: 'monthly', investmentPeriodYears: 5, averagePrice: 30000, expectedAnnualReturn: 5 },
+    defaultValues: { periodicInvestment: 100, investmentFrequency: 'annually', investmentPeriodYears: 5, averagePrice: 30000, expectedAnnualReturn: 5 },
   });
 
   const onSubmit: SubmitHandler<FormData> = (data) => {
@@ -156,9 +156,9 @@ export function CryptoDcaCalculator() {
               <Select onValueChange={(value) => form.setValue('investmentFrequency', value as FormData['investmentFrequency'])} defaultValue={form.getValues('investmentFrequency')}>
                   <SelectTrigger id="investmentFrequency"><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="monthly">Monthly</SelectItem>
-                    <SelectItem value="quarterly">Quarterly</SelectItem>
                     <SelectItem value="annually">Annually</SelectItem>
+                    <SelectItem value="quarterly">Quarterly</SelectItem>
+                    <SelectItem value="monthly">Monthly</SelectItem>
                   </SelectContent>
               </Select>
             </div>

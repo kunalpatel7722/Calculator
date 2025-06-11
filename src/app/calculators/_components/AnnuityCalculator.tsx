@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -45,7 +46,7 @@ export function AnnuityCalculator() {
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
-    defaultValues: { principal: 100000, interestRate: 5, years: 10, paymentFrequency: 'monthly' },
+    defaultValues: { principal: 100000, interestRate: 5, years: 10, paymentFrequency: 'annually' }, // Default to annually
   });
 
   const onSubmit: SubmitHandler<FormData> = (data) => {
@@ -195,9 +196,9 @@ export function AnnuityCalculator() {
             <Select onValueChange={(value) => form.setValue('paymentFrequency', value as FormData['paymentFrequency'])} defaultValue={form.getValues('paymentFrequency')}>
                 <SelectTrigger id="paymentFrequency"><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="monthly">Monthly</SelectItem>
-                  <SelectItem value="quarterly">Quarterly</SelectItem>
                   <SelectItem value="annually">Annually</SelectItem>
+                  <SelectItem value="quarterly">Quarterly</SelectItem>
+                  <SelectItem value="monthly">Monthly</SelectItem>
                 </SelectContent>
             </Select>
           </div>

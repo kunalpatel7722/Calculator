@@ -47,7 +47,7 @@ export function CompoundInterestCalculator() {
       principal: 10000,
       rate: 7,
       time: 10,
-      compoundingFrequency: '12',
+      compoundingFrequency: '1', // Default to Annually
     },
   });
 
