@@ -35,7 +35,7 @@ const generateSeoContentPrompt = ai.definePrompt({
   name: 'generateSeoContentPrompt',
   input: {schema: GenerateSeoContentInputSchema},
   output: {schema: GenerateSeoContentOutputSchema},
-  prompt: `You are an SEO expert specializing in creating content for financial calculators and related blog posts.
+  prompt: `You are an SEO expert specializing in creating content for financial calculators and related blog posts. Your writing style should be engaging, relatable, and possess a distinct "human touch." Avoid overly robotic or formal language. Aim for a tone that is informative yet conversational, making complex financial topics accessible and interesting to a general audience.
 
 Generate SEO-optimized content for "{{calculatorName}}" (this could be a calculator name or a blog post topic), using the following keywords: {{keywords}}.
 The content should be informative, engaging, and optimized for search engines.
@@ -63,6 +63,7 @@ When generating content for a blog post or an article (e.g., when '{{calculatorN
 Ensure that the content is original and not plagiarized.
 Format important headings using Markdown (e.g., ## Main Section, ### Sub-section). Use Markdown for bold (**text**) and italics (*text*) for emphasis.
 Structure the content with paragraphs.
+Maintain a human-like, engaging, and conversational tone throughout the content.
 `,
 });
 
