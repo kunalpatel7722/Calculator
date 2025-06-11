@@ -149,7 +149,7 @@ const calculatorBlogPosts: BlogPostEntry[] = CALCULATORS_DATA.map((calculator: C
     firstImageHint = 'investment growth';
   } else if (calculator.id === 'sip-vs-lumpsum') {
     firstImageUrl = 'https://images.unsplash.com/photo-1523540939399-141cbff6a8d7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHx0aXBzfGVufDB8fHx8MTc0OTY0MjUwNnww&ixlib=rb-4.1.0&q=80&w=1080';
-    firstImageHint = 'remote control';
+    firstImageHint = 'remote control'; // Changed to match the latest update
   } else if (calculator.id === 'swp-calculator') {
     firstImageUrl = 'https://images.unsplash.com/photo-1513159446162-54eb8bdaa79b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxvbGQlMjB8ZW58MHx8fHwxNzQ5NjEzMjA3fDA&ixlib=rb-4.1.0&q=80&w=1080';
     firstImageHint = 'retirement planning';
@@ -160,11 +160,12 @@ const calculatorBlogPosts: BlogPostEntry[] = CALCULATORS_DATA.map((calculator: C
     firstImageUrl = 'https://images.unsplash.com/photo-1604594849809-dfedbc827105?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxhbm51aXR5fGVufDB8fHx8MTc0OTYxODc1MXww&ixlib=rb-4.1.0&q=80&w=1080';
     firstImageHint = 'annuity income';
   } else if (calculator.category === 'Crypto') {
-    firstImageUrl = 'https://images.unsplash.com/photo-1526378800651-c32d170fe6f8?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxibG9ja2NoYWlufGVufDB8fHx8MTc0OTQ5MTQ1MHww&ixlib=rb-4.1.0&q=80&w=1080';
+    firstImageUrl = 'https://images.unsplash.com/photo-1621504450181-5d356f61d307?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxjcnlwdG98ZW58MHx8fHwxNzQ5NjQ0MDE0fDA&ixlib=rb-4.1.0&q=80&w=1080';
     firstImageHint = 'blockchain tech';
   }
   else { 
-    firstImageHint = 'investment strategy';
+    // Default hint from the improved function if no specific override
+    firstImageHint = hints.hint1;
   }
   
   return {

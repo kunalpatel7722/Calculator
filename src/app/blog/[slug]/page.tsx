@@ -190,9 +190,9 @@ const getBlogPostBySlug = async (slug: string): Promise<BlogPostDetailsExtended 
         secondImageHint = hints.hint2; 
       } else if (calcId === 'sip-vs-lumpsum') {
         firstImageUrl = 'https://images.unsplash.com/photo-1523540939399-141cbff6a8d7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHx0aXBzfGVufDB8fHx8MTc0OTY0MjUwNnww&ixlib=rb-4.1.0&q=80&w=1080';
-        firstImageHint = 'remote control';
+        firstImageHint = 'remote control'; // Matches the latest update
         secondImageUrl = 'https://placehold.co/800x300.png';
-        secondImageHint = hints.hint2 !== 'remote control' ? hints.hint2 : 'comparison chart';
+        secondImageHint = hints.hint2 !== 'decision tool' ? hints.hint2 : 'comparison chart'; // Updated condition
       } else if (calcId === 'swp-calculator') {
         firstImageUrl = 'https://images.unsplash.com/photo-1513159446162-54eb8bdaa79b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxvbGQlMjB8ZW58MHx8fHwxNzQ5NjEzMjA3fDA&ixlib=rb-4.1.0&q=80&w=1080';
         firstImageHint = 'retirement planning';
@@ -206,7 +206,7 @@ const getBlogPostBySlug = async (slug: string): Promise<BlogPostDetailsExtended 
         firstImageHint = 'annuity income';
         secondImageHint = hints.hint2;
       } else if (calculator.category === 'Crypto') {
-        firstImageUrl = 'https://images.unsplash.com/photo-1526378800651-c32d170fe6f8?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxibG9ja2NoYWlufGVufDB8fHx8MTc0OTQ5MTQ1MHww&ixlib=rb-4.1.0&q=80&w=1080';
+        firstImageUrl = 'https://images.unsplash.com/photo-1621504450181-5d356f61d307?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxjcnlwdG98ZW58MHx8fHwxNzQ5NjQ0MDE0fDA&ixlib=rb-4.1.0&q=80&w=1080';
         firstImageHint = 'blockchain tech';
         secondImageHint = hints.hint2;
       }
