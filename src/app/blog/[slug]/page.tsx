@@ -20,7 +20,7 @@ interface BaseBlogPostDetails {
   title: string;
   category: string;
   date: string; 
-  images: BlogImage[];
+  images: [BlogImage]; // Ensure images array always contains one image
   keywords: string[];
   excerpt: string;
 }
@@ -41,13 +41,13 @@ type BlogPostDetailsExtended = OriginalBlogPostDetails | CalculatorGuideBlogPost
 
 
 const originalBlogPosts: OriginalBlogPostDetails[] = [
-    { slug: 'understanding-compound-interest', title: 'Understanding Compound Interest for Long-Term Growth', category: 'Investing Basics', date: 'October 26, 2023', images: [{ imageUrl: 'https://images.unsplash.com/photo-1589556763333-ad818080f39e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxNXx8Y29tcG91bmQlMjBpbnRlcmVzdHxlbnwwfHx8fDE3NDk0ODY4MzZ8MA&ixlib=rb-4.1.0&q=80&w=1080', dataAiHint: 'investment growth' }, { imageUrl: 'https://images.unsplash.com/photo-1626266061368-46a8f578ddd6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxjYWxjdWxhdG9yfGVufDB8fHx8MTc0OTQ4Njc1M3ww&ixlib=rb-4.1.0&q=80&w=1080', dataAiHint: 'calculation tools' }], keywords: ['compound interest', 'investment growth', 'finance basics'], excerpt: 'Explore the fundamentals of compound interest.', type: 'original', calculatorNameForAi: 'Blog Post: Understanding Compound Interest for Long-Term Growth' },
-    { slug: 'beginners-guide-bitcoin-roi', title: 'Beginner\'s Guide to Bitcoin ROI Calculation', category: 'Cryptocurrency', date: 'October 24, 2023', images: [{ imageUrl: 'https://images.unsplash.com/photo-1641197861542-83e511654ac0?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxiaXRjb2luJTIwcm9pfGVufDB8fHx8MTc0OTQ5MTE2OXww&ixlib=rb-4.1.0&q=80&w=1080', dataAiHint: 'crypto chart' }, { imageUrl: 'https://images.unsplash.com/photo-1639322537228-f710d846310a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8Yml0Y29pbiUyMGFuYWx5c2lzfGVufDB8fHx8MTc1MDM4NTg2MHww&ixlib=rb-4.1.0&q=80&w=1080', dataAiHint: 'crypto graph' }], keywords: ['bitcoin roi', 'crypto basics', 'digital assets'], excerpt: 'Learn to calculate Bitcoin ROI.', type: 'original', calculatorNameForAi: 'Blog Post: Beginner\'s Guide to Bitcoin ROI Calculation' },
-    { slug: 'maximizing-sip-investments', title: 'Maximizing Your SIP Investments with AI Insights', category: 'Mutual Funds', date: 'October 22, 2023', images: [{ imageUrl: 'https://images.unsplash.com/photo-1560264418-c4445382edbc?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8c2hhcmUlMjBtYXJrZXQlMjB8ZW58MHx8fHwxNzQ5NjQxODc5fDA&ixlib=rb-4.1.0&q=80&w=1080', dataAiHint: 'investment strategy' }, { imageUrl: 'https://placehold.co/800x300.png', dataAiHint: 'ai finance' }], keywords: ['sip strategy', 'ai investing', 'mutual funds'], excerpt: 'Optimize your SIP investments.', type: 'original', calculatorNameForAi: 'Blog Post: Maximizing Your SIP Investments with AI Insights' },
-    { slug: 'navigating-market-volatility', title: 'Navigating Market Volatility: Tips for Investors', category: 'Market Analysis', date: 'October 20, 2023', images: [{ imageUrl: 'https://images.unsplash.com/photo-1523540939399-141cbff6a8d7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHx0aXBzfGVufDB8fHx8MTc0OTY0MjUwNnww&ixlib=rb-4.1.0&q=80&w=1080', dataAiHint: 'remote control' }, { imageUrl: 'https://placehold.co/800x300.png', dataAiHint: 'market graph' }], keywords: ['market volatility', 'investment tips', 'risk management'], excerpt: 'Tips for volatile markets.', type: 'original', calculatorNameForAi: 'Blog Post: Navigating Market Volatility: Tips for Investors' },
+    { slug: 'understanding-compound-interest', title: 'Understanding Compound Interest for Long-Term Growth', category: 'Investing Basics', date: 'October 26, 2023', images: [{ imageUrl: 'https://images.unsplash.com/photo-1589556763333-ad818080f39e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxNXx8Y29tcG91bmQlMjBpbnRlcmVzdHxlbnwwfHx8fDE3NDk0ODY4MzZ8MA&ixlib=rb-4.1.0&q=80&w=1080', dataAiHint: 'investment growth' }], keywords: ['compound interest', 'investment growth', 'finance basics'], excerpt: 'Explore the fundamentals of compound interest.', type: 'original', calculatorNameForAi: 'Blog Post: Understanding Compound Interest for Long-Term Growth' },
+    { slug: 'beginners-guide-bitcoin-roi', title: 'Beginner\'s Guide to Bitcoin ROI Calculation', category: 'Cryptocurrency', date: 'October 24, 2023', images: [{ imageUrl: 'https://images.unsplash.com/photo-1641197861542-83e511654ac0?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxiaXRjb2luJTIwcm9pfGVufDB8fHx8MTc0OTQ5MTE2OXww&ixlib=rb-4.1.0&q=80&w=1080', dataAiHint: 'crypto chart' }], keywords: ['bitcoin roi', 'crypto basics', 'digital assets'], excerpt: 'Learn to calculate Bitcoin ROI.', type: 'original', calculatorNameForAi: 'Blog Post: Beginner\'s Guide to Bitcoin ROI Calculation' },
+    { slug: 'maximizing-sip-investments', title: 'Maximizing Your SIP Investments with AI Insights', category: 'Mutual Funds', date: 'October 22, 2023', images: [{ imageUrl: 'https://images.unsplash.com/photo-1560264418-c4445382edbc?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8c2hhcmUlMjBtYXJrZXQlMjB8ZW58MHx8fHwxNzQ5NjQxODc5fDA&ixlib=rb-4.1.0&q=80&w=1080', dataAiHint: 'investment strategy' }], keywords: ['sip strategy', 'ai investing', 'mutual funds'], excerpt: 'Optimize your SIP investments.', type: 'original', calculatorNameForAi: 'Blog Post: Maximizing Your SIP Investments with AI Insights' },
+    { slug: 'navigating-market-volatility', title: 'Navigating Market Volatility: Tips for Investors', category: 'Market Analysis', date: 'October 20, 2023', images: [{ imageUrl: 'https://images.unsplash.com/photo-1523540939399-141cbff6a8d7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHx0aXBzfGVufDB8fHx8MTc0OTY0MjUwNnww&ixlib=rb-4.1.0&q=80&w=1080', dataAiHint: 'remote control' }], keywords: ['market volatility', 'investment tips', 'risk management'], excerpt: 'Tips for volatile markets.', type: 'original', calculatorNameForAi: 'Blog Post: Navigating Market Volatility: Tips for Investors' },
 ];
 
-const getCalculatorBlogImageHints = (calculator: CalculatorFeature): { hint1: string, hint2: string } => {
+const getCalculatorBlogImageHints = (calculator: CalculatorFeature): { hint1: string, hint2: string } => { // hint2 is no longer used for generation but kept for potential future use
   const nameAndKeywords = [
     calculator.name.toLowerCase(),
     ...calculator.keywords.map(k => k.toLowerCase())
@@ -132,91 +132,64 @@ const getBlogPostBySlug = async (slug: string): Promise<BlogPostDetailsExtended 
     if (calculator) {
       let firstImageUrl = 'https://placehold.co/800x400.png';
       let firstImageHint = '';
-      let secondImageUrl = 'https://placehold.co/800x300.png';
-      let secondImageHint = '';
       
       const hints = getCalculatorBlogImageHints(calculator);
+      firstImageHint = hints.hint1; // Use only the first hint
 
       if (calcId === 'compound-interest') {
         firstImageUrl = 'https://images.unsplash.com/photo-1494887205043-c5f291293cf6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxjb21wb3VuZCUyMGludGVyZXN0fGVufDB8fHx8MTc0OTQ4NjgzNnww&ixlib=rb-4.1.0&q=80&w=1080';
         firstImageHint = 'growth chart';
-        secondImageUrl = 'https://images.unsplash.com/photo-1626266061368-46a8f578ddd6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxjYWxjdWxhdG9yfGVufDB8fHx8MTc0OTQ4Njc1M3ww&ixlib=rb-4.1.0&q=80&w=1080';
-        secondImageHint = hints.hint2 !== 'growth chart' ? hints.hint2 : 'calculation tools';
       } else if (calcId === 'stock-return') {
         firstImageUrl = 'https://images.unsplash.com/photo-1621264437251-59d700cfb327?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxNnx8U3RvY2slMjBSZXR1cm4lMjB8ZW58MHx8fHwxNzQ5NDg3OTA1fDA&ixlib=rb-4.1.0&q=80&w=1080';
         firstImageHint = 'stock return';
-        secondImageUrl = 'https://images.unsplash.com/photo-1559067096-49ebca3406aa?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxpbnZlc3RtZW50fGVufDB8fHx8MTc0OTQ4NzkzMnww&ixlib=rb-4.1.0&q=80&w=1080';
-        secondImageHint = hints.hint2 !== 'stock return' ? hints.hint2 : 'profit graph';
       } else if (calcId === 'dividend-yield') {
         firstImageUrl = 'https://images.unsplash.com/photo-1723587693188-52754b315b50?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHxEaXZpZGVuZCUyMHxlbnwwfHx8fDE3NDk0ODkzNjh8MA&ixlib=rb-4.1.0&q=80&w=1080';
         firstImageHint = 'dividend income';
-        secondImageUrl = 'https://images.unsplash.com/photo-1579532537598-459ecdaf39cc?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxzaGFyZXN8ZW58MHx8fHwxNzQ5NDg5NjU5fDA&ixlib=rb-4.1.0&q=80&w=1080';
-        secondImageHint = hints.hint2 !== 'dividend income' ? hints.hint2 : 'share value'; 
       } else if (calcId === 'risk-reward-ratio') {
         firstImageUrl = 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHxyaXNrfGVufDB8fHx8MTc0OTQ5MDEyOHww&ixlib=rb-4.1.0&q=80&w=1080';
         firstImageHint = 'risk reward';
-        secondImageHint = hints.hint2 !== 'risk reward' ? hints.hint2 : 'decision scale';
       } else if (calcId === 'volatility') {
         firstImageUrl = 'https://images.unsplash.com/photo-1625351814208-155cfe221d12?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHx2b2xhdGlsaXR5fGVufDB8fHx8MTc0OTQ5MTAxOHww&ixlib=rb-4.1.0&q=80&w=1080';
         firstImageHint = 'market volatility';
-        secondImageHint = hints.hint2 !== 'market volatility' ? hints.hint2 : 'price fluctuation';
       } else if (calcId === 'bitcoin-roi') {
         firstImageUrl = 'https://images.unsplash.com/photo-1543699539-33a389c5dcfe?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxiaXRjb2lufGVufDB8fHx8MTc0OTQ1ODU1OXww&ixlib=rb-4.1.0&q=80&w=1080';
         firstImageHint = 'bitcoin profit';
-        secondImageHint = hints.hint2; 
       } else if (calcId === 'portfolio-allocation') {
         firstImageUrl = 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxwb3J0Zm9saW8lMjBhbGxvY2F0aW9ufGVufDB8fHx8MTc0OTQ5MzQzNnww&ixlib=rb-4.1.0&q=80&w=1080';
         firstImageHint = 'portfolio diversity';
-        secondImageHint = hints.hint2;
       } else if (calcId === 'loan-vs-investment') {
         firstImageUrl = 'https://images.unsplash.com/photo-1560520653-9e0e4c89eb11?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxsb2FuJTIwdnMlMjBpbnZlc3RtZW50fGVufDB8fHx8MTc0OTQ5Mzk3Mnww&ixlib=rb-4.1.0&q=80&w=1080';
         firstImageHint = 'financial decision';
-        secondImageHint = hints.hint2;
       } else if (calcId === 'real-estate-roi') {
         firstImageUrl = 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxyZWFsJTIwZXN0YXRlfGVufDB8fHx8MTc0OTQ5NDE5Nnww&ixlib=rb-4.1.0&q=80&w=1080';
         firstImageHint = 'property income';
-        secondImageHint = hints.hint2;
       } else if (calcId === 'goal-planning') {
         firstImageUrl = 'https://images.unsplash.com/photo-1629721671030-a83edbb11211?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxnb2FsfGVufDB8fHx8MTc0OTU0MTg5M3ww&ixlib=rb-4.1.0&q=80&w=1080';
         firstImageHint = 'financial goals';
-        secondImageHint = hints.hint2;
       } else if (calcId === 'time-value-of-money') {
         firstImageUrl = 'https://images.unsplash.com/photo-1533749047139-189de3cf06d3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHx0aW1lJTIwdmFsdWUlMjBtb25leXxlbnwwfHx8fDE3NDk1MzgyMjd8MA&ixlib=rb-4.1.0&q=80&w=1080';
         firstImageHint = 'money time';
-        secondImageHint = hints.hint2;
       } else if (calcId === 'sip-calculator') {
         firstImageUrl = 'https://images.unsplash.com/photo-1564939558297-fc396f18e5c7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHxjYWxjdWxhdG9yfGVufDB8fHx8MTc0OTYxMzA3MHww&ixlib=rb-4.1.0&q=80&w=1080';
         firstImageHint = 'investment growth';
-        secondImageUrl = 'https://placehold.co/800x300.png'; 
-        secondImageHint = hints.hint2; 
       } else if (calcId === 'sip-vs-lumpsum') {
         firstImageUrl = 'https://images.unsplash.com/photo-1523540939399-141cbff6a8d7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHx0aXBzfGVufDB8fHx8MTc0OTY0MjUwNnww&ixlib=rb-4.1.0&q=80&w=1080';
         firstImageHint = 'decision tool';
-        secondImageUrl = 'https://placehold.co/800x300.png';
-        secondImageHint = hints.hint2 !== 'decision tool' ? hints.hint2 : 'comparison chart';
       } else if (calcId === 'swp-calculator') {
         firstImageUrl = 'https://images.unsplash.com/photo-1513159446162-54eb8bdaa79b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxvbGQlMjB8ZW58MHx8fHwxNzQ5NjEzMjA3fDA&ixlib=rb-4.1.0&q=80&w=1080';
         firstImageHint = 'retirement planning';
-        secondImageHint = hints.hint2;
       } else if (calcId === 'currency-converter') {
         firstImageUrl = 'https://images.unsplash.com/photo-1583574928108-53be39420a8d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8ZG9sbGFyfGVufDB8fHx8MTc0OTYxMjY5M3ww&ixlib=rb-4.1.0&q=80&w=1080';
         firstImageHint = 'currency exchange';
-        secondImageHint = hints.hint2;
       } else if (calcId === 'annuity-calculator') {
         firstImageUrl = 'https://images.unsplash.com/photo-1604594849809-dfedbc827105?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxhbm51aXR5fGVufDB8fHx8MTc0OTYxODc1MXww&ixlib=rb-4.1.0&q=80&w=1080';
         firstImageHint = 'annuity income';
-        secondImageHint = hints.hint2;
       } else if (calculator.category === 'Crypto') {
         firstImageUrl = 'https://images.unsplash.com/photo-1621504450181-5d356f61d307?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxjcnlwdG98ZW58MHx8fHwxNzQ5NjQ0MDE0fDA&ixlib=rb-4.1.0&q=80&w=1080';
         firstImageHint = 'blockchain tech';
-        secondImageHint = hints.hint2;
       }
-      else { 
-        firstImageHint = hints.hint1;
-        secondImageHint = hints.hint2;
-      }
+      // Removed default else block for firstImageHint as it's covered by hints.hint1 at the top.
       
-
       return {
         slug,
         title: `Comprehensive Guide: ${calculator.name}`,
@@ -224,7 +197,6 @@ const getBlogPostBySlug = async (slug: string): Promise<BlogPostDetailsExtended 
         date: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
         images: [
           { imageUrl: firstImageUrl, dataAiHint: firstImageHint },
-          { imageUrl: secondImageUrl, dataAiHint: secondImageHint },
         ],
         keywords: [...calculator.keywords, 'guide', calculator.name.toLowerCase().replace(/\s+/g, ' ')],
         excerpt: `Learn all about the ${calculator.name} and how to use it effectively.`,
@@ -299,50 +271,14 @@ async function AiGeneratedContent({ postDetails, initialSeoTitleForImage }: {
     .replace(/(<li>.*?<\/li>)+/gs, (match) => `<ul>${match}</ul>`)
     .replace(/\n/g, '<br />');
 
-  let contentPart1 = formattedSeoContent;
-  let contentPart2 = '';
-
-  const headingSplitRegex = /(<\/h[23]>)/i;
-  const splitByHeading = formattedSeoContent.split(headingSplitRegex);
-
-  if (splitByHeading.length > 2) { 
-    contentPart1 = splitByHeading.slice(0, 2).join('');
-    contentPart2 = splitByHeading.slice(2).join('');
-  } else {
-    const lines = formattedSeoContent.split(/<br\s*\/?>/i);
-    if (lines.length > 1) {
-      const splitIndex = Math.min(3, Math.floor(lines.length / 2));
-      contentPart1 = lines.slice(0, splitIndex).join('<br />') + (lines.length > splitIndex ? '<br />' : '');
-      contentPart2 = lines.slice(splitIndex).join('<br />');
-    }
-  }
-
-  const secondImage = postDetails.images.length > 1 ? postDetails.images[1] : null;
   const pageTitle = seoContent.title || initialSeoTitleForImage || postDetails.title;
-
 
   return (
     <>
       <h1 className="text-4xl font-bold mb-3 font-headline">{pageTitle}</h1>
       <p className="text-muted-foreground text-sm mb-8">{postDetails.date}</p>
       
-      <div className="prose prose-lg dark:prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: contentPart1 }} />
-
-      {secondImage && (
-        <Image
-          key={`${postDetails.slug}-img2-${secondImage.imageUrl}`}
-          src={secondImage.imageUrl}
-          alt={`Supporting illustration for ${pageTitle}`}
-          width={800}
-          height={300}
-          className="w-full rounded-lg shadow-md my-8 object-cover"
-          data-ai-hint={secondImage.dataAiHint}
-        />
-      )}
-
-      {contentPart2 && (
-        <div className="prose prose-lg dark:prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: contentPart2 }} />
-      )}
+      <div className="prose prose-lg dark:prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: formattedSeoContent }} />
     </>
   );
 }
@@ -360,12 +296,7 @@ function AiContentFallback() {
       <Skeleton className="h-6 w-full mb-2" />
       <Skeleton className="h-6 w-3/4 mb-2" />
       <Skeleton className="h-6 w-full mb-8" />
-
-      <Skeleton className="h-[300px] w-full rounded-lg shadow-md my-8" /> {/* Second Image Placeholder */}
-      
-      <Skeleton className="h-6 w-full mb-2" />
-      <Skeleton className="h-6 w-full mb-2" />
-      <Skeleton className="h-6 w-4/6 mb-2" />
+      {/* Removed Skeleton for second image */}
     </>
   )
 }
@@ -443,6 +374,3 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
     </div>
   );
 }
-
-
-    
