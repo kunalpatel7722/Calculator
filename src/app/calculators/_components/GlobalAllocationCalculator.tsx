@@ -41,18 +41,29 @@ export function GlobalAllocationCalculator() {
     resolver: zodResolver(formSchema),
     defaultValues: { northAmerica: 60, europe: 20, asiaPacific: 10, emergingMarkets: 10, otherRegions: 0 },
   });
-
-  const calculateTotalPercentage = () => {
-    const values = form.getValues();
-    const currentTotal = (values.northAmerica || 0) + (values.europe || 0) + (values.asiaPacific || 0) + (values.emergingMarkets || 0) + (values.otherRegions || 0);
-    setTotalPercentage(currentTotal);
-  };
   
+  const { watch, getValues } = form;
+
   useEffect(() => {
-    const subscription = form.watch(() => calculateTotalPercentage());
-    calculateTotalPercentage(); // Initial calculation
+    const calculateAndSetTotalPercentage = (values: Partial<FormData>) => {
+      const currentTotal = 
+        (values.northAmerica || 0) + 
+        (values.europe || 0) + 
+        (values.asiaPacific || 0) + 
+        (values.emergingMarkets || 0) + 
+        (values.otherRegions || 0);
+      setTotalPercentage(currentTotal);
+    };
+    
+    const subscription = watch((values) => {
+      calculateAndSetTotalPercentage(values as FormData);
+    });
+    
+    // Initial calculation
+    calculateAndSetTotalPercentage(getValues());
+    
     return () => subscription.unsubscribe();
-  }, [form.watch, form]);
+  }, [watch, getValues, setTotalPercentage]);
 
 
   const onSubmit: SubmitHandler<FormData> = (data) => {
@@ -62,23 +73,23 @@ export function GlobalAllocationCalculator() {
         { name: "Asia-Pacific", percentage: data.asiaPacific || 0 },
         { name: "Emerging Markets", percentage: data.emergingMarkets || 0 },
         { name: "Other Regions", percentage: data.otherRegions || 0 },
-    ].filter(item => item.percentage >= 0); // Keep items with 0% if explicitly set
+    ].filter(item => item.percentage >= 0); 
 
     const currentTotal = allocations.reduce((sum, item) => sum + item.percentage, 0);
-    setTotalPercentage(currentTotal);
+    // totalPercentage state is already updated by the useEffect watch
     
     if (currentTotal > 100) {
         form.setError("northAmerica", {type: "manual", message: "Total allocation cannot exceed 100%."});
-        setResult(null); // Clear previous valid results
+        setResult(null); 
         return;
     }
-     if (currentTotal < 0) { // Should be caught by Zod min(0) but good to have
+     if (currentTotal < 0) { 
         form.setError("northAmerica", {type: "manual", message: "Allocations cannot be negative."});
         setResult(null);
         return;
     }
     
-    setResult(allocations.filter(item => item.percentage > 0)); // Only show non-zero allocations in result list
+    setResult(allocations.filter(item => item.percentage > 0)); 
   };
   
   const renderAllocationField = (name: keyof FormData, label: string) => (

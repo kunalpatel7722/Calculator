@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -37,6 +38,20 @@ const NETWORK_CURRENCY_SYMBOL: Record<string, string> = {
   solana: 'SOL',
 };
 
+// Placeholder conversion rates from USD to other display currencies
+// Format: 1 USD = X TargetCurrency
+const USD_TO_SELECTED_FIAT_RATES: Record<string, number> = {
+  USD: 1.00,
+  EUR: 0.93,
+  GBP: 0.79,
+  INR: 83.50,
+  JPY: 157.00,
+  AUD: 1.50,
+  CAD: 1.37,
+  CHF: 0.90,
+  CNY: 7.25,
+};
+
 
 export function BlockchainFeeCalculator() { 
   const [result, setResult] = useState<CalculationResult | null>(null);
@@ -59,13 +74,12 @@ export function BlockchainFeeCalculator() {
       feeInNativeToken = (data.gasUnits * data.gasPrice) / 100_000_000; // Assuming gasUnits = vBytes, gasPrice = satoshis/vByte
     }
     
-    const networkRate = NETWORK_TO_USD_RATES[data.network] || 1;
-    const estimatedFeeInUsd = feeInNativeToken * networkRate;
+    const nativeToUsdRate = NETWORK_TO_USD_RATES[data.network] || 1;
+    const estimatedFeeInUsd = feeInNativeToken * nativeToUsdRate;
 
-    // Convert USD to selected display currency (very rough, no real-time rates)
-    const usdToSelectedCurrencyRate = currency.value === 'USD' ? 1 : (1 / (AVAILABLE_CURRENCIES.find(c=>c.value === 'USD')?.value === currency.value ? 1 : (currency.symbol === '€' ? 1.1 : (currency.symbol === '£' ? 1.2 : 0.012 ) ) ) ); // Mock
-    const estimatedFeeFiat = estimatedFeeInUsd * usdToSelectedCurrencyRate;
-
+    // Convert USD to selected display currency using more structured placeholder rates
+    const usdToSelectedRate = USD_TO_SELECTED_FIAT_RATES[currency.value] || USD_TO_SELECTED_FIAT_RATES['USD']; // Fallback to USD if rate not found
+    const estimatedFeeFiat = estimatedFeeInUsd * usdToSelectedRate;
 
     setResult({ 
         estimatedFee: parseFloat(feeInNativeToken.toFixed(8)),
