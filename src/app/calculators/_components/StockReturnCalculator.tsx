@@ -11,8 +11,8 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { CurrencyToggle, AVAILABLE_CURRENCIES, type Currency } from '@/components/shared/CurrencyToggle';
 import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, TooltipProps, Cell } from 'recharts';
-import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, TooltipProps, Cell, PieChart, Pie, LegendProps } from 'recharts';
+import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLegendContent } from "@/components/ui/chart";
 import type { TooltipPayload } from 'recharts';
 
 const formSchema = z.object({
@@ -22,7 +22,13 @@ const formSchema = z.object({
 });
 type FormData = z.infer<typeof formSchema>;
 
-interface ChartDataPoint {
+interface BarChartDataPoint {
+  name: string;
+  value: number;
+  fill: string;
+}
+
+interface PieChartDataPoint {
   name: string;
   value: number;
   fill: string;
@@ -33,7 +39,9 @@ interface CalculationResult {
   totalReturnValue: number;
   profitLoss: number;
   returnPercentage: number;
-  chartData: ChartDataPoint[];
+  barChartData: BarChartDataPoint[];
+  pieChartData: PieChartDataPoint[];
+  pieChartConfig: ChartConfig;
 }
 
 export function StockReturnCalculator() { 
@@ -45,7 +53,7 @@ export function StockReturnCalculator() {
     defaultValues: { purchasePrice: 100, sellingPrice: 120, shares: 10 },
   });
   
-  const chartConfig = {
+  const barChartConfig = { // Renamed for clarity
     totalInvestment: { label: `Total Investment (${currency.symbol})`, color: "hsl(var(--chart-2))" },
     totalReturnValue: { label: `Total Return Value (${currency.symbol})`, color: "hsl(var(--chart-1))" },
   } satisfies ChartConfig;
@@ -56,27 +64,67 @@ export function StockReturnCalculator() {
     const profitLoss = totalReturnValue - totalInvestment;
     const returnPercentage = totalInvestment > 0 ? (profitLoss / totalInvestment) * 100 : 0;
 
-    const chartData: ChartDataPoint[] = [
-      { name: 'Total Investment', value: parseFloat(totalInvestment.toFixed(2)), fill: chartConfig.totalInvestment.color },
-      { name: 'Total Return Value', value: parseFloat(totalReturnValue.toFixed(2)), fill: chartConfig.totalReturnValue.color },
+    const barChartData: BarChartDataPoint[] = [
+      { name: 'Total Investment', value: parseFloat(totalInvestment.toFixed(2)), fill: barChartConfig.totalInvestment.color },
+      { name: 'Total Return Value', value: parseFloat(totalReturnValue.toFixed(2)), fill: barChartConfig.totalReturnValue.color },
     ];
+    
+    const newPieChartData: PieChartDataPoint[] = [];
+    const newPieChartConfig: ChartConfig = {};
+
+    if (profitLoss >= 0) {
+      newPieChartData.push({ name: 'Initial Investment', value: totalInvestment, fill: 'hsl(var(--chart-1))'});
+      newPieChartConfig['Initial Investment'] = { label: 'Initial Investment', color: 'hsl(var(--chart-1))' };
+      if (profitLoss > 0) { // Only add profit slice if there is actual profit
+        newPieChartData.push({ name: 'Profit', value: profitLoss, fill: 'hsl(var(--chart-2))'});
+        newPieChartConfig['Profit'] = { label: 'Profit', color: 'hsl(var(--chart-2))' };
+      }
+    } else { // Loss
+      if (totalReturnValue > 0) { // Only add returned value if it's positive
+         newPieChartData.push({ name: 'Returned Value', value: totalReturnValue, fill: 'hsl(var(--chart-1))' });
+         newPieChartConfig['Returned Value'] = { label: 'Returned Value', color: 'hsl(var(--chart-1))' };
+      }
+      newPieChartData.push({ name: 'Loss', value: Math.abs(profitLoss), fill: 'hsl(var(--destructive))'});
+      newPieChartConfig['Loss'] = { label: 'Loss', color: 'hsl(var(--destructive))' };
+    }
     
     setResult({ 
         totalInvestment: parseFloat(totalInvestment.toFixed(2)),
         totalReturnValue: parseFloat(totalReturnValue.toFixed(2)),
         profitLoss: parseFloat(profitLoss.toFixed(2)),
         returnPercentage: parseFloat(returnPercentage.toFixed(2)),
-        chartData,
+        barChartData,
+        pieChartData: newPieChartData.filter(d => d.value > 0.009), // Filter out zero or negligible values for pie
+        pieChartConfig: newPieChartConfig,
     });
   };
 
-  const CustomTooltip = ({ active, payload }: TooltipProps<number, string>) => {
+  const CustomBarTooltip = ({ active, payload }: TooltipProps<number, string>) => {
     if (active && payload && payload.length) {
       const data = payload[0];
       return (
         <div className="p-2 text-sm bg-background/90 border border-border rounded-md shadow-lg">
           <p className="font-bold mb-1" style={{ color: data.payload.fill }}>{data.name}</p>
           <p>{`Value: ${currency.symbol}${data.value?.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`}</p>
+        </div>
+      );
+    }
+    return null;
+  };
+
+  interface CustomPieTooltipProps extends TooltipProps<number, string> {
+    currency: Currency;
+  }
+
+  const CustomPieTooltip = ({ active, payload, currency: currentCurrency }: CustomPieTooltipProps) => {
+    if (active && payload && payload.length) {
+      const data = payload[0].payload as PieChartDataPoint;
+      const percentage = payload[0].percent !== undefined ? (payload[0].percent * 100).toFixed(2) : null;
+      return (
+        <div className="p-2 text-sm bg-background/90 border border-border rounded-md shadow-lg">
+          <p className="font-bold mb-1" style={{ color: data.fill }}>{data.name}</p>
+          <p>{`Amount: ${currentCurrency.symbol}${data.value.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`}</p>
+          {percentage && <p>{`Percentage: ${percentage}%`}</p>}
         </div>
       );
     }
@@ -113,7 +161,15 @@ export function StockReturnCalculator() {
             <CurrencyToggle
               id="currency-toggle"
               selectedCurrency={currency}
-              onCurrencyChange={setCurrency}
+              onCurrencyChange={(newCurrency) => {
+                setCurrency(newCurrency);
+                // Re-calculate if currency changes and results exist, or update config labels
+                 if (result) {
+                    // This is tricky because barChartConfig is outside react state for labels.
+                    // For now, we'll just update the symbol in display. Full re-calc might be better.
+                    // Or make barChartConfig part of state or a memoized value depending on currency.
+                 }
+              }}
             />
           </div>
         </CardContent>
@@ -146,29 +202,68 @@ export function StockReturnCalculator() {
             </TableBody>
           </Table>
 
-          {result.chartData && result.chartData.length > 0 && (
-            <div className="my-8 h-80 md:h-96">
-              <ChartContainer config={chartConfig} className="w-full h-full">
-                <BarChart accessibilityLayer data={result.chartData} margin={{ top: 5, right: 20, left: 20, bottom: 5 }}>
-                  <CartesianGrid vertical={false} strokeDasharray="3 3" />
-                  <XAxis dataKey="name" tickLine={false} axisLine={false} tickMargin={8} />
-                  <YAxis 
-                    tickLine={false} 
-                    axisLine={false} 
-                    tickMargin={8}
-                    tickFormatter={(value) => `${currency.symbol}${value.toLocaleString()}`}
-                  />
-                   <ChartTooltip 
-                    content={<CustomTooltip />} 
-                    cursorStyle={{ fill: "hsl(var(--muted))", opacity: 0.5 }}
-                  />
-                  <Bar dataKey="value" radius={4}>
-                     {result.chartData.map((entry) => (
-                      <Cell key={`cell-${entry.name}`} fill={entry.fill} />
-                    ))}
-                  </Bar>
-                </BarChart>
-              </ChartContainer>
+          {result.barChartData && result.barChartData.length > 0 && (
+            <div className="my-8">
+              <h4 className="text-lg font-semibold mb-2 text-center font-headline">Investment vs. Return Value</h4>
+              <div className="h-80 md:h-96">
+                <ChartContainer config={barChartConfig} className="w-full h-full">
+                  <BarChart accessibilityLayer data={result.barChartData} margin={{ top: 5, right: 20, left: 20, bottom: 5 }}>
+                    <CartesianGrid vertical={false} strokeDasharray="3 3" />
+                    <XAxis dataKey="name" tickLine={false} axisLine={false} tickMargin={8} />
+                    <YAxis 
+                      tickLine={false} 
+                      axisLine={false} 
+                      tickMargin={8}
+                      tickFormatter={(value) => `${currency.symbol}${value.toLocaleString()}`}
+                    />
+                    <ChartTooltip 
+                      content={<CustomBarTooltip />} 
+                      cursorStyle={{ fill: "hsl(var(--muted))", opacity: 0.5 }}
+                    />
+                    <Bar dataKey="value" radius={4}>
+                      {result.barChartData.map((entry) => (
+                        <Cell key={`cell-bar-${entry.name}`} fill={entry.fill} />
+                      ))}
+                    </Bar>
+                  </BarChart>
+                </ChartContainer>
+              </div>
+            </div>
+          )}
+
+          {result.pieChartData && result.pieChartData.length > 0 && result.pieChartConfig && (
+            <div className="my-8">
+              <h4 className="text-lg font-semibold mb-2 text-center font-headline">Breakdown</h4>
+              <div className="h-80 md:h-96 flex justify-center">
+                <ChartContainer config={result.pieChartConfig} className="aspect-square max-h-[250px] sm:max-h-[300px]">
+                  <PieChart>
+                    <ChartTooltip 
+                      content={<CustomPieTooltip currency={currency}/>}
+                      cursor={{ fill: "hsl(var(--muted))", opacity: 0.3 }}
+                    />
+                    <Pie
+                      data={result.pieChartData}
+                      dataKey="value"
+                      nameKey="name"
+                      cx="50%"
+                      cy="50%"
+                      outerRadius={80}
+                      labelLine={false}
+                      label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
+                    >
+                      {result.pieChartData.map((entry, index) => (
+                        <Cell key={`cell-pie-${index}`} fill={entry.fill} />
+                      ))}
+                    </Pie>
+                    <ChartLegend 
+                      content={<ChartLegendContent nameKey="name" />} 
+                      verticalAlign="bottom"
+                      align="center"
+                      wrapperStyle={{paddingTop: "20px"}}
+                    />
+                  </PieChart>
+                </ChartContainer>
+              </div>
             </div>
           )}
         </div>
