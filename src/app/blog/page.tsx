@@ -33,23 +33,75 @@ const originalBlogPosts: BlogPostEntry[] = [
 ];
 
 const getCalculatorBlogImageHints = (calculator: CalculatorFeature): { hint1: string, hint2: string } => {
-  const nameParts = calculator.name.toLowerCase().replace(/[^a-z0-9\s]/gi, '').split(/\s+/).filter(Boolean);
-  const keywordParts = calculator.keywords.flatMap(k => k.toLowerCase().replace(/[^a-z0-9\s]/gi, '').split(/\s+/).filter(Boolean));
+  const nameAndKeywords = [
+    calculator.name.toLowerCase(),
+    ...calculator.keywords.map(k => k.toLowerCase())
+  ];
 
-  const allWords = [...new Set([...nameParts, ...keywordParts])].slice(0, 10); 
+  let potentialHints: string[] = [];
 
-  let hint1 = allWords.length > 0 ? allWords[0] : "finance";
-  let hint2 = allWords.length > 1 ? allWords[1] : "tool";
+  // Add 1-2 word phrases from keywords and name
+  for (const phrase of nameAndKeywords) {
+    const cleanedPhrase = phrase.replace(/[^a-z0-9\s-]/gi, '').trim();
+    const wordsInPhrase = cleanedPhrase.split(/\s+/).filter(Boolean);
+    if (wordsInPhrase.length === 1 || wordsInPhrase.length === 2) {
+      potentialHints.push(cleanedPhrase);
+    }
+  }
+
+  // Add single words from keywords and name if not already part of a potential hint
+  const allSingleWordsRaw = nameAndKeywords.flatMap(p => p.split(/\s+/));
+  const allSingleWords = [...new Set(allSingleWordsRaw.map(w => w.replace(/[^a-z0-9-]/gi, '').trim()).filter(Boolean))];
   
-  if (hint1 === hint2) {
-    hint2 = allWords.length > 2 ? allWords[2] : (hint1 === "finance" ? "money" : "plan");
+  for (const singleWord of allSingleWords) {
+    if (!potentialHints.some(p => p.includes(singleWord))) {
+      potentialHints.push(singleWord);
+    }
   }
-  if (hint1 === hint2) { 
-      hint2 = "calc"; 
+  
+  potentialHints = [...new Set(potentialHints)]; // Deduplicate
+
+  const commonBadWords = new Set(['calculator', 'guide', 'tool', 'online', 'free', 'best', 'app', 'the', 'for', 'and', 'with', 'new', 'feature', 'easy', 'simple', 'vs', 'of', 'to', 'roi', 'ai', 'plan', 'strategy', 'analysis', 'money', 'asset', 'assets', 'fund', 'funds', 'market', calculator.id.toLowerCase()]);
+  
+  let uniqueValidHints = potentialHints.filter(h => {
+    if (!h || h.length <= 2) return false;
+    const words = h.split(/\s+/).filter(Boolean);
+    if (words.length > 2) return false; 
+    // For single word hints, ensure it's not a common bad word
+    if (words.length === 1 && commonBadWords.has(words[0])) return false;
+    // For two-word hints, allow if at least one word is not bad, or if the combination is very specific
+    if (words.length === 2 && words.every(w => commonBadWords.has(w))) return false; 
+    return true;
+  });
+  
+  uniqueValidHints.sort((a, b) => {
+    const aWords = a.split(/\s+/).length;
+    const bWords = b.split(/\s+/).length;
+    if (aWords !== bWords) return bWords - aWords; // Prefer two-word hints
+    return b.length - a.length; // Then prefer longer hints
+  });
+
+  let hint1 = uniqueValidHints.length > 0 ? uniqueValidHints[0] : "finance growth";
+  let hint2 = "planning tool"; 
+
+  if (uniqueValidHints.length > 1) {
+    const secondHintCandidate = uniqueValidHints.find(h => h !== hint1);
+    if (secondHintCandidate) {
+      hint2 = secondHintCandidate;
+    } else if (hint1 === "planning tool") { // If first hint became default and no other unique
+      hint2 = "data chart";
+    }
+  } else if (hint1 === "planning tool") { 
+      hint2 = "finance growth";
+  } else if (hint1 === "finance growth"){ 
+      hint2 = "data chart";
   }
 
-  hint1 = hint1.split(" ")[0];
-  hint2 = hint2.split(" ")[0];
+  if (hint1 === hint2) {
+    if (hint1 === "finance growth") hint2 = "investment chart";
+    else if (hint1 === "investment chart") hint2 = "digital assets";
+    else hint2 = "stock market"; 
+  }
 
   return { hint1, hint2 };
 };
@@ -60,87 +112,63 @@ const calculatorBlogPosts: BlogPostEntry[] = CALCULATORS_DATA.map((calculator: C
   const slug = `guide-to-${calculator.id}-calculator`;
   let firstImageUrl = 'https://placehold.co/600x400.png';
   let firstImageHint = '';
-  let secondImageUrl = 'https://placehold.co/600x300.png';
-  let secondImageHint = '';
   
   const hints = getCalculatorBlogImageHints(calculator);
 
   if (calculator.id === 'compound-interest') {
     firstImageUrl = 'https://images.unsplash.com/photo-1494887205043-c5f291293cf6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxjb21wb3VuZCUyMGludGVyZXN0fGVufDB8fHx8MTc0OTQ4NjgzNnww&ixlib=rb-4.1.0&q=80&w=1080';
-    firstImageHint = 'growth';
-    secondImageUrl = 'https://images.unsplash.com/photo-1626266061368-46a8f578ddd6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxjYWxjdWxhdG9yfGVufDB8fHx8MTc0OTQ4Njc1M3ww&ixlib=rb-4.1.0&q=80&w=1080';
-    secondImageHint = hints.hint2 !== 'growth' ? hints.hint2 : 'calculation tools';
+    firstImageHint = 'growth chart';
   } else if (calculator.id === 'stock-return') {
     firstImageUrl = 'https://images.unsplash.com/photo-1621264437251-59d700cfb327?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxNnx8U3RvY2slMjBSZXR1cm4lMjB8ZW58MHx8fHwxNzQ5NDg3OTA1fDA&ixlib=rb-4.1.0&q=80&w=1080';
-    firstImageHint = 'stock';
-    secondImageUrl = 'https://images.unsplash.com/photo-1559067096-49ebca3406aa?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxpbnZlc3RtZW50fGVufDB8fHx8MTc0OTQ4NzkzMnww&ixlib=rb-4.1.0&q=80&w=1080';
-    secondImageHint = 'return';
+    firstImageHint = 'stock return';
   } else if (calculator.id === 'dividend-yield') {
     firstImageUrl = 'https://images.unsplash.com/photo-1723587693188-52754b315b50?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHxEaXZpZGVuZCUyMHxlbnwwfHx8fDE3NDk0ODkzNjh8MA&ixlib=rb-4.1.0&q=80&w=1080';
-    firstImageHint = 'dividend';
-    secondImageUrl = 'https://images.unsplash.com/photo-1579532537598-459ecdaf39cc?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxzaGFyZXN8ZW58MHx8fHwxNzQ5NDg5NjU5fDA&ixlib=rb-4.1.0&q=80&w=1080';
-    secondImageHint = 'shares';
+    firstImageHint = 'dividend income';
   } else if (calculator.id === 'risk-reward-ratio') {
     firstImageUrl = 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHxyaXNrfGVufDB8fHx8MTc0OTQ5MDEyOHww&ixlib=rb-4.1.0&q=80&w=1080';
-    firstImageHint = 'risk analysis';
-    secondImageHint = hints.hint2 !== 'risk' && hints.hint2 !== 'analysis' ? hints.hint2 : 'strategy';
+    firstImageHint = 'risk reward';
   } else if (calculator.id === 'volatility') {
     firstImageUrl = 'https://images.unsplash.com/photo-1625351814208-155cfe221d12?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHx2b2xhdGlsaXR5fGVufDB8fHx8MTc0OTQ5MTAxOHww&ixlib=rb-4.1.0&q=80&w=1080';
-    firstImageHint = 'market chart';
-    secondImageHint = hints.hint2 !== 'market' && hints.hint2 !== 'chart' ? hints.hint2 : 'analysis';
+    firstImageHint = 'market volatility';
   } else if (calculator.id === 'bitcoin-roi') {
     firstImageUrl = 'https://images.unsplash.com/photo-1543699539-33a389c5dcfe?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxiaXRjb2lufGVufDB8fHx8MTc0OTQ1ODU1OXww&ixlib=rb-4.1.0&q=80&w=1080';
-    firstImageHint = 'bitcoin currency';
-    secondImageHint = hints.hint2; 
+    firstImageHint = 'bitcoin profit';
   } else if (calculator.id === 'portfolio-allocation') {
     firstImageUrl = 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxwb3J0Zm9saW8lMjBhbGxvY2F0aW9ufGVufDB8fHx8MTc0OTQ5MzQzNnww&ixlib=rb-4.1.0&q=80&w=1080';
-    firstImageHint = 'portfolio charts';
-    secondImageHint = hints.hint2;
+    firstImageHint = 'portfolio diversity';
   } else if (calculator.id === 'loan-vs-investment') {
     firstImageUrl = 'https://images.unsplash.com/photo-1560520653-9e0e4c89eb11?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxsb2FuJTIwdnMlMjBpbnZlc3RtZW50fGVufDB8fHx8MTc0OTQ5Mzk3Mnww&ixlib=rb-4.1.0&q=80&w=1080';
-    firstImageHint = 'decision making';
-    secondImageHint = hints.hint2;
+    firstImageHint = 'financial decision';
   } else if (calculator.id === 'real-estate-roi') {
     firstImageUrl = 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxyZWFsJTIwZXN0YXRlfGVufDB8fHx8MTc0OTQ5NDE5Nnww&ixlib=rb-4.1.0&q=80&w=1080';
-    firstImageHint = 'property investment';
-    secondImageHint = hints.hint2;
+    firstImageHint = 'property income';
   } else if (calculator.id === 'goal-planning') {
     firstImageUrl = 'https://images.unsplash.com/photo-1629721671030-a83edbb11211?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxnb2FsfGVufDB8fHx8MTc0OTU0MTg5M3ww&ixlib=rb-4.1.0&q=80&w=1080';
-    firstImageHint = 'target goal';
-    secondImageHint = hints.hint2;
+    firstImageHint = 'financial goals';
   } else if (calculator.id === 'time-value-of-money') {
     firstImageUrl = 'https://images.unsplash.com/photo-1533749047139-189de3cf06d3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHx0aW1lJTIwdmFsdWUlMjBtb25leXxlbnwwfHx8fDE3NDk1MzgyMjd8MA&ixlib=rb-4.1.0&q=80&w=1080';
-    firstImageHint = 'time money';
-    secondImageHint = hints.hint2;
+    firstImageHint = 'money time';
   } else if (calculator.id === 'sip-calculator') {
     firstImageUrl = 'https://images.unsplash.com/photo-1564939558297-fc396f18e5c7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHxjYWxjdWxhdG9yfGVufDB8fHx8MTc0OTYxMzA3MHww&ixlib=rb-4.1.0&q=80&w=1080';
-    firstImageHint = 'sip';
-    secondImageHint = hints.hint2;
+    firstImageHint = 'investment growth';
   } else if (calculator.id === 'sip-vs-lumpsum') {
     firstImageUrl = 'https://images.unsplash.com/photo-1700660669295-800088946f53?w=600&auto=format&fit=crop&q=75';
-    firstImageHint = 'remote control';
-    secondImageUrl = 'https://placehold.co/600x300.png';
-    secondImageHint = hints.hint2 !== 'remote' && hints.hint2 !== 'control' ? hints.hint2 : 'investment comparison';
+    firstImageHint = 'investment choice';
   } else if (calculator.id === 'swp-calculator') {
     firstImageUrl = 'https://images.unsplash.com/photo-1513159446162-54eb8bdaa79b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxvbGQlMjB8ZW58MHx8fHwxNzQ5NjEzMjA3fDA&ixlib=rb-4.1.0&q=80&w=1080';
-    firstImageHint = 'swp';
-    secondImageHint = hints.hint2;
+    firstImageHint = 'retirement planning';
   } else if (calculator.id === 'currency-converter') {
     firstImageUrl = 'https://images.unsplash.com/photo-1583574928108-53be39420a8d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8ZG9sbGFyfGVufDB8fHx8MTc0OTYxMjY5M3ww&ixlib=rb-4.1.0&q=80&w=1080';
-    firstImageHint = 'currency';
-    secondImageHint = hints.hint2;
+    firstImageHint = 'currency exchange';
   } else if (calculator.id === 'annuity-calculator') {
     firstImageUrl = 'https://images.unsplash.com/photo-1604594849809-dfedbc827105?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxhbm51aXR5fGVufDB8fHx8MTc0OTYxODc1MXww&ixlib=rb-4.1.0&q=80&w=1080';
-    firstImageHint = 'annuity';
-    secondImageHint = hints.hint2;
+    firstImageHint = 'annuity income';
   } else if (calculator.category === 'Crypto') {
     firstImageUrl = 'https://images.unsplash.com/photo-1526378800651-c32d170fe6f8?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxibG9ja2NoYWlufGVufDB8fHx8MTc0OTQ5MTQ1MHww&ixlib=rb-4.1.0&q=80&w=1080';
-    firstImageHint = 'blockchain technology';
-    secondImageHint = hints.hint2;
+    firstImageHint = 'blockchain tech';
   }
   else {
-    firstImageHint = hints.hint1;
-    secondImageHint = hints.hint2;
+    firstImageHint = hints.hint1; // Use the better hint from the refined function
   }
   
   return {
@@ -149,7 +177,7 @@ const calculatorBlogPosts: BlogPostEntry[] = CALCULATORS_DATA.map((calculator: C
     excerpt: `Explore the ${calculator.name}: understand its calculations, benefits, and how to use it effectively for your financial planning.`,
     images: [
       { imageUrl: firstImageUrl, dataAiHint: firstImageHint },
-      { imageUrl: secondImageUrl, dataAiHint: secondImageHint } 
+      // Second image hint for calculator guides will use hints.hint2 if a second image is ever shown on the card
     ],
     date: 'November 15, 2023', // Generic recent date
     category: calculator.category,
