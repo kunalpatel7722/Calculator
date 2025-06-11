@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -9,6 +10,9 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { CurrencyToggle, AVAILABLE_CURRENCIES, type Currency } from '@/components/shared/CurrencyToggle';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, TooltipProps, Cell } from 'recharts';
+import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
+import type { TooltipPayload } from 'recharts';
 
 const formSchema = z.object({
   portfolioValue: z.coerce.number().min(1, "Portfolio value must be greater than 0"),
@@ -17,10 +21,17 @@ const formSchema = z.object({
 });
 type FormData = z.infer<typeof formSchema>;
 
+interface ChartDataPoint {
+  name: string;
+  value: number;
+  fill: string;
+}
+
 interface CalculationResult {
+  portfolioValue: number;
   valueAfterDrawdown: number;
   percentageNeededToRecover: number;
-  // yearsToRecover?: number; // Placeholder for more complex calculation
+  chartData: ChartDataPoint[];
 }
 
 export function BearMarketSurvivalCalculator() { 
@@ -32,15 +43,40 @@ export function BearMarketSurvivalCalculator() {
     defaultValues: { portfolioValue: 100000, potentialDrawdown: 30, recoveryRate: 7 },
   });
 
+  const chartConfig = {
+    portfolioValue: { label: `Initial Value (${currency.symbol})`, color: "hsl(var(--chart-1))" },
+    valueAfterDrawdown: { label: `Value After Drawdown (${currency.symbol})`, color: "hsl(var(--destructive))" },
+  } satisfies ChartConfig;
+
   const onSubmit: SubmitHandler<FormData> = (data) => {
     const drawdownDecimal = data.potentialDrawdown / 100;
     const valueAfterDrawdown = data.portfolioValue * (1 - drawdownDecimal);
-    const percentageNeededToRecover = (data.portfolioValue / valueAfterDrawdown - 1) * 100;
+    const percentageNeededToRecover = valueAfterDrawdown > 0 ? (data.portfolioValue / valueAfterDrawdown - 1) * 100 : (data.portfolioValue > 0 ? Infinity : 0);
     
+    const chartData: ChartDataPoint[] = [
+      { name: 'Initial Value', value: parseFloat(data.portfolioValue.toFixed(2)), fill: chartConfig.portfolioValue.color },
+      { name: 'Value After Drawdown', value: parseFloat(valueAfterDrawdown.toFixed(2)), fill: chartConfig.valueAfterDrawdown.color },
+    ];
+
     setResult({ 
+        portfolioValue: data.portfolioValue,
         valueAfterDrawdown: parseFloat(valueAfterDrawdown.toFixed(2)),
         percentageNeededToRecover: parseFloat(percentageNeededToRecover.toFixed(2)),
+        chartData,
     });
+  };
+
+  const CustomTooltip = ({ active, payload }: TooltipProps<number, string>) => {
+    if (active && payload && payload.length) {
+      const data = payload[0];
+      return (
+        <div className="p-2 text-sm bg-background/90 border border-border rounded-md shadow-lg">
+          <p className="font-bold mb-1" style={{ color: data.payload.fill }}>{data.name}</p>
+          <p>{`Value: ${currency.symbol}${data.value?.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`}</p>
+        </div>
+      );
+    }
+    return null;
   };
 
   return (
@@ -61,20 +97,17 @@ export function BearMarketSurvivalCalculator() {
             <Input id="potentialDrawdown" type="number" step="any" {...form.register('potentialDrawdown')} />
             {form.formState.errors.potentialDrawdown && <p className="text-sm text-destructive mt-1">{form.formState.errors.potentialDrawdown.message}</p>}
           </div>
-          {/* 
-          // Optional: Recovery Rate for time to recover - more complex
-          <div>
-            <Label htmlFor="recoveryRate">Assumed Annual Recovery Rate (%) (Optional)</Label>
-            <Input id="recoveryRate" type="number" step="any" {...form.register('recoveryRate')} />
-            {form.formState.errors.recoveryRate && <p className="text-sm text-destructive mt-1">{form.formState.errors.recoveryRate.message}</p>}
-          </div>
-          */}
           <div>
             <Label htmlFor="currency-toggle">Currency</Label>
             <CurrencyToggle
               id="currency-toggle"
               selectedCurrency={currency}
-              onCurrencyChange={setCurrency}
+              onCurrencyChange={(newCurrency) => {
+                setCurrency(newCurrency);
+                if (form.formState.isSubmitted && result) {
+                   onSubmit(form.getValues());
+                }
+              }}
             />
           </div>
         </CardContent>
@@ -86,8 +119,37 @@ export function BearMarketSurvivalCalculator() {
       {result && (
         <div className="p-6 border-t">
           <h3 className="text-xl font-semibold mb-4 font-headline">Results</h3>
-          <p><strong>Portfolio Value After {form.getValues("potentialDrawdown")}% Drawdown:</strong> {currency.symbol}{result.valueAfterDrawdown.toLocaleString()}</p>
-          <p><strong>Percentage Gain Needed to Recover to Original Value:</strong> {result.percentageNeededToRecover.toLocaleString()}%</p>
+          <p><strong>Portfolio Value After {form.getValues("potentialDrawdown")}% Drawdown:</strong> {currency.symbol}{result.valueAfterDrawdown.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+          <p className="mb-6"><strong>Percentage Gain Needed to Recover to Original Value:</strong> {isFinite(result.percentageNeededToRecover) ? result.percentageNeededToRecover.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + '%' : 'N/A (Value is zero)'}</p>
+       
+          {result.chartData && result.chartData.length > 0 && (
+            <div className="my-8">
+              <h4 className="text-lg font-semibold mb-2 text-center font-headline">Portfolio Value Comparison</h4>
+              <div className="h-80 md:h-96">
+                <ChartContainer config={chartConfig} className="w-full h-full">
+                  <BarChart accessibilityLayer data={result.chartData} margin={{ top: 5, right: 20, left: 20, bottom: 5 }}>
+                    <CartesianGrid vertical={false} strokeDasharray="3 3" />
+                    <XAxis dataKey="name" tickLine={false} axisLine={false} tickMargin={8} />
+                    <YAxis 
+                      tickLine={false} 
+                      axisLine={false} 
+                      tickMargin={8}
+                      tickFormatter={(value) => `${currency.symbol}${value.toLocaleString()}`}
+                    />
+                    <ChartTooltip 
+                      content={<CustomTooltip />} 
+                      cursorStyle={{ fill: "hsl(var(--muted))", opacity: 0.5 }}
+                    />
+                    <Bar dataKey="value" radius={4} barSize={40}>
+                      {result.chartData.map((entry) => (
+                        <Cell key={`cell-${entry.name}`} fill={entry.fill} />
+                      ))}
+                    </Bar>
+                  </BarChart>
+                </ChartContainer>
+              </div>
+            </div>
+          )}
         </div>
       )}
     </Card>
