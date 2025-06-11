@@ -1,13 +1,15 @@
+
 'use client';
 
 import { useState } from 'react';
-import { useForm, type SubmitHandler } from 'react-hook-form';
+import { useForm, type SubmitHandler, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Slider } from "@/components/ui/slider";
 import { CurrencyToggle, AVAILABLE_CURRENCIES, type Currency } from '@/components/shared/CurrencyToggle';
 
 const formSchema = z.object({
@@ -44,12 +46,44 @@ export function RiskRewardRatioCalculator() {
         <CardContent className="space-y-6">
           <div>
             <Label htmlFor="potentialProfit">Potential Profit ({currency.symbol})</Label>
-            <Input id="potentialProfit" type="number" step="any" {...form.register('potentialProfit')} />
+            <div className="flex items-center gap-4 mt-1">
+              <Input id="potentialProfit" type="number" step="any" {...form.register('potentialProfit')} className="w-[120px]" />
+              <Controller
+                name="potentialProfit"
+                control={form.control}
+                render={({ field }) => (
+                  <Slider
+                    min={0.01}
+                    max={10000} 
+                    step={1}
+                    value={[field.value ?? 0.01]}
+                    onValueChange={(value) => field.onChange(value[0])}
+                    className="flex-1"
+                  />
+                )}
+              />
+            </div>
             {form.formState.errors.potentialProfit && <p className="text-sm text-destructive mt-1">{form.formState.errors.potentialProfit.message}</p>}
           </div>
           <div>
             <Label htmlFor="potentialLoss">Potential Loss (Risk) ({currency.symbol})</Label>
-            <Input id="potentialLoss" type="number" step="any" {...form.register('potentialLoss')} />
+            <div className="flex items-center gap-4 mt-1">
+              <Input id="potentialLoss" type="number" step="any" {...form.register('potentialLoss')} className="w-[120px]" />
+              <Controller
+                name="potentialLoss"
+                control={form.control}
+                render={({ field }) => (
+                  <Slider
+                    min={0.01}
+                    max={10000}
+                    step={1}
+                    value={[field.value ?? 0.01]}
+                    onValueChange={(value) => field.onChange(value[0])}
+                    className="flex-1"
+                  />
+                )}
+              />
+            </div>
             {form.formState.errors.potentialLoss && <p className="text-sm text-destructive mt-1">{form.formState.errors.potentialLoss.message}</p>}
           </div>
           <div>
