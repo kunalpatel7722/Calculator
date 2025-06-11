@@ -12,9 +12,9 @@ const featuredCalculators = CALCULATORS_DATA.filter(calc => ['compound-interest'
 
 // Placeholder blog posts
 const latestBlogPosts = [
-  { id: '1', title: 'Understanding Compound Interest for Long-Term Growth', excerpt: 'Learn how the power of compounding can significantly boost your investments over time.', imageUrl: 'https://placehold.co/600x400.png', path: '/blog/understanding-compound-interest', dataAiHint: 'finance growth' },
-  { id: '2', title: 'Beginner\'s Guide to Bitcoin ROI Calculation', excerpt: 'Demystifying Bitcoin investments and how to calculate potential returns and risks.', imageUrl: 'https://placehold.co/600x400.png', path: '/blog/beginners-guide-bitcoin-roi', dataAiHint: 'crypto currency' },
-  { id: '3', title: 'Maximizing Your SIP Investments with AI Insights', excerpt: 'Discover strategies to optimize your Systematic Investment Plans using AI-driven analytics.', imageUrl: 'https://placehold.co/600x400.png', path: '/blog/maximizing-sip-investments', dataAiHint: 'investment strategy' },
+  { id: '1', title: 'Understanding Compound Interest for Long-Term Growth', excerpt: 'Learn how the power of compounding can significantly boost your investments over time.', imageUrl: 'https://images.unsplash.com/photo-1589556763333-ad818080f39e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxNXx8Y29tcG91bmQlMjBpbnRlcmVzdHxlbnwwfHx8fDE3NDk0ODY4MzZ8MA&ixlib=rb-4.1.0&q=80&w=1080', path: '/blog/understanding-compound-interest', dataAiHint: 'finance growth' },
+  { id: '2', title: 'Beginner\'s Guide to Bitcoin ROI Calculation', excerpt: 'Demystifying Bitcoin investments and how to calculate potential returns and risks.', imageUrl: 'https://images.unsplash.com/photo-1641197861542-83e511654ac0?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxiaXRjb2luJTIwcm9pfGVufDB8fHx8MTc0OTQ5MTE2OXww&ixlib=rb-4.1.0&q=80&w=1080', path: '/blog/beginners-guide-bitcoin-roi', dataAiHint: 'crypto currency' },
+  { id: '3', title: 'Maximizing Your SIP Investments with AI Insights', excerpt: 'Discover strategies to optimize your Systematic Investment Plans using AI-driven analytics.', imageUrl: 'https://images.unsplash.com/photo-1560520653-9e0e4c89eb11?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxpbnZlc3RtZW50JTIwc2NyYWJibGUgdGV4dHxlbnwwfHx8fDE3NTAxNjIxNzJ8MA&ixlib=rb-4.0.3&q=80&w=1080', path: '/blog/maximizing-sip-investments', dataAiHint: 'investment strategy' },
 ];
 
 // Placeholder testimonials
@@ -77,7 +77,7 @@ export default function HomePage() {
             </div>
             <div className="flex flex-col items-center p-6">
               <Bot className="h-12 w-12 text-accent mb-4" />
-              <h3 className="text-xl font-semibold mb-2 font-headline text-foreground">AI-Powered Insights</h3>
+              <h3 className="text-xl font-semibold mb-2 font-headline text-foreground">AI-Powered</h3>
               <p className="text-muted-foreground">Leverage AI for content, email validation, and chatbot assistance.</p>
             </div>
             <div className="flex flex-col items-center p-6">
