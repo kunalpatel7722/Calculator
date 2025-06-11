@@ -33,6 +33,7 @@ import { AnnuityCalculator } from '@/app/calculators/_components/AnnuityCalculat
 import { BearMarketSurvivalCalculator } from '@/app/calculators/_components/BearMarketSurvivalCalculator';
 import { GlobalAllocationCalculator } from '@/app/calculators/_components/GlobalAllocationCalculator';
 import { MarketTimingCostCalculator } from '@/app/calculators/_components/MarketTimingCostCalculator';
+import { CurrencyConverterCalculator } from '@/app/calculators/_components/CurrencyConverterCalculator';
 
 
 export async function generateStaticParams() {
@@ -71,6 +72,7 @@ const getCalculatorComponent = (slug: string) => {
     case 'bear-market-survival': return BearMarketSurvivalCalculator;
     case 'global-allocation': return GlobalAllocationCalculator;
     case 'market-timing-cost': return MarketTimingCostCalculator;
+    case 'currency-converter': return CurrencyConverterCalculator;
     default: return null;
   }
 };
@@ -228,4 +230,3 @@ export default async function CalculatorPage({ params }: CalculatorPageProps) {
     </div>
   );
 }
-
