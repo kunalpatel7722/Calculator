@@ -7,33 +7,54 @@ import Link from 'next/link';
 import { Construction } from 'lucide-react';
 import React, { Suspense } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
+import dynamic from 'next/dynamic';
 
-// Specific calculator components (client components)
-import { CompoundInterestCalculator } from '@/app/calculators/_components/CompoundInterestCalculator';
-import { StockReturnCalculator } from '@/app/calculators/_components/StockReturnCalculator';
-import { DividendYieldCalculator } from '@/app/calculators/_components/DividendYieldCalculator';
-import { RiskRewardRatioCalculator } from '@/app/calculators/_components/RiskRewardRatioCalculator';
-import { VolatilityCalculator } from '@/app/calculators/_components/VolatilityCalculator';
-import { BitcoinRoiCalculator } from '@/app/calculators/_components/BitcoinRoiCalculator';
-import { CryptoDcaCalculator } from '@/app/calculators/_components/CryptoDcaCalculator';
-import { BlockchainFeeCalculator } from '@/app/calculators/_components/BlockchainFeeCalculator';
-import { CryptoTaxCalculator } from '@/app/calculators/_components/CryptoTaxCalculator';
-import { IcoIdoRoiCalculator } from '@/app/calculators/_components/IcoIdoRoiCalculator';
-import { PortfolioAllocationCalculator } from '@/app/calculators/_components/PortfolioAllocationCalculator';
-import { LoanVsInvestmentCalculator } from '@/app/calculators/_components/LoanVsInvestmentCalculator';
-import { RealEstateRoiCalculator } from '@/app/calculators/_components/RealEstateRoiCalculator';
-import { GoalPlanningCalculator } from '@/app/calculators/_components/GoalPlanningCalculator';
-import { TimeValueOfMoneyCalculator } from '@/app/calculators/_components/TimeValueOfMoneyCalculator';
-import { SipCalculator } from '@/app/calculators/_components/SipCalculator';
-import { SipVsLumpsumCalculator } from '@/app/calculators/_components/SipVsLumpsumCalculator';
-import { SwpCalculator } from '@/app/calculators/_components/SwpCalculator';
-import { ElssTaxSavingCalculator } from '@/app/calculators/_components/ElssTaxSavingCalculator';
-import { RetirementCorpusCalculator } from '@/app/calculators/_components/RetirementCorpusCalculator';
-import { AnnuityCalculator } from '@/app/calculators/_components/AnnuityCalculator';
-import { BearMarketSurvivalCalculator } from '@/app/calculators/_components/BearMarketSurvivalCalculator';
-import { GlobalAllocationCalculator } from '@/app/calculators/_components/GlobalAllocationCalculator';
-import { MarketTimingCostCalculator } from '@/app/calculators/_components/MarketTimingCostCalculator';
-import { CurrencyConverterCalculator } from '@/app/calculators/_components/CurrencyConverterCalculator';
+// Loading skeleton for calculator components
+const CalculatorLoadingSkeleton = () => (
+  <Card className="shadow-lg">
+    <CardHeader><Skeleton className="h-8 w-3/4 mb-2" /><Skeleton className="h-4 w-1/2" /></CardHeader>
+    <CardContent className="space-y-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div><Skeleton className="h-4 w-1/3 mb-2" /><Skeleton className="h-10 w-full" /></div>
+        <div><Skeleton className="h-4 w-1/3 mb-2" /><Skeleton className="h-10 w-full" /></div>
+      </div>
+      <div><Skeleton className="h-4 w-1/3 mb-2" /><Skeleton className="h-10 w-full" /></div>
+      <div><Skeleton className="h-4 w-1/3 mb-2" /><Skeleton className="h-10 w-1/2" /></div>
+    </CardContent>
+    <CardFooter>
+      <Skeleton className="h-10 w-32" />
+    </CardFooter>
+  </Card>
+);
+
+// Dynamically import all calculator components
+const calculatorComponents: Record<string, React.ComponentType<any>> = {
+  'compound-interest': dynamic(() => import('@/app/calculators/_components/CompoundInterestCalculator').then(mod => mod.CompoundInterestCalculator), { loading: () => <CalculatorLoadingSkeleton /> }),
+  'stock-return': dynamic(() => import('@/app/calculators/_components/StockReturnCalculator').then(mod => mod.StockReturnCalculator), { loading: () => <CalculatorLoadingSkeleton /> }),
+  'dividend-yield': dynamic(() => import('@/app/calculators/_components/DividendYieldCalculator').then(mod => mod.DividendYieldCalculator), { loading: () => <CalculatorLoadingSkeleton /> }),
+  'risk-reward-ratio': dynamic(() => import('@/app/calculators/_components/RiskRewardRatioCalculator').then(mod => mod.RiskRewardRatioCalculator), { loading: () => <CalculatorLoadingSkeleton /> }),
+  'volatility': dynamic(() => import('@/app/calculators/_components/VolatilityCalculator').then(mod => mod.VolatilityCalculator), { loading: () => <CalculatorLoadingSkeleton /> }),
+  'bitcoin-roi': dynamic(() => import('@/app/calculators/_components/BitcoinRoiCalculator').then(mod => mod.BitcoinRoiCalculator), { loading: () => <CalculatorLoadingSkeleton /> }),
+  'crypto-dca': dynamic(() => import('@/app/calculators/_components/CryptoDcaCalculator').then(mod => mod.CryptoDcaCalculator), { loading: () => <CalculatorLoadingSkeleton /> }),
+  'blockchain-fee': dynamic(() => import('@/app/calculators/_components/BlockchainFeeCalculator').then(mod => mod.BlockchainFeeCalculator), { loading: () => <CalculatorLoadingSkeleton /> }),
+  'crypto-tax': dynamic(() => import('@/app/calculators/_components/CryptoTaxCalculator').then(mod => mod.CryptoTaxCalculator), { loading: () => <CalculatorLoadingSkeleton /> }),
+  'ico-ido-roi': dynamic(() => import('@/app/calculators/_components/IcoIdoRoiCalculator').then(mod => mod.IcoIdoRoiCalculator), { loading: () => <CalculatorLoadingSkeleton /> }),
+  'portfolio-allocation': dynamic(() => import('@/app/calculators/_components/PortfolioAllocationCalculator').then(mod => mod.PortfolioAllocationCalculator), { loading: () => <CalculatorLoadingSkeleton /> }),
+  'loan-vs-investment': dynamic(() => import('@/app/calculators/_components/LoanVsInvestmentCalculator').then(mod => mod.LoanVsInvestmentCalculator), { loading: () => <CalculatorLoadingSkeleton /> }),
+  'real-estate-roi': dynamic(() => import('@/app/calculators/_components/RealEstateRoiCalculator').then(mod => mod.RealEstateRoiCalculator), { loading: () => <CalculatorLoadingSkeleton /> }),
+  'goal-planning': dynamic(() => import('@/app/calculators/_components/GoalPlanningCalculator').then(mod => mod.GoalPlanningCalculator), { loading: () => <CalculatorLoadingSkeleton /> }),
+  'time-value-of-money': dynamic(() => import('@/app/calculators/_components/TimeValueOfMoneyCalculator').then(mod => mod.TimeValueOfMoneyCalculator), { loading: () => <CalculatorLoadingSkeleton /> }),
+  'sip-calculator': dynamic(() => import('@/app/calculators/_components/SipCalculator').then(mod => mod.SipCalculator), { loading: () => <CalculatorLoadingSkeleton /> }),
+  'sip-vs-lumpsum': dynamic(() => import('@/app/calculators/_components/SipVsLumpsumCalculator').then(mod => mod.SipVsLumpsumCalculator), { loading: () => <CalculatorLoadingSkeleton /> }),
+  'swp-calculator': dynamic(() => import('@/app/calculators/_components/SwpCalculator').then(mod => mod.SwpCalculator), { loading: () => <CalculatorLoadingSkeleton /> }),
+  'elss-tax-saving': dynamic(() => import('@/app/calculators/_components/ElssTaxSavingCalculator').then(mod => mod.ElssTaxSavingCalculator), { loading: () => <CalculatorLoadingSkeleton /> }),
+  'retirement-corpus': dynamic(() => import('@/app/calculators/_components/RetirementCorpusCalculator').then(mod => mod.RetirementCorpusCalculator), { loading: () => <CalculatorLoadingSkeleton /> }),
+  'annuity-calculator': dynamic(() => import('@/app/calculators/_components/AnnuityCalculator').then(mod => mod.AnnuityCalculator), { loading: () => <CalculatorLoadingSkeleton /> }),
+  'bear-market-survival': dynamic(() => import('@/app/calculators/_components/BearMarketSurvivalCalculator').then(mod => mod.BearMarketSurvivalCalculator), { loading: () => <CalculatorLoadingSkeleton /> }),
+  'global-allocation': dynamic(() => import('@/app/calculators/_components/GlobalAllocationCalculator').then(mod => mod.GlobalAllocationCalculator), { loading: () => <CalculatorLoadingSkeleton /> }),
+  'market-timing-cost': dynamic(() => import('@/app/calculators/_components/MarketTimingCostCalculator').then(mod => mod.MarketTimingCostCalculator), { loading: () => <CalculatorLoadingSkeleton /> }),
+  'currency-converter': dynamic(() => import('@/app/calculators/_components/CurrencyConverterCalculator').then(mod => mod.CurrencyConverterCalculator), { loading: () => <CalculatorLoadingSkeleton /> }),
+};
 
 
 export async function generateStaticParams() {
@@ -47,41 +68,12 @@ interface CalculatorPageProps {
 }
 
 const getCalculatorComponent = (slug: string) => {
-  switch (slug) {
-    case 'compound-interest': return CompoundInterestCalculator;
-    case 'stock-return': return StockReturnCalculator;
-    case 'dividend-yield': return DividendYieldCalculator;
-    case 'risk-reward-ratio': return RiskRewardRatioCalculator;
-    case 'volatility': return VolatilityCalculator;
-    case 'bitcoin-roi': return BitcoinRoiCalculator;
-    case 'crypto-dca': return CryptoDcaCalculator;
-    case 'blockchain-fee': return BlockchainFeeCalculator;
-    case 'crypto-tax': return CryptoTaxCalculator;
-    case 'ico-ido-roi': return IcoIdoRoiCalculator;
-    case 'portfolio-allocation': return PortfolioAllocationCalculator;
-    case 'loan-vs-investment': return LoanVsInvestmentCalculator;
-    case 'real-estate-roi': return RealEstateRoiCalculator;
-    case 'goal-planning': return GoalPlanningCalculator;
-    case 'time-value-of-money': return TimeValueOfMoneyCalculator;
-    case 'sip-calculator': return SipCalculator;
-    case 'sip-vs-lumpsum': return SipVsLumpsumCalculator;
-    case 'swp-calculator': return SwpCalculator;
-    case 'elss-tax-saving': return ElssTaxSavingCalculator;
-    case 'retirement-corpus': return RetirementCorpusCalculator;
-    case 'annuity-calculator': return AnnuityCalculator;
-    case 'bear-market-survival': return BearMarketSurvivalCalculator;
-    case 'global-allocation': return GlobalAllocationCalculator;
-    case 'market-timing-cost': return MarketTimingCostCalculator;
-    case 'currency-converter': return CurrencyConverterCalculator;
-    default: return null;
-  }
+  return calculatorComponents[slug] || null;
 };
 
 async function SeoAsideContent({ calculatorInfo, isCalculatorImplemented }: { calculatorInfo: CalculatorFeature, isCalculatorImplemented: boolean }) {
   let seoContent = { title: calculatorInfo.name, content: calculatorInfo.description };
   if (isCalculatorImplemented) {
-    // const contentGenLabel = `AI_CALCULATOR_SEO_GENERATION_FOR_SLUG_${calculatorInfo.id}`;
-    // console.time(contentGenLabel); // Removed to prevent dev warnings
     try {
       seoContent = await generateSeoContent({
         calculatorName: calculatorInfo.name,
@@ -115,8 +107,6 @@ async function SeoAsideContent({ calculatorInfo, isCalculatorImplemented }: { ca
       }
       seoContent.title = calculatorInfo.name;
       seoContent.content = `Learn more about the ${calculatorInfo.name}. ${calculatorInfo.description}`;
-    } finally {
-      // console.timeEnd(contentGenLabel); // Removed to prevent dev warnings
     }
   }
 
@@ -230,3 +220,5 @@ export default async function CalculatorPage({ params }: CalculatorPageProps) {
     </div>
   );
 }
+
+    
