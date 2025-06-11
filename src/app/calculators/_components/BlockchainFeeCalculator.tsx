@@ -11,6 +11,9 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { CurrencyToggle, AVAILABLE_CURRENCIES, type Currency } from '@/components/shared/CurrencyToggle';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, TooltipProps, Cell } from 'recharts';
+import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
+import type { TooltipPayload } from 'recharts';
 
 const formSchema = z.object({
   gasUnits: z.coerce.number().min(1, "Gas units must be at least 1"),
@@ -19,9 +22,18 @@ const formSchema = z.object({
 });
 type FormData = z.infer<typeof formSchema>;
 
+interface ChartDataPoint {
+  name: string;
+  value: number;
+  fill: string;
+}
+
 interface CalculationResult {
   estimatedFee: number; // In native currency of the network (e.g., ETH, BTC)
   estimatedFeeFiat: number; // In selected display currency
+  networkUsed: FormData['network'];
+  chartData: ChartDataPoint[];
+  chartConfig: ChartConfig;
 }
 
 // Placeholder conversion rates (network native token to USD)
@@ -33,7 +45,7 @@ const NETWORK_TO_USD_RATES: Record<string, number> = {
 };
 const NETWORK_CURRENCY_SYMBOL: Record<string, string> = {
   ethereum: 'ETH',
-  bitcoin: 'BTC', 
+  bitcoin: 'BTC',
   polygon: 'MATIC',
   solana: 'SOL',
 };
@@ -53,7 +65,7 @@ const USD_TO_SELECTED_FIAT_RATES: Record<string, number> = {
 };
 
 
-export function BlockchainFeeCalculator() { 
+export function BlockchainFeeCalculator() {
   const [result, setResult] = useState<CalculationResult | null>(null);
   const [currency, setCurrency] = useState<Currency>(AVAILABLE_CURRENCIES.find(c => c.value === 'USD') || AVAILABLE_CURRENCIES[0]);
 
@@ -73,19 +85,50 @@ export function BlockchainFeeCalculator() {
     } else { // Bitcoin placeholder
       feeInNativeToken = (data.gasUnits * data.gasPrice) / 100_000_000; // Assuming gasUnits = vBytes, gasPrice = satoshis/vByte
     }
-    
+
     const nativeToUsdRate = NETWORK_TO_USD_RATES[data.network] || 1;
     const estimatedFeeInUsd = feeInNativeToken * nativeToUsdRate;
 
-    // Convert USD to selected display currency using more structured placeholder rates
-    const usdToSelectedRate = USD_TO_SELECTED_FIAT_RATES[currency.value] || USD_TO_SELECTED_FIAT_RATES['USD']; // Fallback to USD if rate not found
+    const usdToSelectedRate = USD_TO_SELECTED_FIAT_RATES[currency.value] || USD_TO_SELECTED_FIAT_RATES['USD'];
     const estimatedFeeFiat = estimatedFeeInUsd * usdToSelectedRate;
 
-    setResult({ 
+    const currentChartConfig: ChartConfig = {
+      nativeFee: { label: `Fee (${NETWORK_CURRENCY_SYMBOL[data.network]})`, color: "hsl(var(--chart-1))" },
+      fiatFee: { label: `Fee (${currency.symbol})`, color: "hsl(var(--chart-2))" },
+    };
+
+    const chartData: ChartDataPoint[] = [
+      { name: `Fee (${NETWORK_CURRENCY_SYMBOL[data.network]})`, value: parseFloat(feeInNativeToken.toFixed(8)), fill: currentChartConfig.nativeFee.color as string },
+      { name: `Fee (${currency.symbol})`, value: parseFloat(estimatedFeeFiat.toFixed(2)), fill: currentChartConfig.fiatFee.color as string },
+    ];
+
+    setResult({
         estimatedFee: parseFloat(feeInNativeToken.toFixed(8)),
         estimatedFeeFiat: parseFloat(estimatedFeeFiat.toFixed(2)),
+        networkUsed: data.network,
+        chartData,
+        chartConfig: currentChartConfig,
     });
   };
+
+  const CustomTooltip = ({ active, payload }: TooltipProps<number, string>) => {
+    if (active && payload && payload.length) {
+      const data = payload[0];
+      const value = data.value as number;
+      // Determine if it's the native token or fiat for formatting
+      const isNative = data.name?.includes(NETWORK_CURRENCY_SYMBOL[result?.networkUsed || 'ethereum']);
+      const decimalPlaces = isNative ? 8 : 2;
+      
+      return (
+        <div className="p-2 text-sm bg-background/90 border border-border rounded-md shadow-lg">
+          <p className="font-bold mb-1" style={{ color: data.payload.fill }}>{data.name}</p>
+          <p>{`Value: ${value.toLocaleString(undefined, {minimumFractionDigits: decimalPlaces, maximumFractionDigits: decimalPlaces})}`}</p>
+        </div>
+      );
+    }
+    return null;
+  };
+
 
   return (
     <Card className="shadow-lg">
@@ -122,7 +165,13 @@ export function BlockchainFeeCalculator() {
             <CurrencyToggle
               id="currency-toggle"
               selectedCurrency={currency}
-              onCurrencyChange={setCurrency}
+              onCurrencyChange={(newCurrency) => {
+                setCurrency(newCurrency);
+                if (form.formState.isSubmitted && result) {
+                  // Re-calculate if form has values and result exists to update currency symbol
+                  onSubmit(form.getValues());
+                }
+              }}
             />
           </div>
         </CardContent>
@@ -131,11 +180,37 @@ export function BlockchainFeeCalculator() {
         </CardFooter>
       </form>
 
-      {result && (
+      {result && result.chartData && result.chartConfig && (
         <div className="p-6 border-t">
           <h3 className="text-xl font-semibold mb-4 font-headline">Results (Simplified Estimate)</h3>
-          <p><strong>Estimated Fee (Native Token):</strong> {result.estimatedFee.toLocaleString()} {NETWORK_CURRENCY_SYMBOL[form.getValues("network")]}</p>
-          <p><strong>Estimated Fee (Fiat):</strong> {currency.symbol}{result.estimatedFeeFiat.toLocaleString()}</p>
+          <p><strong>Estimated Fee (Native Token):</strong> {result.estimatedFee.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 8})} {NETWORK_CURRENCY_SYMBOL[result.networkUsed]}</p>
+          <p className="mb-6"><strong>Estimated Fee (Fiat):</strong> {currency.symbol}{result.estimatedFeeFiat.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</p>
+
+          {result.chartData.length > 0 && (
+             <div className="my-8">
+              <h4 className="text-lg font-semibold mb-2 text-center font-headline">Fee Comparison</h4>
+              <div className="h-80 md:h-96">
+                <ChartContainer config={result.chartConfig} className="w-full h-full">
+                  <BarChart accessibilityLayer data={result.chartData} layout="vertical" margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                    <CartesianGrid horizontal={false} strokeDasharray="3 3" />
+                    <XAxis type="number" 
+                      tickFormatter={(value) => `${value.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits:2})}`}
+                    />
+                    <YAxis dataKey="name" type="category" tickLine={false} axisLine={false} tickMargin={8} width={100} />
+                    <ChartTooltip
+                      content={<CustomTooltip />}
+                      cursorStyle={{ fill: "hsl(var(--muted))", opacity: 0.5 }}
+                    />
+                    <Bar dataKey="value" radius={4} barSize={35}>
+                      {result.chartData.map((entry) => (
+                        <Cell key={`cell-${entry.name}`} fill={entry.fill} />
+                      ))}
+                    </Bar>
+                  </BarChart>
+                </ChartContainer>
+              </div>
+            </div>
+          )}
         </div>
       )}
     </Card>
