@@ -15,13 +15,27 @@ const firebaseConfig = {
   measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
 };
 
-// Initialize Firebase
-let app: FirebaseApp;
+let app: FirebaseApp | undefined;
 
-if (!getApps().length) {
-  app = initializeApp(firebaseConfig);
+const apiKey = process.env.NEXT_PUBLIC_FIREBASE_API_KEY;
+const projectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
+
+if (!apiKey || apiKey === "YOUR_API_KEY" || !projectId || projectId === "YOUR_PROJECT_ID") {
+  console.warn(
+    "Firebase API Key or Project ID is missing or using placeholder values in environment variables. " +
+    "Firebase will not be initialized. Please update your .env file with your actual Firebase project credentials."
+  );
 } else {
-  app = getApps()[0];
+  try {
+    if (!getApps().length) {
+      app = initializeApp(firebaseConfig);
+    } else {
+      app = getApps()[0];
+    }
+  } catch (error) {
+    console.error("Firebase initialization failed. This could be due to incorrect Firebase credentials in your .env file or other configuration issues.", error);
+    // app remains undefined
+  }
 }
 
 export { app };
