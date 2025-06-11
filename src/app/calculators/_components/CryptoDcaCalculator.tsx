@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -28,7 +29,7 @@ interface AnnualDcaDataPoint {
   year: number;
   totalInvested: number; // Cumulative amount invested
   totalCryptoAcquired: number; // Cumulative crypto acquired
-  portfolioValue: number; // Value of acquired crypto at year end, considering growth
+  portfolioValue: number; // Market value of acquired crypto at year end, considering growth
 }
 
 interface CalculationResult {
@@ -55,49 +56,43 @@ export function CryptoDcaCalculator() {
     if (investmentFrequency === 'quarterly') periodsPerYear = 4;
     if (investmentFrequency === 'annually') periodsPerYear = 1;
 
-    const totalNumberOfPeriods = investmentPeriodYears * periodsPerYear;
-    const periodicReturnRate = (expectedAnnualReturn || 0) / 100 / periodsPerYear;
+    const annualReturnRateDecimal = (expectedAnnualReturn || 0) / 100;
+    // Calculate effective periodic rate for asset growth if annual rate is provided
+    const periodicAssetGrowthRate = periodsPerYear > 0 && annualReturnRateDecimal > 0 
+      ? Math.pow(1 + annualReturnRateDecimal, 1 / periodsPerYear) - 1
+      : 0;
 
     const annualBreakdown: AnnualDcaDataPoint[] = [];
     let cumulativeInvested = 0;
     let cumulativeCrypto = 0;
-    let currentPortfolioValue = 0;
+    let portfolioMarketValue = 0; 
 
     for (let year = 1; year <= investmentPeriodYears; year++) {
-      let yearlyInvested = 0;
-      let cryptoThisYear = 0;
-      for (let period = 1; period <= periodsPerYear; period++) {
-        // Apply growth to existing portfolio before adding new investment
-        currentPortfolioValue *= (1 + periodicReturnRate);
-        
-        // Add new investment
-        cumulativeInvested += periodicInvestment;
-        yearlyInvested += periodicInvestment;
-        
-        const cryptoBoughtThisPeriod = periodicInvestment / averagePrice;
-        cumulativeCrypto += cryptoBoughtThisPeriod;
-        cryptoThisYear += cryptoBoughtThisPeriod;
+      for (let p = 1; p <= periodsPerYear; p++) {
+        // 1. Grow existing crypto holdings' market value for one period
+        portfolioMarketValue *= (1 + periodicAssetGrowthRate);
 
-        // Add value of newly bought crypto to portfolio
-        currentPortfolioValue += periodicInvestment; // Assuming investment directly adds to value at cost, then grows
+        // 2. Make new investment and acquire crypto
+        cumulativeInvested += periodicInvestment;
+        const cryptoBoughtThisPeriod = periodicInvestment / averagePrice; // Crypto bought at fixed 'averagePrice'
+        cumulativeCrypto += cryptoBoughtThisPeriod;
+
+        // 3. Add the cost value of newly bought crypto to portfolioMarketValue
+        // This newly bought crypto will start appreciating from the next period
+        portfolioMarketValue += cryptoBoughtThisPeriod * averagePrice;
       }
-      // If no growth, portfolio value is simply cumulative crypto * average price
-      // If there is growth, it has been applied periodically.
-      // For a more accurate reflection if growth is applied to the crypto units:
-      // currentPortfolioValue = cumulativeCrypto * averagePrice * Math.pow(1 + (expectedAnnualReturn || 0) / 100, year);
-      // However, the periodic growth application above is more standard for portfolio value.
 
       annualBreakdown.push({
         year,
-        totalInvested: cumulativeInvested,
-        totalCryptoAcquired: cumulativeCrypto,
-        portfolioValue: currentPortfolioValue,
+        totalInvested: parseFloat(cumulativeInvested.toFixed(2)),
+        totalCryptoAcquired: parseFloat(cumulativeCrypto.toFixed(8)),
+        portfolioValue: parseFloat(portfolioMarketValue.toFixed(2)),
       });
     }
     
     const finalTotalInvested = cumulativeInvested;
     const finalTotalCryptoAcquired = cumulativeCrypto;
-    const finalAverageCostPerUnit = finalTotalInvested / finalTotalCryptoAcquired;
+    const finalAverageCostPerUnit = finalTotalInvested > 0 && finalTotalCryptoAcquired > 0 ? finalTotalInvested / finalTotalCryptoAcquired : 0;
     const finalPortfolioValue = annualBreakdown.length > 0 ? annualBreakdown[annualBreakdown.length - 1].portfolioValue : 0;
 
     setResult({ 
@@ -175,13 +170,13 @@ export function CryptoDcaCalculator() {
               {form.formState.errors.investmentPeriodYears && <p className="text-sm text-destructive mt-1">{form.formState.errors.investmentPeriodYears.message}</p>}
             </div>
             <div>
-              <Label htmlFor="averagePrice">Estimated Average Crypto Price ({currency.symbol})</Label>
+              <Label htmlFor="averagePrice">Assumed Crypto Purchase Price ({currency.symbol})</Label>
               <Input id="averagePrice" type="number" step="any" {...form.register('averagePrice')} />
               {form.formState.errors.averagePrice && <p className="text-sm text-destructive mt-1">{form.formState.errors.averagePrice.message}</p>}
             </div>
           </div>
           <div>
-            <Label htmlFor="expectedAnnualReturn">Expected Annual Return on Investment (%) (Optional)</Label>
+            <Label htmlFor="expectedAnnualReturn">Expected Annual Crypto Return (%) (Optional)</Label>
             <Input id="expectedAnnualReturn" type="number" step="any" {...form.register('expectedAnnualReturn')} placeholder="e.g., 5 for 5%"/>
             {form.formState.errors.expectedAnnualReturn && <p className="text-sm text-destructive mt-1">{form.formState.errors.expectedAnnualReturn.message}</p>}
           </div>
@@ -234,7 +229,7 @@ export function CryptoDcaCalculator() {
                   <TableHead>Year</TableHead>
                   <TableHead>Total Invested</TableHead>
                   <TableHead>Total Crypto Acquired</TableHead>
-                  <TableHead className="text-right">Portfolio Value</TableHead>
+                  <TableHead className="text-right">Portfolio Market Value</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -249,9 +244,12 @@ export function CryptoDcaCalculator() {
               </TableBody>
             </Table>
           </div>
-           <p className="text-xs mt-2 text-muted-foreground">Note: Calculations assume a constant average crypto price for purchases and periodic compounding of returns on the portfolio value.</p>
+           <p className="text-xs mt-2 text-muted-foreground">Note: Assumes a constant crypto purchase price and periodic compounding of returns on the crypto's market value.</p>
         </div>
       )}
     </Card>
   );
 }
+
+
+    
